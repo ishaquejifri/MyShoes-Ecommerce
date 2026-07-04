@@ -1,0 +1,247 @@
+{% extends 'admin_base.html' %}
+{% block title %} Product List {% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap justify-between gap-3 p-4"> 
+ <p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Product Management</p>           
+            <a href="{% url 'products:add_product'%}">
+                <button
+                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#10b77f] text-[#11221c] text-sm font-bold leading-normal tracking-[0.015em]"
+                >
+                  <span class="truncate">Add New Product</span>
+                </button>
+              </a>
+             </div>
+                      {% if messages %}
+                    <div id="message-box" class="max-w-2xl mx-auto mt-4">
+                    {% for message in messages %}
+      
+                    {% if message.tags == 'success' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-green-100 text-green-700 border border-green-300">
+                    {{ message }}
+                  </div>
+
+                  {% elif message.tags == 'error' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-red-100 text-red-700 border border-red-300">
+                  {{ message }}
+                  </div>
+
+                  {% elif message.tags == 'warning' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-yellow-100 text-yellow-800 border border-yellow-300">
+                 {{ message }}
+                  </div>
+
+                {% endif %}
+
+                {% endfor %}
+                </div>
+                  {% endif %}
+
+            <div class="px-4 py-3">
+              <form method="GET">
+              <label class="flex min-w-40 h-12 w-full">
+              <div class="flex w-full items-stretch rounded-lg overflow-hidden h-full bg-[#273a32]">
+
+                <!-- Icon -->
+                <div class="text-[#9abcae] flex items-center justify-center pl-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+               <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32Z"></path>
+                </svg>
+               </div>
+
+            <!-- Input -->
+            <input
+             id="searchInput"
+               type="text"
+                name="q"
+               placeholder="Search products by name"
+             value="{{ query|default:'' }}"
+                class="flex-1 px-4 text-white bg-transparent outline-none"
+                />
+
+              <!-- Clear Button -->
+             <button
+              type="button"
+                id="clearBtn"
+              onclick="clearSearch()"
+                class="px-3 text-[#9abcae] hover:text-white"
+              >
+              ✕
+             </button>
+
+                <!-- Search Button -->
+              <button
+              type="submit"
+              class="px-4 bg-[#0ac275] text-black font-medium"
+              >
+              Search
+            </button>
+
+             </div>
+            </label>
+              </form>
+            </div>
+            <div class="px-4 py-3 @container">
+              <div class="flex overflow-hidden rounded-lg border border-[#326755] bg-[#11221c]">
+                <table class="flex-1">
+                  <thead>
+                    <tr class="bg-[#19332b]">
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-120 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Product ID</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-176 px-4 py-3 text-left text-white w-14 text-sm font-medium leading-normal">Image</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-296 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">
+                        Product Name
+                      </th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-416 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Category</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-536 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Price</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-656 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Stock Level</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-776 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Status</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-776 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Listing</th>
+                      <th class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-896 px-4 py-3 text-left text-white w-60 text-[#92c9b7] text-sm font-medium leading-normal">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for product in page_obj %}
+                    <tr class="border-t border-t-[#326755]">
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-120 h-[72px] px-4 py-2 w-[400px] text-white text-sm font-normal leading-normal">{{ product.id }}</td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-176 h-[72px] px-4 py-2 w-14 text-sm font-normal leading-normal">
+                        {% if product.image %}
+                        <div
+                          class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10"
+                          style="background-image: url('{{ product.image.url }}');"
+                        ></div>
+                        {% else %}
+                        <div class="w-10 h-10 rounded-full bg-gray-500"></div>
+                        {% endif %}
+                      </td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-296 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">
+                        {{ product.product_name }}
+                      </td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-416 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">{{ product.category.name}}</td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-536 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">{{ product.base_price }}</td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-656 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">{% if product.total_stock > 0 %}
+                        {{ product.total_stock }} 
+                        {% else %}
+                        <span class="text-danger">Out of Stock</span>
+                        {% endif %}</td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-776 h-[72px] px-4 py-2 w-60 text-sm font-normal leading-normal">
+                    {% if product.total_stock > 0 %}
+                    <button
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-green-600 text-white text-sm font-medium leading-normal w-full"
+                    >
+                      <span class="truncate">In Stock</span>
+                    </button>
+                    {% else %}
+                    <button
+                      class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-red-600 text-white text-sm font-medium leading-normal w-full"
+                    >
+                      <span class="truncate">Out of Stock</span>
+                    </button>
+                    {% endif %}
+                  </td>
+                      <td>
+                        {% if product.is_listed %}
+                            <span class="bg-green-600 px-2 py-1 rounded">
+                                Listed
+                            </span>
+                        {% else %}
+                            <span class="bg-yellow-600 px-2 py-1 rounded">
+                                Unlisted
+                            </span>
+                        {% endif %}
+                    </td>
+                      <td class="table-c7d2051f-19b8-4282-b3f3-09e31bcc72dc-column-896 h-[72px] px-4 py-2 w-60 text-[#92c9b7] text-sm font-bold leading-normal tracking-[0.015em]">
+                         <a href="{% url 'products:product_details' product.id %}" class="hover:underline">
+                        View
+                        </a> | <a href="{% url 'products:edit_product' product.id %}" class="hover:underline">
+                        Edit
+                        </a> |
+                        {% if product.is_listed %}
+                                <a href="{% url 'products:toggle_listing' product.id %}"
+                                  class="text-yellow-400 hover:underline"
+                                  onclick="return confirm('Unlist this product?');">
+                                  Unlist
+                                </a>
+                                {% else %}
+                                <a href="{% url 'products:toggle_listing' product.id %}"
+                                  class="text-green-400 hover:underline">
+                                  List
+                                </a>
+                                {% endif %}
+                        |<a href="{% url 'products:delete_product' product.id %}" 
+                              class="text-red-400 hover:underline"
+                              onclick="return confirm('Move this product to trash?');">
+                              Delete
+                              </a>
+                             |
+                      </td>
+                    </tr>               
+                     {% empty %}   
+                    <tr>
+                      <td colspan="8" class="text-center text-white py-4">
+                      No products found
+                      </td>
+                      </tr>
+                    {% endfor %}             
+                    
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="flex justify-center items-center gap-2 mt-6 text-white">
+
+              {% if page_obj.has_previous %}
+              <a href="?page=1{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-[#273a32] rounded">First</a>
+              <a href="?page={{ page_obj.previous_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-[#273a32] rounded">Prev</a>
+              {% endif %}
+
+              <span class="px-3 py-1">
+              Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+            </span>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-[#273a32] rounded">Next</a>
+            <a href="?page={{ page_obj.paginator.num_pages }}{% if query %}&q={{ query }}{% endif %}" class="px-3 py-1 bg-[#273a32] rounded">Last</a>
+            {% endif %}
+
+            </div>
+
+             <script>
+      setTimeout(function () {
+      const messageBox = document.getElementById('message-box');
+      if (messageBox) {
+      // Smooth fade out
+      messageBox.style.transition = "opacity 0.5s ease";
+      messageBox.style.opacity = "0";
+      // Remove completely after fade
+      setTimeout(() => {
+        messageBox.style.display = "none";
+      }, 500);
+    }
+      }, 5000); // 5 seconds
+    </script>
+
+        <script>
+  const input = document.getElementById("searchInput");
+  const clearBtn = document.getElementById("clearBtn");
+
+  function toggleClearBtn() {
+    if (input.value.trim() !== "") {
+      clearBtn.classList.remove("hidden");
+    } else {
+      clearBtn.classList.add("hidden");
+    }
+  }
+
+  function clearSearch() {
+    input.value = "";
+    input.form.submit();
+  }
+
+  input.addEventListener("input", toggleClearBtn);
+  window.addEventListener("load", toggleClearBtn);
+</script>
+
+
+{% endblock %}

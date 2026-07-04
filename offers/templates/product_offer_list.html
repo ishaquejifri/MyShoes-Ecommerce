@@ -1,0 +1,163 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Product Offers - LottoShoes{% endblock %}
+{% block content  %}
+
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                Product Offers
+            </h1>
+            <p class="text-gray-500 mt-1">
+                Manage all product offers.
+            </p>
+        </div>
+        <a href="{% url 'add_product_offer' %}"
+           class="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-lg shadow">
+            + Add Product Offer
+        </a>
+    </div>
+    <!-- Search & Filter -->
+    <div class="bg-white rounded-lg shadow p-5 mb-6">
+        <form method="GET">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Search -->
+                <input
+                    type="text"
+                    name="search"
+                    value="{{ search_query }}"
+                    placeholder="Search offer or product..."
+                    class="border rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-400">
+                <!-- Status -->
+                <select
+                    name="status"
+                    class="border rounded-lg px-4 py-2">
+                    <option value="">All Status</option>
+                    <option value="Active"
+                        {% if status_filter == "Active" %}selected{% endif %}>
+                        Active
+                    </option>
+                    <option value="Inactive"
+                        {% if status_filter == "Inactive" %}selected{% endif %}>
+                        Inactive
+                    </option>
+                    <option value="Expired"
+                        {% if status_filter == "Expired" %}selected{% endif %}>
+                        Expired
+                    </option>
+                </select>
+                <button
+                    class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg">
+                    Search
+                </button>
+            </div>
+        </form>
+    </div>
+    <!-- Product Offer Table -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="text-left p-4">Offer Name</th>
+                    <th class="text-left p-4">Product</th>
+                    <th class="text-left p-4">Discount</th>
+                    <th class="text-left p-4">Start Date</th>
+                    <th class="text-left p-4">End Date</th>
+                    <th class="text-left p-4">Status</th>
+                    <th class="text-center p-4">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+            {% for offer in offers %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4 font-medium">
+                        {{ offer.name }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.product.product_name }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.discount }}%
+                    </td>
+                    <td class="p-4">
+                        {{ offer.start_date|date:"d M Y" }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.end_date|date:"d M Y" }}
+                    </td>
+                    <td class="p-4">
+                        {% if offer.status == "Active" %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Active
+                            </span>
+                        {% elif offer.status == "Inactive" %}
+                            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                                Inactive
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                                Expired
+                            </span>
+                        {% endif %}
+                    </td>
+                    <td class="p-4">
+                        <div class="flex justify-center gap-2">
+                            <a href="{% url 'edit_product_offer' offer.id %}"
+                               class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+                                Edit
+                            </a>
+                            <a href="{% url 'delete_product_offer' offer.id %}"
+                               onclick="return confirm('Delete this offer?')"
+                               class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded">
+                                Delete
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center py-10 text-gray-500">
+                        No product offers found.
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Pagination -->
+    {% if offers.has_other_pages %}
+    <div class="flex justify-center mt-8">
+        <div class="flex gap-2">
+            {% if offers.has_previous %}
+                <a href="?page={{ offers.previous_page_number }}&search={{ search_query }}&status={{ status_filter }}"
+                   class="px-4 py-2 border rounded hover:bg-gray-100">
+                    Previous
+                </a>
+            {% endif %}
+            {% for num in offers.paginator.page_range %}
+                {% if offers.number == num %}
+                    <span class="px-4 py-2 bg-blue-600 text-white rounded">
+                        {{ num }}
+                    </span>
+                {% else %}
+                    <a href="?page={{ num }}&search={{ search_query }}&status={{ status_filter }}"
+                       class="px-4 py-2 border rounded hover:bg-gray-100">
+                        {{ num }}
+                    </a>
+                {% endif %}
+            {% endfor %}
+            {% if offers.has_next %}
+                <a href="?page={{ offers.next_page_number }}&search={{ search_query }}&status={{ status_filter }}"
+                   class="px-4 py-2 border rounded hover:bg-gray-100">
+                    Next
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+{% endblock %}

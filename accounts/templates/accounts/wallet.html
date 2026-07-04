@@ -1,0 +1,386 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel = 'stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+
+    <title>My Wallet - Lotto Shoes</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body>
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-white group/design-root overflow-x-hidden"
+      style="font-family: Manrope, &quot;Noto Sans&quot;, sans-serif"
+    >
+      <div class="layout-container flex h-full grow flex-col">
+        <header
+          class="fixed top-0 left-0 w-full z-50 bg-white shadow-md flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f2f3f3] px-10 py-3 bg-white"
+        >
+          <div class="flex items-center gap-4 text-[#121617]">
+            <div class="size-4">
+              <svg
+                viewBox="0 0 48 48"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"
+                  fill="currentColor"
+                ></path>
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+            </div>
+            <a href="{% url 'home' %}">
+              <h2
+                class="text-[#121617] text-lg font-bold leading-tight tracking-[-0.015em]"
+              >
+                Lotto Shoes
+              </h2>
+            </a>
+          </div>
+          <div class="flex flex-1 justify-end gap-8">
+            <div class="flex items-center gap-9">
+              {% for category in categories %}
+              <a
+                href="{% url 'user_product_list' %}?category={{ category.id }}"
+                class="text-[#121617] text-sm font-medium leading-normal"
+              >
+                {{ category.name }}
+              </a>
+              {% endfor %}
+            </div>
+            <div class="flex gap-2">
+              <a href="{% url 'profile' %}">
+                <button
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f1f3f4] text-[#121617] gap-2 text-sm font-bold px-2.5"
+                >
+                  <div class="text-[#121617]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20px"
+                      height="20px"
+                      fill="currentColor"
+                      viewBox="0 0 256 256"
+                    >
+                      <path
+                        d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"
+                      ></path>
+                    </svg>
+                  </div>
+                </button>
+              </a>
+              <a href="{% url 'cart:view_cart'%}">
+                <button
+                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f1f3f4] text-[#121617] gap-2 text-sm font-bold px-2.5"
+                >
+                  <div class="text-[#121617]">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="20px"
+                      height="20px"
+                      fill="currentColor"
+                      viewBox="0 0 256 256"
+                    >
+                      <path
+                        d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"
+                      ></path>
+                    </svg>
+                  </div>
+                </button>
+              </a>
+
+              <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-150"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"
+                    ></path>
+                  </svg>
+                  <span class="text-sm font-medium">Logout</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </header>
+
+        <div class="flex flex-1 justify-center items-start px-6 py-6 pt-24">
+          <!-- Sidebar -->
+          <div class="layout-content-container flex flex-col w-80">
+            <div class="flex h-full min-h-[700px] flex-col justify-between bg-white p-4">
+              <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                  <a href="{% url 'profile' %}">
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                      <div class="text-[#121617]" data-icon="User" data-size="24px" data-weight="regular">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24px"
+                          height="24px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24ZM74,192.94C85.76,169.58,105.7,152,128,152s42.24,17.58,54,40.94a88,88,0,1,1-108,0ZM128,136a40,40,0,1,1,40-40A40,40,0,0,1,128,136Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p class="text-[#121617] text-sm font-medium leading-normal">Profile Info</p>
+                    </div>
+                  </a>
+                  <a href="{% url 'my_orders' %}">
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                      <div class="text-[#121617]" data-icon="Truck" data-size="24px" data-weight="regular">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24px"
+                          height="24px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            d="M247.42,117l-14-35A15.93,15.93,0,0,0,218.58,72H184V64a8,8,0,0,0-8-8H24A16,16,0,0,0,8,72V184a16,16,0,0,0,16,16H41a32,32,0,0,0,62,0h50a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V120A7.94,7.94,0,0,0,247.42,117ZM184,88h34.58l9.6,24H184ZM24,72H168v64H24ZM72,208a16,16,0,1,1,16-16A16,16,0,0,1,72,208Zm81-24H103a32,32,0,0,0-62,0H24V152H168v12.31A32.11,32.11,0,0,0,153,184Zm31,24a16,16,0,1,1,16-16A16,16,0,0,1,184,208Zm48-24H215a32.06,32.06,0,0,0-31-24V128h48Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p class="text-[#121617] text-sm font-medium leading-normal">My Orders</p>
+                    </div>
+                  </a>
+                  <a href="{% url 'wishlist' %}">
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                      <div class="text-[#121617]" data-icon="Heart" data-size="24px" data-weight="regular">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24px"
+                          height="24px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p class="text-[#121617] text-sm font-medium leading-normal">Wishlist</p>
+                    </div>
+                  </a>
+                  <a href="{% url 'user_wallet' %}">
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#f4f3f4] transition font-bold border-l-4 border-black">
+                      <div class="text-[#121617]" data-icon="CreditCard" data-size="24px" data-weight="fill">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24px"
+                          height="24px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Zm-16-24a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h32A8,8,0,0,1,208,168Zm-64,0a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h16A8,8,0,0,1,144,168Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p class="text-[#121617] text-sm leading-normal">My Wallet</p>
+                    </div>
+                  </a>
+                  <a href="{% url 'my_address' %}">
+                    <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                      <div class="text-[#121617]" data-icon="MapPin" data-size="24px" data-weight="regular">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24px"
+                          height="24px"
+                          fill="currentColor"
+                          viewBox="0 0 256 256"
+                        >
+                          <path
+                            d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"
+                          ></path>
+                        </svg>
+                      </div>
+                      <p class="text-[#121617] text-sm leading-normal">Addresses</p>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content Area -->
+          <div class="layout-content-container flex flex-col max-w-[960px] flex-1 px-4">
+            <!-- Messages block -->
+            {% if messages %}
+            <div id="message-box" class="w-full mb-4">
+              {% for message in messages %}
+              <div
+                class="px-4 py-3 rounded-lg text-sm mb-2 border {% if message.tags == 'error' %}bg-red-100 text-red-700 border-red-300{% else %}bg-green-100 text-green-700 border-green-300{% endif %}"
+              >
+                {{ message }}
+              </div>
+              {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Referral Code Showcase -->
+            <div class="mb-6 p-6 rounded-2xl border border-dashed border-[#cee8e8] bg-slate-50 flex justify-between items-center">
+              <div>
+                <h4 class="text-slate-800 font-bold text-lg mb-1">Invite friends, earn rewards!</h4>
+                <p class="text-sm text-slate-500">Your friends get ₹50 on signup, and you get ₹100 on their first step.</p>
+              </div>
+              <div class="flex items-center gap-3">
+                <span class="bg-teal-100 text-teal-800 font-extrabold px-4 py-2 rounded-xl text-base tracking-wider border border-teal-200">
+                  {{ request.user.referral_code }}
+                </span>
+                <button
+                  onclick="copyReferralLink()"
+                  class="bg-slate-800 hover:bg-slate-700 text-white font-bold py-2 px-4 rounded-xl text-sm"
+                >
+                  Copy Link
+                </button>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <!-- Wallet Card -->
+              <div class="md:col-span-2 rounded-2xl bg-gradient-to-br from-[#0d9488] to-[#0f766e] text-white p-6 shadow-md flex flex-col justify-between h-48">
+                <div>
+                  <p class="text-teal-200 text-sm font-semibold uppercase tracking-wider">Lotto Wallet Balance</p>
+                  <h2 class="text-4xl font-extrabold mt-2">₹{{ wallet.balance }}</h2>
+                </div>
+                <div class="text-teal-100 text-xs">
+                  Linked account: {{ request.user.email }}
+                </div>
+              </div>
+
+              <!-- Add Funds Card -->
+              <div class="rounded-2xl border border-[#cee8e8] p-6 bg-white shadow-sm flex flex-col justify-between h-48">
+                <h3 class="font-bold text-slate-800 text-base">Quick Deposit</h3>
+                <form method="POST" action="{% url 'user_wallet' %}" class="mt-2 flex flex-col gap-3">
+                  {% csrf_token %}
+                  <div class="relative rounded-lg shadow-sm">
+                    <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                      <span class="text-gray-500 sm:text-sm">₹</span>
+                    </div>
+                    <input
+                      type="number"
+                      name="amount"
+                      min="1"
+                      required
+                      placeholder="1000"
+                      class="focus:ring-teal-500 focus:border-teal-500 block w-full pl-7 pr-3 py-2 border-gray-300 rounded-lg text-sm"
+                    />
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full bg-[#0d9488] hover:bg-[#0f766e] text-white font-bold py-2 rounded-lg text-sm transition"
+                  >
+                    Add Funds
+                  </button>
+                </form>
+              </div>
+            </div>
+
+            <!-- Transactions Log -->
+            <h3 class="text-slate-800 text-xl font-bold mb-4">Transaction History</h3>
+            <div class="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <table class="w-full text-left border-collapse text-sm">
+                <thead>
+                  <tr class="bg-slate-50 border-b border-slate-200 text-slate-600 font-bold">
+                    <th class="p-4">Transaction ID</th>
+                    <th class="p-4">Type</th>
+                    <th class="p-4">Amount</th>
+                    <th class="p-4">Details</th>
+                    <th class="p-4">Date</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 text-slate-700">
+                  {% for tx in transactions %}
+                  <tr>
+                    <td class="p-4 font-mono text-slate-500">#{{ tx.id }}</td>
+                    <td class="p-4">
+                      <span
+                        class="px-2.5 py-0.5 rounded-full text-xs font-bold uppercase
+                        {% if tx.transaction_type == 'deposit' or tx.transaction_type == 'refund' or tx.transaction_type == 'referral_reward' %}
+                          bg-green-100 text-green-800
+                        {% else %}
+                          bg-red-100 text-red-800
+                        {% endif %}"
+                      >
+                        {{ tx.transaction_type }}
+                      </span>
+                    </td>
+                    <td class="p-4 font-semibold">
+                      {% if tx.transaction_type == 'deposit' or tx.transaction_type == 'refund' or tx.transaction_type == 'referral_reward' %}
+                        + ₹{{ tx.amount }}
+                      {% else %}
+                        - ₹{{ tx.amount }}
+                      {% endif %}
+                    </td>
+                    <td class="p-4 text-slate-500">
+                      {{ tx.description }}
+                      {% if tx.order %}
+                        (Order: #{{ tx.order.order_id }})
+                      {% endif %}
+                    </td>
+                    <td class="p-4 text-slate-500 text-xs">
+                      {{ tx.timestamp|date:"d M Y, h:i A" }}
+                    </td>
+                  </tr>
+                  {% empty %}
+                  <tr>
+                    <td colspan="5" class="p-8 text-center text-slate-400">
+                      No wallet transactions recorded.
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    function copyReferralLink() {
+        const hostname = window.location.origin;
+        const refLink = `${hostname}/signup/?ref={{ request.user.referral_code }}`;
+        navigator.clipboard.writeText(refLink).then(() => {
+            alert('Referral signup link copied to clipboard!');
+        }).catch(err => {
+            alert('Failed to copy: ' + err);
+        });
+    }
+
+    setTimeout(function () {
+      const messageBox = document.getElementById("message-box");
+      if (messageBox) {
+        messageBox.style.transition = "opacity 0.5s ease";
+        messageBox.style.opacity = "0";
+        setTimeout(() => { messageBox.style.display = "none"; }, 500);
+      }
+    }, 5000);
+    </script>
+  </body>
+</html>

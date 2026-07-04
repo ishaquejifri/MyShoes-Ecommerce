@@ -1,0 +1,166 @@
+{% extends 'admin_base.html' %}
+{% block title %} Coupon List {% endblock %}
+{% block content %}
+
+<div class="flex flex-wrap justify-between gap-3 p-4">
+              <p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Coupons Management</p>
+              <a href="{% url 'add_coupon' %}">
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#273a32] text-white text-sm font-medium leading-normal"
+              >
+                <span class="truncate">Add New Coupon</span>
+              </button>
+            </a>
+            </div>  
+
+<form method="GET" class="flex gap-3">
+    <input
+        type="text"
+        name="search"
+        value="{{ search_query }}"
+        placeholder="Search coupon..."
+        class="bg-[#273a32] text-white rounded-lg px-4 py-2">
+    <select
+        name="status"
+        class="bg-[#273a32] text-white rounded-lg px-4 py-2">
+        <option value="">All</option>
+        <option value="active"
+            {% if status_filter == 'active' %}
+                selected
+            {% endif %}>
+            Active
+        </option>
+        <option value="inactive"
+            {% if status_filter == 'inactive' %}
+                selected
+            {% endif %}>
+            Inactive
+        </option>
+    </select>
+    <button
+        class="bg-[#00cc77] text-black px-5 rounded-lg">
+        Filter
+    </button>
+</form>
+<div class="flex overflow-hidden rounded-lg border border-[#39564a] bg-[#101815]">
+<table class="flex-1">
+
+<thead>
+      <tr class="bg-[#1b2822]">
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-120 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Coupon ID</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-240 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Code</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-360 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Discount</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-480 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Expiry Date</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-600 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Usage Count</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-720 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Status</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-840 px-4 py-3 text-left text-white w-60 text-[#9abcae] text-sm font-medium leading-normal">
+          Action
+        </th>
+      </tr>
+</thead>
+
+<tbody>
+{% for coupon in coupons %}
+<tr class="border-t border-t-[#39564a]">
+    <!-- Coupon ID -->
+    <td class="h-[72px] px-4 py-2 text-white text-sm">
+        #{{ coupon.id }}
+    </td>
+    <!-- Coupon Code -->
+    <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
+        {{ coupon.code }}
+    </td>
+    <!-- Discount -->
+    <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
+        {% if coupon.discount_type == 'percentage' %}
+            {{ coupon.discount_percentage }}%
+        {% else %}
+            ₹{{ coupon.discount_amount }}
+        {% endif %}
+    </td>
+    <!-- Expiry -->
+    <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
+        {{ coupon.end_date }}
+    </td>
+    <!-- Usage Count -->
+    <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
+        {{ coupon.times_used }}
+        {% if coupon.usage_limit %}
+            / {{ coupon.usage_limit }}
+        {% endif %}
+    </td>
+    <!-- Status -->
+    <td class="h-[72px] px-4 py-2">
+        {% if coupon.is_active %}
+            <a href="{% url 'toggle_coupon_status' coupon.id %}">
+                <button
+                    class="bg-green-600 text-white rounded-lg px-4 py-2 w-full">
+                    Active
+                </button>
+            </a>
+        {% else %}
+            <a href="{% url 'toggle_coupon_status' coupon.id %}">
+                <button
+                    class="bg-red-600 text-white rounded-lg px-4 py-2 w-full">
+                    Inactive
+                </button>
+            </a>
+        {% endif %}
+    </td>
+    <!-- Actions -->
+    <td class="h-[72px] px-4 py-2">
+        <div class="flex gap-3">
+            <a
+                href="{% url 'edit_coupon' coupon.id %}"
+                class="text-blue-400 hover:text-blue-300">
+                Edit
+            </a>
+            <a
+                href="{% url 'delete_coupon' coupon.id %}"
+                onclick="return confirm('Delete this coupon?')"
+                class="text-red-400 hover:text-red-300">
+                Delete
+            </a>
+        </div>
+    </td>
+</tr>
+{% empty %}
+<tr>
+    <td colspan="7"
+        class="py-10 text-center text-gray-400">
+        No coupons found.
+    </td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
+
+<div class="flex justify-center gap-3 mt-8">
+    {% if coupons.has_previous %}
+        <a
+            href="?page_number={{ coupons.previous_page_number }}&search={{ search_query }}&status={{ status_filter }}"
+            class="bg-[#273a32] text-white px-4 py-2 rounded">
+            Previous
+        </a>
+    {% endif %}
+    <span class="text-white px-4 py-2">
+        Page
+        {{ coupons.number }}
+        of
+        {{ coupons.paginator.num_pages }}
+    </span>
+    {% if coupons.has_next %}
+        <a
+            href="?page_number={{ coupons.next_page_number }}&search={{ search_query }}&status={{ status_filter }}"
+            class="bg-[#273a32] text-white px-4 py-2 rounded">
+            Next
+        </a>
+    {% endif %}
+</div>
+
+
+
+
+
+{% endblock %}

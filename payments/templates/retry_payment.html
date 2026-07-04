@@ -1,0 +1,183 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+
+    <div class="bg-white shadow-lg rounded-xl p-8 max-w-md w-full text-center">
+
+        <div class="animate-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="mx-auto h-16 w-16 text-blue-600"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+
+            </svg>
+        </div>
+
+        <h2 class="text-2xl font-bold mt-5">
+            Redirecting to Razorpay
+        </h2>
+
+        <p class="text-gray-500 mt-3">
+            Please wait while we open the payment window.
+        </p>
+
+        <div class="mt-6">
+            <button
+                id="pay-btn"
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                Retry Payment
+            </button>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+
+var options = {
+
+    key: "{{ razorpay_key }}",
+
+    amount: "{{ amount }}",
+
+    currency: "INR",
+
+    name: "MyShoes",
+
+    description: "Retry Order Payment",
+
+    order_id: "{{ razorpay_order_id }}",
+
+    handler: function (response) {
+
+        fetch("/payments/verify-payment/", {
+
+    method: "POST",
+
+    headers: {
+
+        "Content-Type": "application/json",
+
+        "X-CSRFToken": "{{ csrf_token }}"
+
+    },
+
+    body: JSON.stringify({
+
+        razorpay_payment_id: response.razorpay_payment_id,
+
+        razorpay_order_id: response.razorpay_order_id,
+
+        razorpay_signature: response.razorpay_signature,
+
+        order_id: "{{ order.id }}"
+
+    })
+
+})
+.then(res => res.json())
+.then(data => {
+
+    if(data.status === "success"){
+
+        window.location.href = data.redirect_url;
+
+    }
+    else{
+
+        window.location.href = data.redirect_url;
+
+    }
+
+});
+
+        fetch("{% url 'verify_payment' %}", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+
+            body: JSON.stringify({
+
+                razorpay_payment_id: response.razorpay_payment_id,
+
+                razorpay_order_id: response.razorpay_order_id,
+
+                razorpay_signature: response.razorpay_signature,
+
+                order_id: "{{ order.id }}"
+
+            })
+
+        })
+
+        .then(res => res.json())
+
+        .then(data => {
+
+            if (data.status === "success") {
+
+                window.location.href = data.redirect_url;
+
+            } else {
+
+                window.location.href = "{% url 'payment_failed' order.id %}";
+
+            }
+
+        });
+
+    },
+
+    modal: {
+
+        ondismiss: function () {
+
+            window.location.href = "{% url 'payment_failed' order.id %}";
+
+        }
+
+    },
+
+    theme: {
+
+        color: "#2563eb"
+
+    }
+
+};
+
+var rzp = new Razorpay(options);
+
+document.getElementById("pay-btn").onclick = function(e){
+
+    rzp.open();
+
+    e.preventDefault();
+
+};
+
+// Automatically open Razorpay when page loads
+window.onload = function () {
+
+    rzp.open();
+
+};
+
+</script>
+
+{% endblock %}

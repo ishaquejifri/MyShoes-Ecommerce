@@ -1,0 +1,125 @@
+{% extends "user_base.html" %}
+
+{% block title %}
+{% if form.instance.pk %}Edit Review{% else %}Add Review{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto px-6 py-10">
+
+    <!-- Heading -->
+    <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-800">
+            {% if form.instance.pk %}
+                Edit Your Review
+            {% else %}
+                Write a Review
+            {% endif %}
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            Share your experience with this product.
+        </p>
+    </div>
+
+    <!-- Product Card -->
+    <div class="bg-white rounded-xl shadow border p-6 mb-8">
+        <div class="flex gap-5">
+
+            {% if product.images.first %}
+            <img src="{{ product.images.first.image.url }}"
+                 class="w-32 h-32 object-cover rounded-lg border"
+                 alt="{{ product.product_name }}">
+            {% else %}
+            <img src="https://via.placeholder.com/150"
+                 class="w-32 h-32 object-cover rounded-lg border">
+            {% endif %}
+
+            <div class="flex-1">
+                <h2 class="text-2xl font-semibold text-gray-800">
+                    {{ product.product_name }}
+                </h2>
+
+                <p class="text-gray-500 mt-2">
+                    {{ product.description|truncatewords:20 }}
+                </p>
+
+                <p class="text-2xl font-bold text-green-600 mt-4">
+                    ₹{{ product.sale_price }}
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Review Form -->
+    <div class="bg-white rounded-xl shadow border p-8">
+
+        <form method="POST">
+
+            {% csrf_token %}
+
+            <!-- Rating -->
+            <div class="mb-6">
+
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Rating (1 - 5)
+                </label>
+
+                {{ form.rating }}
+
+                {% if form.rating.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ form.rating.errors.0 }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+            <!-- Review -->
+            <div class="mb-6">
+
+                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                    Review
+                </label>
+
+                {{ form.review_text }}
+
+                {% if form.review_text.errors %}
+                    <p class="text-red-500 text-sm mt-1">
+                        {{ form.review_text.errors.0 }}
+                    </p>
+                {% endif %}
+
+            </div>
+
+            <!-- Buttons -->
+            <div class="flex gap-4">
+
+                <button
+                    type="submit"
+                    class="bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-3 rounded-lg transition">
+
+                    {% if form.instance.pk %}
+                        Update Review
+                    {% else %}
+                        Submit Review
+                    {% endif %}
+
+                </button>
+
+                <a href="{% url 'user_product_details' product.id %}"
+                   class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold px-6 py-3 rounded-lg">
+
+                    Cancel
+
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+{% endblock %}

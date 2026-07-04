@@ -1,0 +1,189 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Offer Dashboard - LottoShoes{% endblock %}
+{% block content  %}
+
+<div class="p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                Offer Dashboard
+            </h1>
+            <p class="text-gray-500 mt-2">
+                Manage Product Offers and Category Offers
+            </p>
+        </div>
+    </div>
+    <!-- Statistics -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-gray-500 text-sm">
+                Product Offers
+            </h3>
+            <h2 class="text-3xl font-bold mt-2">
+                {{ stats.total_product_offers }}
+            </h2>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-gray-500 text-sm">
+                Active Product Offers
+            </h3>
+            <h2 class="text-3xl font-bold text-green-600 mt-2">
+                {{ stats.active_product_offers }}
+            </h2>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-gray-500 text-sm">
+                Category Offers
+            </h3>
+            <h2 class="text-3xl font-bold mt-2">
+                {{ stats.total_category_offers }}
+            </h2>
+        </div>
+        <div class="bg-white rounded-xl shadow p-6">
+            <h3 class="text-gray-500 text-sm">
+                Active Category Offers
+            </h3>
+            <h2 class="text-3xl font-bold text-blue-600 mt-2">
+                {{ stats.active_category_offers }}
+            </h2>
+        </div>
+    </div>
+    <!-- Quick Actions -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+        <a href="{% url 'add_product_offer' %}"
+           class="bg-green-600 hover:bg-green-700 text-white rounded-lg p-5 text-center">
+            <div class="text-lg font-semibold">
+                + Product Offer
+            </div>
+        </a>
+        <a href="{% url 'product_offer_list' %}"
+           class="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-5 text-center">
+            <div class="text-lg font-semibold">
+                Product Offers
+            </div>
+        </a>
+        <a href="{% url 'add_category_offer' %}"
+           class="bg-purple-600 hover:bg-purple-700 text-white rounded-lg p-5 text-center">
+            <div class="text-lg font-semibold">
+                + Category Offer
+            </div>
+        </a>
+        <a href="{% url 'category_offer_list' %}"
+           class="bg-orange-500 hover:bg-orange-600 text-white rounded-lg p-5 text-center">
+            <div class="text-lg font-semibold">
+                Category Offers
+            </div>
+        </a>
+    </div>
+    <!-- Recent Product Offers -->
+    <div class="bg-white rounded-xl shadow mb-8">
+        <div class="flex justify-between items-center p-5 border-b">
+            <h2 class="text-xl font-bold">
+                Recent Product Offers
+            </h2>
+            <a href="{% url 'product_offer_list' %}"
+               class="text-blue-600 hover:underline">
+                View All
+            </a>
+        </div>
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-4 text-left">Offer</th>
+                    <th class="p-4 text-left">Product</th>
+                    <th class="p-4 text-left">Discount</th>
+                    <th class="p-4 text-left">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in recent_product_offers %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4">{{ offer.name }}</td>
+                    <td class="p-4">
+                        {{ offer.product.product_name }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.discount }}%
+                    </td>
+                    <td class="p-4">
+                        {% if offer.status == "Active" %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                                {{ offer.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-8 text-gray-500">
+                        No Product Offers Found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <!-- Recent Category Offers -->
+    <div class="bg-white rounded-xl shadow">
+        <div class="flex justify-between items-center p-5 border-b">
+            <h2 class="text-xl font-bold">
+                Recent Category Offers
+            </h2>
+            <a href="{% url 'category_offer_list' %}"
+               class="text-blue-600 hover:underline">
+                View All
+            </a>
+        </div>
+        <table class="w-full">
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="p-4 text-left">Offer</th>
+                    <th class="p-4 text-left">Category</th>
+                    <th class="p-4 text-left">Discount</th>
+                    <th class="p-4 text-left">Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for offer in recent_category_offers %}
+                <tr class="border-b hover:bg-gray-50">
+                    <td class="p-4">
+                        {{ offer.name }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.category.category_name }}
+                    </td>
+                    <td class="p-4">
+                        {{ offer.discount }}%
+                    </td>
+                    <td class="p-4">
+                        {% if offer.status == "Active" %}
+                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                                Active
+                            </span>
+                        {% else %}
+                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                                {{ offer.status }}
+                            </span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-8 text-gray-500">
+                        No Category Offers Found
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+{% endblock %}

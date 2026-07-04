@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Login</title>
+
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <style>
+    body{font-family:'Manrope',sans-serif;}
+  </style>
+</head>
+
+<body class="bg-[#121714] flex items-center justify-center min-h-screen text-white">
+
+<div class="w-full max-w-md bg-[#1d2621] p-8 rounded-lg shadow-lg">
+
+  <h2 class="text-2xl font-bold text-center mb-6">Lotto Shoes Admin</h2>
+
+{% if messages %}
+  <div id="message-box" class="max-w-md mx-auto mt-4">
+  {% for message in messages %}
+    <div class="mb-4 p-3 rounded text-white text-sm text-center
+      {% if message.tags == 'error' %} bg-red-500
+      {% elif message.tags == 'success' %} bg-green-500
+      {% else %} bg-gray-500
+      {% endif %}">
+      {{ message }}
+    </div>
+  {% endfor %}
+  </div>
+{% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+
+    <div class="mb-4">
+      <label class="block mb-2">Admin ID</label>
+      <input
+        type="text"
+        name="username"
+        placeholder="Enter Admin ID"
+        class="w-full p-3 rounded bg-[#121714] border border-[#3d5147]"
+        required
+      >
+    </div>
+
+    <div class="mb-6 relative">
+      <label class="block mb-2">Password</label>
+      <input
+        type="password"
+        id="password"
+        name="password"
+        placeholder="Enter Password"
+        class="w-full p-3 rounded bg-[#121714] border border-[#3d5147]"
+        required
+      >
+       <button
+        type="button"
+        onclick="togglePassword()"
+        class="absolute right-3 top-10 text-gray-500"
+         >
+         👁
+        </button>
+    </div>
+
+
+    <button
+      type="submit"
+      class="w-full bg-[#1fad66] py-3 rounded font-bold hover:bg-green-600"
+    >
+      Sign In
+    </button>
+
+  </form>
+
+  {% comment %} <p class="text-center text-sm mt-4 text-gray-400 underline">
+    Forgot Admin Password?
+  </p> {% endcomment %}
+
+</div>
+
+
+    <script>
+                function togglePassword() {
+                  const passwordField = document.getElementById("password");
+
+                  if (passwordField.type === "password") {
+                    passwordField.type = "text";
+                  } else {
+                    passwordField.type = "password";
+                  }
+                }
+              </script>
+
+          <script>
+            setTimeout(function () {
+              const messageBox = document.getElementById("message-box");
+              if (messageBox) {
+                messageBox.style.display = "none";
+              }
+            }, 5000); // 5000ms = 5 seconds
+          </script>
+
+</body>
+</html>

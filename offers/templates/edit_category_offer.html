@@ -1,0 +1,155 @@
+{% extends "admin_base.html" %}
+{% load static %}
+
+{% block title %}Edit Category Offer - LottoShoes{% endblock %}
+{% block content  %}
+
+
+<div class="max-w-5xl mx-auto p-6">
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-8">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">
+                Edit Category Offer
+            </h1>
+            <p class="text-gray-500 mt-1">
+                Update the selected category offer.
+            </p>
+        </div>
+        <a href="{% url 'category_offer_list' %}"
+           class="bg-gray-200 hover:bg-gray-300 text-gray-700 px-5 py-2 rounded-lg">
+            ← Back
+        </a>
+    </div>
+    <!-- Messages -->
+    {% if messages %}
+        {% for message in messages %}
+            <div class="mb-4 px-4 py-3 rounded-lg
+                {% if message.tags == 'success' %}
+                    bg-green-100 text-green-700
+                {% else %}
+                    bg-red-100 text-red-700
+                {% endif %}">
+                {{ message }}
+            </div>
+        {% endfor %}
+    {% endif %}
+    <form method="POST" class="bg-white rounded-xl shadow-lg p-8">
+        {% csrf_token %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Offer Name -->
+            <div>
+                <label class="block font-semibold mb-2">
+                    Offer Name <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="text"
+                    name="name"
+                    value="{{ offer.name }}"
+                    class="w-full border rounded-lg px-4 py-3 focus:ring-2 focus:ring-blue-500">
+            </div>
+            <!-- Category -->
+            <div>
+                <label class="block font-semibold mb-2">
+                    Category <span class="text-red-500">*</span>
+                </label>
+                <select
+                    name="category"
+                    class="w-full border rounded-lg px-4 py-3">
+                    {% for category in categories %}
+                    <option
+                        value="{{ category.id }}"
+                        {% if offer.category.id == category.id %}
+                            selected
+                        {% endif %}
+                    >
+                        {{ category.category_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Discount -->
+            <div>
+                <label class="block font-semibold mb-2">
+                    Discount (%) <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="number"
+                    name="discount"
+                    min="1"
+                    max="90"
+                    step="0.01"
+                    value="{{ offer.discount }}"
+                    class="w-full border rounded-lg px-4 py-3">
+            </div>
+            <!-- Status -->
+              <div>
+                <label class="block font-semibold mb-2">
+                    Status
+                </label>
+                <select
+                    name="status"
+                    class="w-full border rounded-lg px-4 py-3">
+                    <option value="Active"
+                        {% if offer.status == "Active" %}
+                            selected
+                        {% endif %}>
+                        Active
+                    </option>
+                    <option value="Inactive"
+                        {% if offer.status == "Inactive" %}
+                            selected
+                        {% endif %}>
+                        Inactive
+                    </option>
+                </select>
+            </div>
+            <!-- Start Date -->
+            <div>
+                <label class="block font-semibold mb-2">
+                    Start Date <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="date"
+                    name="start_date"
+                    value="{{ offer.start_date|date:'Y-m-d' }}"
+                    class="w-full border rounded-lg px-4 py-3">
+            </div>
+            <!-- End Date -->
+            <div>
+                <label class="block font-semibold mb-2">
+                    End Date <span class="text-red-500">*</span>
+                </label>
+                <input
+                    type="date"
+                    name="end_date"
+                    value="{{ offer.end_date|date:'Y-m-d' }}"
+                    class="w-full border rounded-lg px-4 py-3">
+            </div>
+        </div>
+        <!-- Description -->
+        <div class="mt-6">
+            <label class="block font-semibold mb-2">
+                Description
+            </label>
+            <textarea
+                name="description"
+                rows="5"
+                class="w-full border rounded-lg px-4 py-3 resize-none">{{ offer.description }}</textarea>
+        </div>
+        <!-- Buttons -->
+        <div class="flex justify-end gap-4 mt-8">
+            <a href="{% url 'category_offer_list' %}"
+               class="px-6 py-3 rounded-lg bg-gray-200 hover:bg-gray-300">
+                Cancel
+            </a>
+            <button
+                type="submit"
+                class="px-8 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-semibold">
+                Update Offer
+            </button>
+        </div>
+    </form>
+</div>
+
+{% endblock %}

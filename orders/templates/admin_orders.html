@@ -1,0 +1,225 @@
+{% extends "admin_base.html" %}
+ {% block title %} Admin Orders {% endblock %}
+  {% block content %}
+
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+            <div class="flex flex-wrap justify-between gap-3 p-4"><p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Orders Management</p></div>
+           
+            
+            <div class="bg-white shadow rounded-lg p-4 mb-6">
+
+    <form method="GET" class="flex flex-wrap gap-4 items-center">
+
+        <!-- Search -->
+        <input
+            type="text"
+            name="search"
+            value="{{ request.GET.search }}"
+            placeholder="Search order id or customer"
+            class="border rounded-lg px-4 py-2 w-64"
+        >
+
+        <!-- Status Filter -->
+        <select
+            name="status"
+            class="border rounded-lg px-4 py-2"
+        >
+
+            <option value="">All Status</option>
+
+            <option value="pending"
+                {% if request.GET.status|lower == 'pending' %}selected{% endif %}>
+                Pending
+            </option>
+
+            <option value="shipped"
+                {% if request.GET.status|lower == 'shipped' %}selected{% endif %}>
+                Shipped
+            </option>
+
+            <option value="out_for_delivery"
+                {% if request.GET.status|lower == 'out_for_delivery' %}selected{% endif %}>
+                Out For Delivery
+            </option>
+
+            <option value="delivered"
+                {% if request.GET.status|lower == 'delivered' %}selected{% endif %}>
+                Delivered
+            </option>
+
+            <option value="cancelled"
+                {% if request.GET.status|lower == 'cancelled' %}selected{% endif %}>
+                Cancelled
+            </option>
+
+            <option value="returned"
+                {% if request.GET.status|lower == 'returned' %}selected{% endif %}>
+                Returned
+            </option>
+
+        </select>
+
+        <!-- Sort -->
+        <select
+            name="sort"
+            class="border rounded-lg px-4 py-2"
+        >
+
+            <option value="latest"
+                {% if request.GET.sort == 'latest' %}selected{% endif %}>
+                Latest First
+            </option>
+
+            <option value="oldest"
+                {% if request.GET.sort == 'oldest' %}selected{% endif %}>
+                Oldest First
+            </option>
+
+        </select>
+
+        <!-- Search Button -->
+        <button
+            type="submit"
+            class="bg-black text-white px-5 py-2 rounded-lg"
+        >
+            Apply
+        </button>
+
+        <!-- Clear Button -->
+        <a
+            href="{% url 'admin_order_list' %}"
+            class="bg-gray-200 px-5 py-2 rounded-lg"
+        >
+            Clear
+        </a>
+
+    </form>
+
+</div>
+            <div class="px-4 py-3 @container">
+              <div class="flex overflow-hidden rounded-lg border border-[#326755] bg-[#11221c]">
+                <table class="flex-1">
+                  <thead>
+                    <tr class="bg-[#19332b]">
+                      <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-120 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Order ID</th>
+                      <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-240 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">
+                        Customer
+                      </th>
+                       <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-600 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">
+                        Total Amount
+                      </th>
+                      <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-240 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">
+                        Payment
+                      </th>
+                      <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-480 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Status</th>
+                     <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-360 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Date</th>
+                      <th class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-720 px-4 py-3 text-left text-white w-60 text-[#92c9b7] text-sm font-medium leading-normal">
+                        Actions
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in orders %}
+                    <tr class="border-t border-t-[#326755]">
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-120 h-[72px] px-4 py-2 w-[400px] text-white text-sm font-normal leading-normal"> {{ order.order_id }}</td>
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-240 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">
+                        {{ order.user.username }}
+                      </td>
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-600 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">₹{{ order.total_amount }}</td>
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-360 h-[72px] px-4 py-2 w-[400px] text-[#92c9b7] text-sm font-normal leading-normal">
+                       {{ order.payment_method }}
+                      </td>
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-480 h-[72px] px-4 py-2 w-60 text-sm font-normal leading-normal">
+                        <button
+                          class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-8 px-4 bg-[#23483c] text-white text-sm font-medium leading-normal w-full"
+                        >
+                          <span class="
+                            px-3 py-1 rounded-full text-sm font-semibold
+
+                            {% if order.status|lower == 'delivered' %}
+                                bg-green-100 text-green-700
+
+                            {% elif order.status|lower == 'cancelled' %}
+                                bg-red-100 text-red-700
+
+                            {% elif order.status|lower == 'returned' %}
+                                bg-yellow-100 text-yellow-700
+
+                            {% else %}
+                                bg-blue-100 text-blue-700
+                            {% endif %}
+                        ">
+
+                            {{ order.status }}
+
+                        </span>
+
+                        </button>
+                      </td>
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-120 h-[72px] px-4 py-2 w-[400px] text-white text-sm font-normal leading-normal"> {{ order.created_at|date:"d M Y, h:i A" }}</td>
+                      
+                      <td class="table-2f8405e2-d19f-4959-8768-ab2a4e8a102c-column-720 h-[72px] px-4 py-2 w-60 text-[#92c9b7] text-sm font-bold leading-normal tracking-[0.015em]">
+                       <a href="{% url 'admin_order_details' order.order_id %}"
+                           class="bg-black text-white px-4 py-2 rounded-lg text-sm">
+                            View
+                        </a>
+                      </td>
+                    </tr> 
+                     {% empty %}      
+                       <tr>
+                    <td colspan="7" class="p-6 text-center text-gray-500">
+                        No Orders Found
+                    </td>
+                </tr>          
+                   {% endfor %}
+                  </tbody>
+                </table>
+                
+              </div>
+              <!-- Pagination -->
+
+<div class="flex justify-center items-center gap-2 mt-6">
+
+    {% if orders.has_previous %}
+
+        <a
+            href="?page=1&search={{ request.GET.search }}&status={{ request.GET.status }}&sort={{ request.GET.sort }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg"
+        >
+            First
+        </a>
+
+        <a
+            href="?page={{ orders.previous_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}&sort={{ request.GET.sort }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg"
+        >
+            Previous
+        </a>
+
+    {% endif %}
+
+    <span class="px-4 py-2 bg-black text-white rounded-lg">
+        Page {{ orders.number }} of {{ orders.paginator.num_pages }}
+    </span>
+
+    {% if orders.has_next %}
+
+        <a
+            href="?page={{ orders.next_page_number }}&search={{ request.GET.search }}&status={{ request.GET.status }}&sort={{ request.GET.sort }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg"
+        >
+            Next
+        </a>
+
+        <a
+            href="?page={{ orders.paginator.num_pages }}&search={{ request.GET.search }}&status={{ request.GET.status }}&sort={{ request.GET.sort }}"
+            class="px-4 py-2 bg-gray-200 rounded-lg"
+        >
+            Last
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endblock %}

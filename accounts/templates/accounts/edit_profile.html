@@ -1,0 +1,406 @@
+<html>
+  <head>
+    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+    <link
+      rel="stylesheet"
+      as="style"
+      onload="this.rel='stylesheet'"
+      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Manrope%3Awght%40400%3B500%3B700%3B800&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
+    />
+
+    <title>Edit Profile</title>
+    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  </head>
+  <body>
+    <div
+      class="relative flex h-auto min-h-screen w-full flex-col bg-white group/design-root overflow-x-hidden"
+      style="--select-button-svg: url('data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(99,130,136)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e'); font-family: Manrope, &quot;Noto Sans&quot;, sans-serif;"
+    >
+      <div class="layout-container flex h-full grow flex-col">
+         <header class="fixed top-0 left-0 w-full z-50 bg-white shadow-md flex items-center justify-between whitespace-nowrap border-b border-solid border-b-[#f2f3f3] px-10 py-3 bg-white">
+          <div class="flex items-center gap-4 text-[#111718]">
+            <div class="size-4">
+              <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"
+                  fill="currentColor"
+                ></path>
+                <path
+                  fill-rule="evenodd"
+                  clip-rule="evenodd"
+                  d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"
+                  fill="currentColor"
+                ></path>
+              </svg>
+            </div>
+            <a href="{% url 'home' %}">
+            <h2 class="text-[#111718] text-lg font-bold leading-tight tracking-[-0.015em]">Lotto Shoes</h2>
+            </a>
+          </div>
+          <div class="flex flex-1 justify-end gap-8">
+            <div class="flex items-center gap-9">
+              {% for category in categories %}
+               <a
+                href="{% url 'user_product_list' %}?category={{ category.id }}"
+                class="text-[#121617] text-sm font-medium leading-normal"
+                >
+              {{ category.name }}
+              </a>
+               {% endfor %}           
+            </div>
+            <div class="flex gap-2"> 
+              <!--PROFILE BUTTON -->  
+              <a href="{% url 'profile'%}">         
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#e9f0f1] text-[#101819] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              >
+                <div class="text-[#101819]" data-icon="User" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </a>
+              <!-- CART BUTTON -->
+               <a href="{% url 'cart:view_cart'%}">
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f4f4] text-[#111718] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+              >
+                <div class="text-[#111718]" data-icon="ShoppingBag" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor" viewBox="0 0 256 256">
+                    <path
+                      d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"
+                    ></path>
+                  </svg>
+                </div>
+              </button>
+            </a>
+              <!-- LOGOUT BUTTON  -->
+              <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-150"
+                >
+                  <!-- Logout Icon -->
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"
+                    ></path>
+                  </svg>
+                  <span class="text-sm font-medium">Logout</span>
+                </button>
+              </form>
+            </div>
+          </div>
+        </header>
+       
+        <div class="flex flex-1 justify-center items-start px-6 py-6 pt-24">
+          <div class="layout-content-container flex flex-col w-80">
+            <div class="flex h-full min-h-[700px] flex-col justify-between bg-white p-4">
+              <div class="flex flex-col gap-4">
+                <div class="flex flex-col gap-2">
+                  <div class="flex items-center gap-3 px-3 py-2 rounded-lg bg-[#f0f4f4]">
+                    <div class="text-[#111718]" data-icon="User" data-size="24px" data-weight="fill">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                          d="M230.93,220a8,8,0,0,1-6.93,4H32a8,8,0,0,1-6.92-12c15.23-26.33,38.7-45.21,66.09-54.16a72,72,0,1,1,73.66,0c27.39,8.95,50.86,27.83,66.09,54.16A8,8,0,0,1,230.93,220Z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">Edit Profile</p>
+                  </div>
+                  <a href="{% url 'my_orders' %}">
+                  <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition"> 
+                    <div class="text-[#111718]" data-icon="Truck" data-size="24px" data-weight="regular">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                          d="M247.42,117l-14-35A15.93,15.93,0,0,0,218.58,72H184V64a8,8,0,0,0-8-8H24A16,16,0,0,0,8,72V184a16,16,0,0,0,16,16H41a32,32,0,0,0,62,0h50a32,32,0,0,0,62,0h17a16,16,0,0,0,16-16V120A7.94,7.94,0,0,0,247.42,117ZM184,88h34.58l9.6,24H184ZM24,72H168v64H24ZM72,208a16,16,0,1,1,16-16A16,16,0,0,1,72,208Zm81-24H103a32,32,0,0,0-62,0H24V152H168v12.31A32.11,32.11,0,0,0,153,184Zm31,24a16,16,0,1,1,16-16A16,16,0,0,1,184,208Zm48-24H215a32.06,32.06,0,0,0-31-24V128h48Z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">My Orders</p>
+                  </div>
+                </a>
+                <a href="{% url 'wishlist' %}">
+                  <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                    <div class="text-[#111718]" data-icon="Heart" data-size="24px" data-weight="regular">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                          d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32ZM128,206.8C109.74,196.16,32,147.69,32,94A46.06,46.06,0,0,1,78,48c19.45,0,35.78,10.36,42.6,27a8,8,0,0,0,14.8,0c6.82-16.67,23.15-27,42.6-27a46.06,46.06,0,0,1,46,46C224,147.61,146.24,196.15,128,206.8Z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">Wishlist</p>
+                  </div>
+                </a>
+                <a href="#">
+                  <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                    <div class="text-[#111718]" data-icon="Wallet" data-size="24px" data-weight="regular">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                          d="M216,72H56a8,8,0,0,1,0-16H192a8,8,0,0,0,0-16H56A24,24,0,0,0,32,64V192a24,24,0,0,0,24,24H216a16,16,0,0,0,16-16V88A16,16,0,0,0,216,72Zm0,128H56a8,8,0,0,1-8-8V86.63A23.84,23.84,0,0,0,56,88H216Zm-48-60a12,12,0,1,1,12,12A12,12,0,0,1,168,140Z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">Wallet</p>
+                  </div>
+                </a>
+                <a href="{%url 'my_address'%}">
+                  <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
+                    <div class="text-[#111718]" data-icon="MapPin" data-size="24px" data-weight="regular">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
+                        <path
+                          d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"
+                        ></path>
+                      </svg>
+                    </div>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">Addresses</p>
+                  </div>
+                </a>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+            {% if messages %}
+          <div class="w-full mb-4">
+            {% for message in messages %}
+              <div class="message-box px-4 py-3 rounded-lg text-sm font-medium
+                {% if message.tags == 'error' %}
+                  bg-red-100 text-red-700 border border-red-300
+                {% elif message.tags == 'success' %}
+                  bg-green-100 text-green-700 border border-green-300
+                {% elif message.tags == 'warning' %}
+                  bg-yellow-100 text-yellow-700 border border-yellow-300
+                {% else %}
+                  bg-blue-100 text-blue-700 border border-blue-300
+                {% endif %}
+              ">
+                    {{ message }}
+                  </div>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <div class="flex flex-wrap justify-between gap-3 p-4"><p class="text-[#111718] tracking-light text-[32px] font-bold leading-tight min-w-72">Edit Profile</p></div>
+            <div class="flex p-4 @container">
+              <div class="flex w-full flex-col gap-4 @[520px]:flex-row @[520px]:justify-between @[520px]:items-center">
+                <div class="flex gap-4">
+
+                <div class="w-32 h-32 rounded-full overflow-hidden">
+                   {% if request.user.profile_image %}
+                    <img src="{{ request.user.profile_image.url }}" class="w-full h-full object-cover">
+                  {% else %}
+                   <img src="https://via.placeholder.com/150" class="w-full h-full object-cover">
+                  {% endif %}
+                </div>
+
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}  
+                    <input type="file" name="profile_image" class="mt-3">
+                    <button type="submit"
+                      class="mt-2 bg-green-500 text-black px-3 py-1 rounded">
+                      Upload
+                    </button>
+                   
+                  
+                  
+                </div>
+              </div>
+            </div>
+           
+            <h2 class="text-[#111718] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Edit Details</h2>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+              <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#111718] text-base font-medium leading-normal pb-2">First Name</p>
+                <input
+                  type="text" 
+                  id="first_name"
+                  name="first_name"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111718] focus:outline-0 focus:ring-0 border border-[#dce4e5] bg-white focus:border-[#dce4e5] h-14 placeholder:text-[#638288] p-[15px] text-base font-normal leading-normal"
+                  value="{{user.first_name}}" required
+                />
+                <p id="error-first_name" class="text-red-500 text-xs mt-1 hidden"></p>
+              </label>
+            </div>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+              <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#111718] text-base font-medium leading-normal pb-2">Last Name</p>
+                <input
+                  type="text" 
+                  id="last_name"
+                  name="last_name"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111718] focus:outline-0 focus:ring-0 border border-[#dce4e5] bg-white focus:border-[#dce4e5] h-14 placeholder:text-[#638288] p-[15px] text-base font-normal leading-normal"
+                  value="{{user.last_name}}" required
+                />
+                <p id="error-last_name" class="text-red-500 text-xs mt-1 hidden"></p>
+              </label>
+            </div>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+              <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#111718] text-base font-medium leading-normal pb-2">Email</p>
+                <input
+                  type="email"
+                  name="email"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111718] focus:outline-0 focus:ring-0 border border-[#dce4e5] bg-white focus:border-[#dce4e5] h-14 placeholder:text-[#638288] p-[15px] text-base font-normal leading-normal"
+                  value="{{user.email}}" readonly
+                />
+              </label>
+            </div>
+            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3"> 
+              <label class="flex flex-col min-w-40 flex-1">
+                <p class="text-[#111718] text-base font-medium leading-normal pb-2">Phone</p>
+                <input
+                  type="text"
+                  id="phone"
+                  name="phone"
+                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-[#111718] focus:outline-0 focus:ring-0 border border-[#dce4e5] bg-white focus:border-[#dce4e5] h-14 placeholder:text-[#638288] p-[15px] text-base font-normal leading-normal"
+                  value="{{user.phone}}" required
+                />
+                <p id="error-phone" class="text-red-500 text-xs mt-1 hidden"></p>
+              </label>
+            </div>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function() {
+              const form = document.getElementById("edit-profile-form");
+              const fields = {
+                first_name: {
+                  el: document.getElementById("first_name"),
+                  err: document.getElementById("error-first_name"),
+                  validate: (val) => {
+                    const trimmed = val.trim();
+                    if (!trimmed) return "First name is required.";
+                    if (trimmed.length < 3 || trimmed.length > 15) return "First name must be between 3 and 15 characters.";
+                    if (!/^[A-Za-z ]+$/.test(trimmed)) return "First name should contain only letters and spaces.";
+                    return "";
+                  }
+                },
+                last_name: {
+                  el: document.getElementById("last_name"),
+                  err: document.getElementById("error-last_name"),
+                  validate: (val) => {
+                    const trimmed = val.trim();
+                    if (!trimmed) return "Last name is required.";
+                    if (trimmed.length < 3 || trimmed.length > 15) return "Last name must be between 3 and 15 characters.";
+                    if (!/^[A-Za-z ]+$/.test(trimmed)) return "Last name should contain only letters and spaces.";
+                    return "";
+                  }
+                },
+                phone: {
+                  el: document.getElementById("phone"),
+                  err: document.getElementById("error-phone"),
+                  validate: (val) => {
+                    const trimmed = val.trim();
+                    if (!trimmed) return "Phone number is required.";
+                    const digits = trimmed.replace(/\D/g, '');
+                    if (digits.length !== 10) return "Phone number must contain exactly 10 digits.";
+                    if (/^(\d)\1{9}$/.test(digits)) return "Invalid phone number (cannot be all same digits).";
+                    const sequentialPatterns = ['1234567890', '0123456789', '9876543210', '0987654321'];
+                    if (sequentialPatterns.includes(digits)) return "Enter a valid phone number.";
+                    return "";
+                  }
+                }
+              };
+
+              function validateField(name) {
+                const field = fields[name];
+                if (!field) return true;
+                const errorMsg = field.validate(field.el.value);
+                if (errorMsg) {
+                  field.err.textContent = errorMsg;
+                  field.err.classList.remove("hidden");
+                  field.el.classList.add("border-red-500", "focus:ring-red-400");
+                  field.el.classList.remove("border-[#dce4e5]");
+                  return false;
+                } else {
+                  field.err.textContent = "";
+                  field.err.classList.add("hidden");
+                  field.el.classList.remove("border-red-500", "focus:ring-red-400");
+                  field.el.classList.add("border-[#dce4e5]");
+                  return true;
+                }
+              }
+
+              Object.keys(fields).forEach(name => {
+                const field = fields[name];
+                field.el.addEventListener("blur", () => validateField(name));
+                field.el.addEventListener("input", () => {
+                  if (!field.err.classList.contains("hidden")) {
+                    validateField(name);
+                  }
+                });
+              });
+
+              form.addEventListener("submit", function(e) {
+                let isValid = true;
+                let firstInvalidField = null;
+
+                Object.keys(fields).forEach(name => {
+                  const fieldValid = validateField(name);
+                  if (!fieldValid) {
+                    isValid = false;
+                    if (!firstInvalidField) {
+                      firstInvalidField = fields[name].el;
+                    }
+                  }
+                });
+
+                if (!isValid) {
+                  e.preventDefault();
+                  if (firstInvalidField) {
+                    firstInvalidField.focus();
+                  }
+                }
+              });
+            });
+            </script>
+          
+            <div class="flex px-4 py-3 justify-end">
+              <button
+                type="submit" class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#149db8] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+              >
+                <span class="truncate">Save Changes</span>
+              </button>              
+            </div>
+            </form>
+          </div>
+        </div>
+        <footer class="flex justify-center">
+          <div class="flex max-w-[960px] flex-1 flex-col">
+            <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
+              <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
+                <a class="text-[#638288] text-sm font-normal leading-normal min-w-40" href="#">About</a>
+                <a class="text-[#638288] text-sm font-normal leading-normal min-w-40" href="#">Support</a>
+                <a class="text-[#638288] text-sm font-normal leading-normal min-w-40" href="#">Shipping &amp; Returns</a>
+                <a class="text-[#638288] text-sm font-normal leading-normal min-w-40" href="#">Privacy Policy</a>
+              </div>
+              <p class="text-[#638288] text-base font-normal leading-normal">@2024 Footwear Co. All rights reserved.</p>
+            </footer>
+          </div>
+        </footer>
+      </div>
+    </div>
+
+     <script>
+  setTimeout(() => {
+    const msgs = document.querySelectorAll('.message-box');
+    msgs.forEach(msg => msg.style.display = 'none');
+  }, 5000);
+    </script>
+
+
+  </body>
+</html>

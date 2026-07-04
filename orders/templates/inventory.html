@@ -1,0 +1,261 @@
+ {% extends 'admin_base.html' %}
+ {% block title %} Inventory {% endblock %}
+ {% block content %}
+ <div
+            class="layout-content-container flex flex-col flex-1 w-full px-6"
+          >
+            {% if messages %}
+            <div id="message-box" class="max-w-2xl mx-auto mt-4">
+              {% for message in messages %} {% if message.tags == 'success' %}
+              <div
+                class="mb-3 px-4 py-3 rounded-md text-sm bg-green-100 text-green-700 border border-green-300"
+              >
+                {{ message }}
+              </div>
+
+              {% elif message.tags == 'error' %}
+              <div
+                class="mb-3 px-4 py-3 rounded-md text-sm bg-red-100 text-red-700 border border-red-300"
+              >
+                {{ message }}
+              </div>
+
+              {% elif message.tags == 'warning' %}
+              <div
+                class="mb-3 px-4 py-3 rounded-md text-sm bg-yellow-100 text-yellow-800 border border-yellow-300"
+              >
+                {{ message }}
+              </div>
+
+              {% endif %} {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="max-w-7xl mx-auto p-6">
+              <p
+                class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72"
+              >
+                Inventory Management
+              </p>
+              <!-- Search & Filter -->
+
+              <div
+                class="bg-[#173328] border border-[#224939] p-5 rounded-2xl shadow-xl mb-6"
+              >
+                <form method="GET" class="flex gap-4 flex-wrap">
+                  <input
+                    type="text"
+                    name="search"
+                    value="{{ request.GET.search }}"
+                    placeholder="Search product"
+                    class="bg-[#10231b] border border-[#224939] text-white placeholder:text-gray-400 rounded-xl px-4 py-3 w-72 focus:border-[#0ac275] focus:ring-[#0ac275]"
+                  />
+
+                  <select
+                    name="stock"
+                    class="bg-[#10231b] border border-[#224939] text-white rounded-xl px-4 py-3 focus:border-[#0ac275] focus:ring-[#0ac275]"
+                  >
+                   <option value="">All Stocks</option>
+
+                    <option value="in_stock"
+                        {% if request.GET.stock == 'in_stock' %}selected{% endif %}>
+                        In Stock
+                    </option>
+
+                    <option value="out_stock"
+                        {% if request.GET.stock == 'out_stock' %}selected{% endif %}>
+                        Out Of Stock
+                    </option>
+
+                    <option value="low_stock"
+                        {% if request.GET.stock == 'low_stock' %}selected{% endif %}>
+                        Low Stock
+                    </option>
+                    <option value="low_stock">Low Stock</option>
+                  </select>
+
+                  <button
+                    type="submit"
+                    class="bg-[#0ac275] hover:bg-[#09a864] transition text-[#10231b] font-bold px-6 py-3 rounded-xl"
+                  >
+                    Apply
+                  </button>
+
+                  <a
+                    href="{% url 'inventory_management' %}"
+                    class="bg-[#224939] hover:bg-[#2c5c49] transition text-white px-6 py-3 rounded-xl"
+                  >
+                    Clear
+                  </a>
+                </form>
+              </div>
+
+              <!-- Table -->
+
+              <div
+                class="bg-[#173328] border border-[#224939] rounded-2xl shadow-2xl overflow-x-auto"
+              >
+                <table class="w-full min-w-[900px] text-sm">
+                  <thead class="bg-[#224939] border-b border-[#2f624d]">
+                    <tr>
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Product
+                      </th>
+
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Size
+                      </th>
+
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Color
+                      </th>
+
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Stock
+                      </th>
+
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Status
+                      </th>
+
+                      <th class="px-6 py-4 text-left font-bold text-white">
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    {% for variant in page_obj %}
+
+                    <tr
+                      class="border-b border-[#224939] hover:bg-[#224939] transition"
+                    >
+                      <td class="px-6 py-5 font-semibold text-white">
+                        {{ variant.product.product_name }}
+                      </td>
+
+                      <td class="px-6 py-5 text-gray-200">
+                        {{ variant.size }}
+                      </td>
+
+                      <td class="px-6 py-5 text-gray-200">
+                        {{ variant.color }}
+                      </td>
+
+                      <td class="px-6 py-5 text-gray-200">
+                        {{ variant.stock }}
+                      </td>
+
+                      <td class="px-6 py-5">
+                        {% if variant.stock == 0 %}
+
+                        <span
+                          class="bg-red-100 text-red-700 px-4 py-1 rounded-full text-xs font-bold"
+                        >
+                          Out Of Stock
+                        </span>
+
+                        {% elif variant.stock <= 5 %}
+
+                        <span
+                          class="bg-yellow-100 text-yellow-700 px-4 py-1 rounded-full text-xs font-bold"
+                        >
+                          Low Stock
+                        </span>
+
+                        {% else %}
+
+                        <span
+                          class="bg-green-100 text-green-700 px-4 py-1 rounded-full text-xs font-bold"
+                        >
+                          In Stock
+                        </span>
+
+                        {% endif %}
+                      </td>
+
+                      <td class="px-6 py-5">
+                        <a
+                          href="{% url 'update_stock' variant.id %}"
+                          class="inline-block bg-[#0ac275] hover:bg-[#09a864] text-[#10231b] px-5 py-2 rounded-xl text-sm font-bold transition"
+                        >
+                          Update Stock
+                        </a>
+                      </td>
+                    </tr>
+
+                    {% empty %}
+
+                    <tr>
+                      <td
+                        colspan="6"
+                        class="px-6 py-8 text-center text-gray-500"
+                      >
+                        No Products Found
+                      </td>
+                    </tr>
+
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div class="flex justify-center items-center gap-2 mt-6 text-white">
+
+    {% if page_obj.has_previous %}
+        <a
+            href="?page=1{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}"
+            class="px-4 py-2 bg-[#173328] border border-[#224939] hover:bg-[#224939] transition rounded-xl"
+        >
+            First
+        </a>
+
+        <a
+            href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}"
+            class="px-4 py-2 bg-[#173328] border border-[#224939] hover:bg-[#224939] transition rounded-xl"
+        >
+            Prev
+        </a>
+    {% endif %}
+
+    <span class="px-4 py-2 text-gray-300">
+        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+    </span>
+
+    {% if page_obj.has_next %}
+        <a
+            href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}"
+            class="px-4 py-2 bg-[#173328] border border-[#224939] hover:bg-[#224939] transition rounded-xl"
+        >
+            Next
+        </a>
+
+        <a
+            href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.stock %}&stock={{ request.GET.stock }}{% endif %}"
+            class="px-4 py-2 bg-[#173328] border border-[#224939] hover:bg-[#224939] transition rounded-xl"
+        >
+            Last
+        </a>
+    {% endif %}
+
+</div>
+            </div>
+          </div>
+          <script>
+      setTimeout(function () {
+        const messageBox = document.getElementById("message-box");
+        if (messageBox) {
+          // Smooth fade out
+          messageBox.style.transition = "opacity 0.5s ease";
+          messageBox.style.opacity = "0";
+          // Remove completely after fade
+          setTimeout(() => {
+            messageBox.style.display = "none";
+          }, 500);
+        }
+      }, 5000); // 5 seconds
+    </script>
+
+    {% endblock %}
+
+         
+     

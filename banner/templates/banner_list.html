@@ -1,0 +1,42 @@
+{% extends "admin_base.html" %}
+
+{% block title %} BannerList {% endblock %}
+
+{% block content %}
+
+<h1>Banner List</h1>
+
+<a href="{% url 'add_banner' %}">Add Banner</a>
+
+<table border="1">
+    <tr>
+        <th>Title</th>
+        <th>Image</th>
+        <th>Type</th>
+        <th>Status</th>
+        <th>Actions</th>
+    </tr>
+
+    {% for banner in banners %}
+    <tr>
+        <td>{{ banner.title }}</td>
+        <td>
+            <img src="{{ banner.image.url }}" width="120">
+        </td>
+        <td>{{ banner.banner_type }}</td>
+        <td>{{ banner.is_active }}</td>
+        <td>
+            <a href="{% url 'edit_banner' banner.id %}">Edit</a>
+            <a href="{% url 'delete_banner' banner.id %}">Delete</a>
+            <a href="{% url 'toggle_banner' banner.id %}">
+                Toggle
+            </a>
+        </td>
+    </tr>
+    {% endfor %}
+</table>
+
+
+
+
+{% endblock %}

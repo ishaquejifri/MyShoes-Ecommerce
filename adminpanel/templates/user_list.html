@@ -1,0 +1,282 @@
+{% extends "admin_base.html" %}
+ {% block title %} Users {% endblock %}
+  {% block content %}
+          <div
+            class="layout-content-container flex flex-col max-w-screen-lg flex-1"
+          >
+          {% if messages %}
+            <div id="message-box" class="max-w-md mx-auto mt-4">
+            {% for message in messages %}
+              <div class="mb-4 p-3 rounded text-white text-sm text-center
+                {% if message.tags == 'error' %} bg-red-500
+                {% elif message.tags == 'success' %} bg-green-500
+                {% else %} bg-gray-500
+                {% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
+            <div class="flex flex-wrap justify-between gap-3 p-4">
+              <p
+                class="text-white tracking-light text-2xl font-bold leading-tight min-w-72"
+              >
+                User Management
+              </p>
+            </div>
+        <form method="GET" class="px-4 py-3 flex items-center gap-3">
+
+  <label class="flex flex-col min-w-40 h-12 w-full">
+    <div class="flex w-full flex-1 items-stretch rounded-lg h-full">
+
+```
+  <!-- Search Icon -->
+  <div
+    class="text-[#8dceb3] flex border-none bg-[#204b39] items-center justify-center pl-4 rounded-l-lg border-r-0">
+    <svg xmlns="http://www.w3.org/2000/svg"
+         width="24px"
+         height="24px"
+         fill="currentColor"
+         viewBox="0 0 256 256">
+      <path d="M229.66,218.34l-50.07-50.06a88.11,88.11,0,1,0-11.31,11.31l50.06,50.07a8,8,0,0,0,11.32-11.32ZM40,112a72,72,0,1,1,72,72A72.08,72.08,0,0,1,40,112Z"></path>
+    </svg>
+  </div>
+
+  <!-- Search Input -->
+  <input
+    type="text"
+    name="search"
+    value="{{ search_query }}"
+    placeholder="Search users by name or email"
+    class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border-none bg-[#204b39] focus:border-none h-full placeholder:text-[#8dceb3] px-4 rounded-l-none border-l-0 pl-2 text-base font-normal leading-normal"
+  />
+
+</div>
+```
+
+  </label>
+
+  <!-- Search Button -->
+
+<button
+ type="submit"
+ class="h-10 px-5 rounded-lg bg-[#2e6b52] hover:bg-[#3d8a6b] text-white text-sm font-medium">
+Search </button>
+
+  <!-- Clear Button -->
+
+{% if search_query %} <a
+ href="{% url 'user_list' %}"
+ class="h-12 px-5 flex items-center justify-center rounded-lg bg-gray-500 hover:bg-gray-600 text-white text-sm font-medium">
+Clear </a>
+{% endif %}
+
+</form>
+
+            <div class="px-4 py-3 @container">
+              <div
+                class="flex overflow-hidden rounded-lg border border-[#2e6b52] bg-[#0f241b]"
+              >
+                <table class="flex-1">
+                  <thead>
+                    <tr class="bg-[#173629]">
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-120 px-4 py-3 text-left text-white w-40 text-sm font-medium leading-normal"
+                      >
+                        User ID
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-176 px-4 py-3 text-left text-white w-14 text-sm font-medium leading-normal"
+                      >
+                        Avatar
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-296 px-4 py-3 text-left text-white w-40 text-sm font-medium leading-normal"
+                      >
+                        Full Name
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-416 px-4 py-3 text-left text-white w-40 text-sm font-medium leading-normal"
+                      >
+                        Email
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-536 px-4 py-3 text-left text-white w-40 text-sm font-medium leading-normal"
+                      >
+                        Join Date
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-656 px-4 py-3 text-left text-white w-40 text-sm font-medium leading-normal"
+                      >
+                        Total Orders
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-776 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal"
+                      >
+                        Status
+                      </th>
+                      <th
+                        class="table-79933c88-25a2-4eb6-8d28-a3b580889efe-column-896 px-4 py-3 text-left text-white w-60 text-[#8dceb3] text-sm font-medium leading-normal"
+                      >
+                        Action
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for user in page_obj %}
+                    <tr class="border-t border-t-[#2e6b52]">
+                      <!-- USER ID -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-[400px] text-white text-sm font-normal"
+                      >
+                        #{{ user.id }}
+                      </td>
+
+                      <!-- AVATAR -->
+                      <td class="h-[72px] px-4 py-2 w-14 text-sm">
+                        <div
+                          class="bg-center bg-no-repeat aspect-square bg-cover rounded-full w-10"
+                          style="background-image: url('https://ui-avatars.com/api/?name={{ user.username }}');"
+                        ></div>
+                      </td>
+
+                      <!-- FULL NAME -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-[400px] text-[#8dceb3] text-sm"
+                      >
+                        {{ user.username }}
+                      </td>
+
+                      <!-- EMAIL -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-[400px] text-[#8dceb3] text-sm"
+                      >
+                        {{ user.email }}
+                      </td>
+
+                      <!-- JOIN DATE -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-[400px] text-[#8dceb3] text-sm"
+                      >
+                        {{ user.date_joined|date:"Y-m-d" }}
+                      </td>
+
+                      <!-- TOTAL ORDERS (placeholder for now) -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-[400px] text-[#8dceb3] text-sm"
+                      >
+                        {{ user.total_orders }} 
+                      </td>
+
+                      <!-- STATUS -->
+                      <td class="h-[72px] px-4 py-2 w-60 text-sm">
+                        {% if user.is_block %}
+                        <button
+                          class="flex items-center justify-center rounded-lg h-8 px-4 bg-red-600 text-white text-sm w-full"
+                        >
+                          Blocked
+                        </button>
+                        {% else %}
+                        <button
+                          class="flex items-center justify-center rounded-lg h-8 px-4 bg-[#204b39] text-white text-sm w-full"
+                        >
+                          Active
+                        </button>
+                        {% endif %}
+                      </td>
+
+                      <!-- ACTION -->
+                      <td
+                        class="h-[72px] px-4 py-2 w-60 text-[#8dceb3] text-sm font-bold"
+                      >
+                        {% if user.is_block %}
+                        <a
+                          href="{% url 'toggle_block_user' user.id %}"
+                          onclick="confirmBlock(event, this)"
+                          class="text-green-400 hover:underline"
+                        >
+                          unblock
+                        </a>
+                        {% else %}
+                        <a
+                          href="{% url 'toggle_block_user' user.id %}"
+                          onclick="confirmBlock(event, this)"
+                          class="text-red-400 hover:underline"
+                        >
+                          block
+                        </a>
+                        {% endif %}
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+
+                <script>
+                  function confirmBlock(event, element) {
+                    event.preventDefault();
+
+                    Swal.fire({
+                      title: "Are you sure?",
+                      text: "You can change this later.",
+                      icon: "warning",
+                      showCancelButton: true,
+                      confirmButtonColor: "#e3342f",
+                      cancelButtonColor: "#06ee12",
+                      confirmButtonText: "Yes, continue",
+                    }).then((result) => {
+                      if (result.isConfirmed) {
+                        window.location.href = element.href;
+                      }
+                    });
+                  }
+                </script>
+                <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+              </div>
+
+              <div class="flex justify-center mt-6 gap-2">
+
+  {% if page_obj.has_previous %}
+  
+  <a href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}"
+     class="px-3 py-1 bg-[#204b39] text-white rounded">
+     First
+  </a>
+
+  <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+     class="px-3 py-1 bg-[#204b39] text-white rounded">
+     Previous
+  </a>
+
+  {% endif %}
+
+  <span class="px-4 py-1 text-white">
+      Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+  </span>
+
+  {% if page_obj.has_next %}
+
+  <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}"
+     class="px-3 py-1 bg-[#204b39] text-white rounded">
+     Next
+  </a>
+
+  <a href="?page={{ page_obj.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}"
+     class="px-3 py-1 bg-[#204b39] text-white rounded">
+     Last
+  </a>
+
+  {% endif %}
+
+</div>             
+      
+      <script>
+            setTimeout(function () {
+              const messageBox = document.getElementById("message-box");
+              if (messageBox) {
+                messageBox.style.display = "none";
+              }
+            }, 5000); // 5000ms = 5 seconds
+          </script>
+
+ {% endblock %} 
