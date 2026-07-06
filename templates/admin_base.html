@@ -145,11 +145,24 @@
     <!-- Main Content -->
     <main class="flex-1 p-8 overflow-y-auto">
       <div class="flex items-center justify-between mb-8">
+        {% if messages %}
+            <div id="message-box" class="max-w-md mx-auto mt-4">
+            {% for message in messages %}
+              <div class="mb-4 p-3 rounded text-white text-sm text-center
+                {% if message.tags == 'error' %} bg-red-500
+                {% elif message.tags == 'success' %} bg-green-500
+                {% else %} bg-gray-500
+                {% endif %}">
+                {{ message }}
+              </div>
+            {% endfor %}
+            </div>
+          {% endif %}
         <div>          
           <p class="text-[#92c9ad] text-sm mt-1">Welcome back, Admin 👋</p>
         </div>
       </div>     
-            {% block content %}
+            {% block content %} 
 
 
 
@@ -159,5 +172,13 @@
     </main>   
     </div>
     </div>
+    <script>
+            setTimeout(function () {
+              const messageBox = document.getElementById("message-box");
+              if (messageBox) {
+                messageBox.style.display = "none";
+              }
+            }, 5000); // 5000ms = 5 seconds
+          </script>
   </body>
 </html>
