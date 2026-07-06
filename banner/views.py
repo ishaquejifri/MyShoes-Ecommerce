@@ -23,17 +23,21 @@ def add_banner(request):
             print(form.errors)  # Print form errors to the console for debugging
     return render(request, 'add_banner.html', {'form': form})
     
-def edit_banner(request,id):
+def edit_banner(request, id):
     banner = get_object_or_404(Banner, id=id)
-    form = BannerForm(instance=banner)
 
-    if request.method == 'POST':
-        form = BannerForm(request.POSt, request.FILES, instance=banner)
+    if request.method == "POST":
+        form = BannerForm(request.POST, request.FILES, instance=banner)
+
         if form.is_valid():
             form.save()
-            messages.success(request, 'Banner updated successfully')
-            return redirect('banner_list')
-    return render(request, 'edit_banner.html', {'form': form})
+            messages.success(request, "Banner updated successfully.")
+            return redirect("banner_list")
+    else:
+        form = BannerForm(instance=banner)
+
+    return render(request, "edit_banner.html", {"form": form})
+
 
 def delete_banner(request,id):
     banner = get_object_or_404(Banner, id=id)

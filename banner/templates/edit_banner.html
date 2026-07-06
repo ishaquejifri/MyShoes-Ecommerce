@@ -1,11 +1,10 @@
-```html
 {% extends "admin_base.html" %}
 
 {% block title %}Edit Banner{% endblock %}
 
 {% block content %}
 
-<div class="max-w-3xl mx-auto px-6 py-8">
+<div class="max-w-4xl mx-auto px-6 py-8">
 
     <!-- Heading -->
     <div class="mb-8">
@@ -13,7 +12,7 @@
             Edit Banner
         </h1>
         <p class="text-gray-500 mt-2">
-            Update the banner details below.
+            Update the banner details and save your changes.
         </p>
     </div>
 
@@ -21,119 +20,141 @@
     <div class="bg-white rounded-xl shadow-lg p-8">
 
         <form method="POST" enctype="multipart/form-data" class="space-y-6">
-
             {% csrf_token %}
 
             <!-- Title -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
                     Banner Title
                 </label>
                 {{ form.title }}
-
                 {% if form.title.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {{ form.title.errors.0 }}
-                    </p>
+                    <p class="text-red-500 text-sm mt-1">{{ form.title.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <!-- Subtitle -->
-            {% if form.subtitle %}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
                     Subtitle
                 </label>
                 {{ form.subtitle }}
-
                 {% if form.subtitle.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {{ form.subtitle.errors.0 }}
-                    </p>
+                    <p class="text-red-500 text-sm mt-1">{{ form.subtitle.errors.0 }}</p>
                 {% endif %}
             </div>
-            {% endif %}
 
             <!-- Current Image -->
             {% if form.instance.image %}
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Current Banner
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
+                    Current Banner Image
                 </label>
 
                 <img src="{{ form.instance.image.url }}"
-                     class="w-72 h-40 object-cover rounded-lg border shadow">
+                     alt="Banner Image"
+                     class="w-full max-w-md h-56 object-cover rounded-lg border shadow">
             </div>
             {% endif %}
 
             <!-- Upload New Image -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Change Image
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
+                    Change Banner Image
                 </label>
-
                 {{ form.image }}
-
                 {% if form.image.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {{ form.image.errors.0 }}
-                    </p>
+                    <p class="text-red-500 text-sm mt-1">{{ form.image.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Button Text -->
+            <div>
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
+                    Button Text
+                </label>
+                {{ form.button_text }}
+                {% if form.button_text.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.button_text.errors.0 }}</p>
+                {% endif %}
+            </div>
+
+            <!-- Button Link -->
+            <div>
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
+                    Button Link
+                </label>
+                {{ form.button_link }}
+                {% if form.button_link.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.button_link.errors.0 }}</p>
                 {% endif %}
             </div>
 
             <!-- Banner Type -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
                     Banner Type
                 </label>
-
                 {{ form.banner_type }}
-
                 {% if form.banner_type.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {{ form.banner_type.errors.0 }}
-                    </p>
+                    <p class="text-red-500 text-sm mt-1">{{ form.banner_type.errors.0 }}</p>
                 {% endif %}
             </div>
 
-            <!-- Link -->
-            {% if form.link %}
+            <!-- Display Order -->
             <div>
-                <label class="block text-sm font-semibold text-gray-700 mb-2">
-                    Redirect URL
+                <label class="block mb-2 text-sm font-semibold text-gray-700">
+                    Display Order
                 </label>
-
-                {{ form.link }}
-
-                {% if form.link.errors %}
-                    <p class="text-red-500 text-sm mt-1">
-                        {{ form.link.errors.0 }}
-                    </p>
+                {{ form.display_order }}
+                {% if form.display_order.errors %}
+                    <p class="text-red-500 text-sm mt-1">{{ form.display_order.errors.0 }}</p>
                 {% endif %}
             </div>
-            {% endif %}
+
+            <!-- Dates -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-gray-700">
+                        Start Date
+                    </label>
+                    {{ form.start_date }}
+                    {% if form.start_date.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.start_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <div>
+                    <label class="block mb-2 text-sm font-semibold text-gray-700">
+                        End Date
+                    </label>
+                    {{ form.end_date }}
+                    {% if form.end_date.errors %}
+                        <p class="text-red-500 text-sm mt-1">{{ form.end_date.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+            </div>
 
             <!-- Active -->
-            {% if form.is_active %}
             <div class="flex items-center gap-3">
                 {{ form.is_active }}
-
                 <label class="text-gray-700 font-medium">
                     Active Banner
                 </label>
             </div>
-            {% endif %}
 
             <!-- Buttons -->
             <div class="flex justify-end gap-4 pt-6">
 
                 <a href="{% url 'banner_list' %}"
-                   class="px-6 py-2 rounded-lg border border-gray-300 text-gray-700 hover:bg-gray-100 transition">
+                   class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-100 transition">
                     Cancel
                 </a>
 
                 <button type="submit"
-                        class="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg shadow transition">
+                        class="px-6 py-2 bg-green-600 hover:bg-green-700 text-white rounded-lg shadow transition">
                     Update Banner
                 </button>
 
@@ -146,4 +167,3 @@
 </div>
 
 {% endblock %}
-```
