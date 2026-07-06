@@ -193,8 +193,12 @@ def admin_sales_report(request):
     total_coupon_discount = orders.aggregate(total=Sum('coupon_discount'))['total'] or 0
     overall_discount = (total_discount or 0) + (total_coupon_discount or 0)
 
+    paginator = Paginator(orders, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
     context = {
-        'orders': orders,
+        'orders': page_obj,
         'filter_type': filter_type,
         'start_date': start_date,
         'end_date': end_date,
@@ -205,6 +209,7 @@ def admin_sales_report(request):
         'total_discount': total_discount,
         'total_coupon_discount': total_coupon_discount,
         'overall_discount': overall_discount,
+        'page_obj': page_obj,
         'filter_choices': [
             ('daily', 'Today'),
             ('weekly', 'This Week'),
