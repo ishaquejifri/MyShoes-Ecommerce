@@ -1,42 +1,156 @@
+```html
 {% extends "admin_base.html" %}
 
-{% block title %} BannerList {% endblock %}
+{% block title %}Banner List{% endblock %}
 
 {% block content %}
 
-<h1>Banner List</h1>
+<div class="max-w-7xl mx-auto px-6 py-8">
 
-<a href="{% url 'add_banner' %}">Add Banner</a>
+    <!-- Header -->
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h1 class="text-3xl font-bold text-gray-800">Banner Management</h1>
+            <p class="text-gray-500 mt-1">Manage homepage banners.</p>
+        </div>
 
-<table border="1">
-    <tr>
-        <th>Title</th>
-        <th>Image</th>
-        <th>Type</th>
-        <th>Status</th>
-        <th>Actions</th>
-    </tr>
+        <a href="{% url 'add_banner' %}"
+           class="bg-indigo-600 hover:bg-indigo-700 text-white px-5 py-2 rounded-lg shadow transition">
+            + Add Banner
+        </a>
+    </div>
 
-    {% for banner in banners %}
-    <tr>
-        <td>{{ banner.title }}</td>
-        <td>
-            <img src="{{ banner.image.url }}" width="120">
-        </td>
-        <td>{{ banner.banner_type }}</td>
-        <td>{{ banner.is_active }}</td>
-        <td>
-            <a href="{% url 'edit_banner' banner.id %}">Edit</a>
-            <a href="{% url 'delete_banner' banner.id %}">Delete</a>
-            <a href="{% url 'toggle_banner' banner.id %}">
-                Toggle
-            </a>
-        </td>
-    </tr>
-    {% endfor %}
-</table>
+    <!-- Table -->
+    <div class="bg-white rounded-xl shadow-lg overflow-hidden">
 
+        <table class="min-w-full divide-y divide-gray-200">
 
+            <thead class="bg-gray-100">
+                <tr>
+                    <th class="px-6 py-4 text-left text-sm font-semibold text-gray-700">
+                        Banner
+                    </th>
 
+                    <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                        Preview
+                    </th>
+
+                    <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                        Type
+                    </th>
+
+                    <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                        Status
+                    </th>
+
+                    <th class="px-6 py-4 text-center text-sm font-semibold text-gray-700">
+                        Actions
+                    </th>
+                </tr>
+            </thead>
+
+            <tbody class="divide-y divide-gray-100 bg-white">
+
+                {% for banner in banners %}
+                <tr class="hover:bg-gray-50 transition">
+
+                    <!-- Title -->
+                    <td class="px-6 py-4">
+                        <h3 class="font-semibold text-gray-800">
+                            {{ banner.title }}
+                        </h3>
+
+                        {% if banner.subtitle %}
+                        <p class="text-sm text-gray-500">
+                            {{ banner.subtitle }}
+                        </p>
+                        {% endif %}
+                    </td>
+
+                    <!-- Image -->
+                    <td class="px-6 py-4 text-center">
+                        <img src="{{ banner.image.url }}"
+                             class="w-32 h-20 object-cover rounded-lg border mx-auto">
+                    </td>
+
+                    <!-- Type -->
+                    <td class="px-6 py-4 text-center">
+                        <span class="px-3 py-1 rounded-full bg-blue-100 text-blue-700 text-sm font-medium">
+                            {{ banner.banner_type }}
+                        </span>
+                    </td>
+
+                    <!-- Status -->
+                    <td class="px-6 py-4 text-center">
+
+                        {% if banner.is_active %}
+                        <span class="px-3 py-1 rounded-full bg-green-100 text-green-700 text-sm font-semibold">
+                            Active
+                        </span>
+                        {% else %}
+                        <span class="px-3 py-1 rounded-full bg-red-100 text-red-700 text-sm font-semibold">
+                            Inactive
+                        </span>
+                        {% endif %}
+
+                    </td>
+
+                    <!-- Actions -->
+                    <td class="px-6 py-4">
+
+                        <div class="flex items-center justify-center gap-3">
+
+                            <a href="{% url 'edit_banner' banner.id %}"
+                               class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg text-sm">
+                                Edit
+                            </a>
+
+                            <form method="POST"
+                                  action="{% url 'delete_banner' banner.id %}">
+                                {% csrf_token %}
+
+                                <button
+                                    onclick="return confirm('Delete this banner?')"
+                                    class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg text-sm">
+                                    Delete
+                                </button>
+                            </form>
+
+                            {% if banner.is_active %}
+                            <a href="{% url 'toggle_banner' banner.id %}"
+                               class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg text-sm">
+                                Disable
+                            </a>
+                            {% else %}
+                            <a href="{% url 'toggle_banner' banner.id %}"
+                               class="bg-green-500 hover:bg-green-600 text-white px-4 py-2 rounded-lg text-sm">
+                                Enable
+                            </a>
+                            {% endif %}
+
+                        </div>
+
+                    </td>
+
+                </tr>
+
+                {% empty %}
+
+                <tr>
+                    <td colspan="5" class="text-center py-10 text-gray-500">
+                        No banners available.
+                    </td>
+                </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
 
 {% endblock %}
+```
