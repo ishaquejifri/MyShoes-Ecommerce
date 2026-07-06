@@ -1,6 +1,7 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from .models import Banner
 from .forms import BannerForm
+from django.contrib import messages
 
 # Create your views here.
 
@@ -16,7 +17,10 @@ def add_banner(request):
         form = BannerForm(request.POST, request.FILES)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Banner added successfully')
             return redirect('banner_list')
+        else:
+            print(form.errors)  # Print form errors to the console for debugging
     return render(request, 'add_banner.html', {'form': form})
     
 def edit_banner(request,id):
@@ -27,12 +31,14 @@ def edit_banner(request,id):
         form = BannerForm(request.POSt, request.FILES, instance=banner)
         if form.is_valid():
             form.save()
+            messages.success(request, 'Banner updated successfully')
             return redirect('banner_list')
     return render(request, 'edit_banner.html', {'form': form})
 
 def delete_banner(request,id):
     banner = get_object_or_404(Banner, id=id)
     banner.delete()
+    messages.success(request, 'Banner deleted successfully')
     return redirect('banner_list')  
 
 def toggle_banner(request,id):
