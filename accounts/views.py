@@ -136,25 +136,13 @@ def signup(request):
         request.session['signup_email'] = email
         request.session['otp_purpose'] = 'signup'
 
-        message = f'''
-            Hello,
-            Thank you for using MyShoes.
-
-            Your One-Time password (OTP) is:
-
-            >>>> {otp} <<<<
-
-            This OTP will expire in 2 minutes.
-
-            For your security:
-            • Do not share this otp with anyone.
-            • MyShoes will never ask your otp.
-            • If you did not request this OTP, please ignore this email.
-
-            Regards,
-            MyShoes Team.
-
-        '''
+        message = (
+            f'Hello {first_name},\n\n'
+            f'Your OTP for MyShoes account verification is: {otp}\n\n'
+            f'This OTP will expire in 2 minutes.\n\n'
+            f'If you did not request this, please ignore this email.\n\n'
+            f'Thanks,\n MyShoes Team.'
+        )
 
         send_mail(
             'MyShoes Account Verification OTP',
@@ -205,15 +193,24 @@ def verify_otp(request):
                     messages.error(request, 'OTP has expired')
                     return redirect('signup')
 
-                referred_by_user = None
-                ref_code = signup_data.get('referral_code')
-                if ref_code:
-                    try:
-                        referred_by_user = User.objects.get(referral_code=ref_code)
-                    except User.DoesNotExist:
-                        pass
+            stored_otp = request.session.get('otp')
+            print("Entered OTP:", entered_otp)
+            print("Stored OTP:", stored_otp)
+            
+            if str(entered_otp) != str(stored_otp):
+                messages.error(request, 'Invalid OTP')
+                return redirect('verify_otp')
 
-                user = User.objects.create_user(
+            referred_by_user = None
+            ref_code = signup_data.get('referral_code')
+
+            if ref_code:
+                try:
+                    referred_by_user = User.objects.get(referral_code=ref_code)
+                except User.DoesNotExist:
+                    pass
+
+            user = User.objects.create_user(
                     username=signup_data['email'],
                     email=signup_data['email'],
                     first_name=signup_data['first_name'],
@@ -224,7 +221,7 @@ def verify_otp(request):
                 )
 
                 # Payout referral bonuses
-                if referred_by_user:
+            if referred_by_user:
                     referrer_wallet, _ = Wallet.objects.get_or_create(user=referred_by_user)
                     referrer_wallet.deposit(
                         amount=Decimal('100.00'),
@@ -238,14 +235,14 @@ def verify_otp(request):
                         transaction_type='referral_reward'
                     )
 
-                request.session.pop('signup_data', None)
-                request.session.pop('otp', None)
-                request.session.pop('signup_email', None)
-                request.session.pop('otp_purpose', None)
-                request.session.pop('referral_code', None)
+            request.session.pop('signup_data', None)
+            request.session.pop('otp', None)
+            request.session.pop('signup_email', None)
+            request.session.pop('otp_purpose', None)
+            request.session.pop('referral_code', None)
 
-                messages.success(request, 'Account created successfully')
-                return redirect('login')
+            messages.success(request, 'Account created successfully')
+            return redirect('login')
 
             messages.error(request, 'Invalid OTP')
             return redirect('verify_otp')
@@ -306,20 +303,15 @@ def resend_otp(request):
     signup_data['otp_created_at'] = timezone.now().isoformat()
     request.session['signup_data'] = signup_data
 
-    message = f''' 
+    first_name = signup_data['first_name']
 
-        Hello,
-        Thank you for using MyShoes.
-
-        Your new OTP is:
-
-        >>>> {otp} <<<<
-
-        This OTP will expire in 2 minutes.
-        Thanks
-        MyShoes
-
-       '''
+    message = (
+        f'Hello {first_name},\n\n'
+        f'Your new OTP for MyShoes account verification is: {otp}\n\n'
+        f'This OTP will expire in 2 minutes.\n\n'
+        'Thanks,\n MyShoes Team.'
+    )
+    
 
     send_mail(
         'Your New OTP',
