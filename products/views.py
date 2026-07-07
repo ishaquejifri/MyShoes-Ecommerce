@@ -200,7 +200,9 @@ def add_variant(request,product_id):
      product = get_object_or_404(Product,id=product_id)
 
      if request.method=="POST":
-          form = ProductVariantForm(request.POST)
+          form = ProductVariantForm(
+               request.POST,
+               initial={'product': product})
 
           if form.is_valid():
                variant = form.save(commit=False)
@@ -209,7 +211,7 @@ def add_variant(request,product_id):
                return redirect('products:product_details', id=product_id)
           
      else:
-          form = ProductVariantForm()
+          form = ProductVariantForm(initial={'product': product}) 
 
      return render(request,'add_variant.html',{
           'form': form,
@@ -221,6 +223,7 @@ def add_variant(request,product_id):
 @admin_required
 @login_required(login_url='admin_login')
 def edit_variant(request, variant_id):
+     
      variant = get_object_or_404(ProductVariant, id=variant_id)
 
      if request.method == "POST":

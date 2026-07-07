@@ -170,29 +170,20 @@ class ProductImage(models.Model):
 
         img.save(self.image.path)
 
-# this is the standarized model
-# SIZE_CHOICES = [
 
-#     ('7','7'),
-#     ('8','8'),
-#     ('9','9'),
-#     ('10','10'),
-    
-# ]
-
-# COLOR_CHOICES = [
-
-#     ('Black','Black'),
-#     ('Blue','Blue'),
-#     ('White','White'),
-#     ('Brown','Brown'),
-#     ('Green','Green'),
-#     ('Orange','Orange')
-# ]
 
 class ProductVariant(models.Model):
+    SIZE_CHOICES = [
+        ('7', '7'),
+        ('8', '8'),
+        ('9', '9'),
+        ('10', '10'),
+        ('11', '11'),
+        ('12', '12'),
+    ]
+  
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='variants')
-    size = models.CharField(max_length=20)
+    size = models.CharField(max_length=20, choices=SIZE_CHOICES)
     color = models.CharField(max_length=50)
     stock = models.PositiveIntegerField(default=0)
     price = models.DecimalField(max_digits=10,decimal_places=2,null=True)
@@ -200,6 +191,14 @@ class ProductVariant(models.Model):
 
     def __str__(self):
         return f"{self.product.product_name} - {self.size} - {self.color}"
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['product', 'size', 'color'],
+                name='unique_product_variant'
+            )
+        ]
 
 
 
