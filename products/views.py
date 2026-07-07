@@ -208,7 +208,10 @@ def add_variant(request,product_id):
                variant = form.save(commit=False)
                variant.product = product
                variant.save()
+               messages.success(request, 'Variant Added Successfully.')
                return redirect('products:product_details', id=product_id)
+          else:
+               messages.error(request, 'Please check the size or color.')
           
      else:
           form = ProductVariantForm(initial={'product': product}) 
@@ -223,7 +226,7 @@ def add_variant(request,product_id):
 @admin_required
 @login_required(login_url='admin_login')
 def edit_variant(request, variant_id):
-     
+
      variant = get_object_or_404(ProductVariant, id=variant_id)
 
      if request.method == "POST":
@@ -231,7 +234,10 @@ def edit_variant(request, variant_id):
 
           if form.is_valid():
                form.save()
+               messages.success(request, 'Variant Updated Successfully.')
                return redirect('products:product_details', id=variant.product.id)
+          else:
+               messages.error(request, 'Please check the size or color.')
      else:
           form = ProductVariantForm(instance=variant)
 
