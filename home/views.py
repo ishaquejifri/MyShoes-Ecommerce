@@ -107,10 +107,13 @@ def user_product_list(request, category_id=None):
 def user_product_details(request,pk):
     categories = Category.objects.filter(is_active=True)
     coupons = Coupon.objects.filter(is_active=True) 
-    product = get_object_or_404(Product,
+    try:
+        product = get_object_or_404(Product,
                                  pk=pk,
                                  is_deleted=False
                                  )
+    except Product.DoesNotExist:
+        return render(request, '404.html', status=404)    
     
     if ( not product.is_listed  or not product.is_available or product.is_blocked ):
         return render(
