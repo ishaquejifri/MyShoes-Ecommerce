@@ -2,14 +2,18 @@ from django.shortcuts import render,redirect,get_object_or_404
 from .models import Banner
 from .forms import BannerForm
 from django.contrib import messages
+from adminpanel.decorators import admin_required
+from django.views.decorators.cache import never_cache
 
 # Create your views here.
-
+@admin_required
+@never_cache
 def banner_list(request):
     banners = Banner.objects.all()
     return render(request, 'banner_list.html', {'banners': banners})
 
-
+@admin_required
+@never_cache
 def add_banner(request):
     form = BannerForm()
 
@@ -23,6 +27,8 @@ def add_banner(request):
             print(form.errors)  # Print form errors to the console for debugging
     return render(request, 'add_banner.html', {'form': form})
     
+@admin_required
+@never_cache
 def edit_banner(request, id):
     banner = get_object_or_404(Banner, id=id)
 
