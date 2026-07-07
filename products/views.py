@@ -211,7 +211,7 @@ def add_variant(request,product_id):
                messages.success(request, 'Variant Added Successfully.')
                return redirect('products:product_details', id=product_id)
           else:
-               messages.error(request, 'Please check the size or color.')
+               messages.error(request, 'This size and color combination is already exists for this product.')
           
      else:
           form = ProductVariantForm(initial={'product': product}) 
@@ -237,7 +237,7 @@ def edit_variant(request, variant_id):
                messages.success(request, 'Variant Updated Successfully.')
                return redirect('products:product_details', id=variant.product.id)
           else:
-               messages.error(request, 'Please check the size or color.')
+               messages.error(request, 'This size and color combination is already exists for this product.')
      else:
           form = ProductVariantForm(instance=variant)
 

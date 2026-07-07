@@ -11,8 +11,7 @@ class ProductForm(forms.ModelForm):
             'base_price',
             'description',
             'category',
-            'image',
-            'offer_price',
+            'image',            
         ]
 
     def __init__(self, *args, **kwargs):

@@ -5,17 +5,7 @@
             class="layout-content-container flex flex-col max-w-[960px] flex-1"
           >
             <div class="flex flex-wrap justify-between gap-3 p-4">
-              {% if messages %}
-              <div id="message-container" class="px-4 pt-4">
-                {% for message in messages %}
-                <div
-                  class="mb-3 p-3 rounded-lg text-white {% if message.tags == 'success' %} bg-green-600 {% elif message.tags == 'error' %} bg-red-600 {% else %} bg-gray-600 {% endif %}"
-                >
-                  {{ message }}
-                </div>
-                {% endfor %}
-              </div>
-              {% endif %}
+              
               <p
                 class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72"
               >
