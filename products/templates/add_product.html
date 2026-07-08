@@ -198,21 +198,22 @@
   id="cropModal"
   class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50"
 >
-  <div class="bg-white rounded-xl w-[1100px] max-w-[98%] p-6">
-    <h2 class="text-2xl font-bold mb-5">Crop Image</h2>
-
-    <div class="flex justify-center">
-      <img
-    id="cropImage"
-    class="w-full h-[700px] object-contain"
-    />
+  <div
+    class="bg-white rounded-xl w-[850px] max-w-[95vw] max-h-[90vh] flex flex-col"
+  >
+    <div class="p-5 border-b">
+      <h2 class="text-2xl font-bold">Crop Image</h2>
     </div>
 
-    <div class="flex justify-end gap-3 mt-6">
+    <div class="flex-1 overflow-auto p-5 flex justify-center">
+      <img id="cropImage" class="w-full max-h-[700px] object-contain" />
+    </div>
+
+    <div class="p-5 border-t flex justify-end gap-3 bg-white">
       <button
         type="button"
         id="resetCrop"
-        class="bg-gray-500 text-white px-5 py-2 rounded"
+        class="px-5 py-2 bg-gray-500 text-white rounded"
       >
         Reset
       </button>
@@ -220,7 +221,7 @@
       <button
         type="button"
         id="cancelCrop"
-        class="bg-red-500 text-white px-5 py-2 rounded"
+        class="px-5 py-2 bg-red-500 text-white rounded"
       >
         Cancel
       </button>
@@ -228,7 +229,7 @@
       <button
         type="button"
         id="saveCrop"
-        class="bg-green-600 text-white px-5 py-2 rounded"
+        class="px-5 py-2 bg-green-600 text-white rounded"
       >
         Crop & Save
       </button>
@@ -291,15 +292,15 @@
         }
         cropper = new Cropper(cropImage, {
           aspectRatio: 1,
-          viewMode: 1,
-          autoCropArea: 0.9,
+          viewMode: 2,
+          autoCropArea: 1,
           responsive: true,
           background: false,
           movable: true,
           zoomable: true,
           cropBoxResizable: true,
-          minCropBoxWidth: 300,
-          minCropBoxHeight: 300,
+          minCropBoxWidth: 250,
+          minCropBoxHeight: 250,
           dragMode: "move",
         });
       };
@@ -310,8 +311,8 @@
   document.getElementById("saveCrop").addEventListener("click", function () {
     if (!cropper) return;
     const canvas = cropper.getCroppedCanvas({
-      width: 1000,
-      height: 1000,
+      width: 600,
+      height: 600,
       imageSmoothingEnabled: true,
       imageSmoothingQuality: "high",
       fillColor: "#ffffff",
