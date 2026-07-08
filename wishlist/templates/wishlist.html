@@ -77,6 +77,25 @@
                 </div>
               </button>
             </a>
+            <form method="POST" action="{% url 'logout' %}">
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="flex items-center justify-center rounded-lg h-10 px-3 bg-[#f2f3f2] hover:bg-red-50 text-[#131514] hover:text-red-600 transition duration-200"
+                >
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="20"
+                    height="20"
+                    fill="currentColor"
+                    viewBox="0 0 256 256"
+                  >
+                    <path
+                      d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"
+                    ></path>
+                  </svg>
+                </button>
+              </form>
             </div>
           </div>
         </header>  
@@ -94,11 +113,11 @@
             {% endfor %}
           </div>
         {% endif %}
-        <div class="gap-1 px-6 flex flex-1 justify-center py-5 pt-24">
-          <div class="bg-white rounded-xl shadow-sm p-5 sticky top-24">
-    <div class="space-y-2">
+        <div class="flex flex-1 justify-center gap-6 px-8 py-8 pt-28 max-w-7xl mx-auto w-full">
+          <div class="w-72 bg-white rounded-2xl shadow-md p-6 sticky top-28 h-fit">
+    <div class="space-y-3 mb-6">
     {% for item in wishlist_items|slice:":5" %}
-        <div class="flex justify-between text-sm">
+        <div class="flex items-center justify-between text-sm border-b pb-2">
             <span>{{ item.product.product_name|truncatechars:20 }}</span>
 
             {% if item.product.total_stock > 0 %}
@@ -112,38 +131,38 @@
     
 
     <a href="{% url 'user_product_list' %}"
-       class="mt-6 flex items-center justify-center rounded-lg h-11 bg-[#298fa3] text-white font-semibold">
+       class="mt-6 flex items-center justify-center rounded-xl h-11 bg-[#298fa3] text-white font-semibold hover:bg-[#237f91] transition">
         Continue Shopping
     </a>
 </div>
           <div class="layout-content-container flex flex-col max-w-[920px] flex-1">
             
-            <div class="flex flex-wrap justify-between gap-3 p-4"><p class="text-[#101819] tracking-light text-[32px] font-bold leading-tight min-w-72">My Wishlist</p>
+            <div class="flex items-center justify-between px-4 pb-6"><p class="text-3xl font-bold text-[#101819]">My Wishlist</p>
             </div>
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-7 px-4 pb-6">
               
   {% if wishlist_items %}
   
     {% for item in wishlist_items %}
     
-      <div class="bg-white rounded-xl shadow-sm p-3 flex flex-col h-[420px]">
+      <div class="bg-white rounded-2xl shadow-md hover:shadow-xl transition duration-300 p-4 flex flex-col h-[460px]">
   <!-- Product Image -->
-  <div class="w-full h-52 overflow-hidden rounded-lg bg-gray-100">
+  <div class="w-full h-56 overflow-hidden rounded-xl bg-gray-100">
     <img
       src="{{ item.product.image.url }}"
       alt="{{ item.product.product_name }}"
-      class="w-full h-full object-cover"
+      class="w-full h-full object-cover hover:scale-105 transition duration-300"
     />
   </div>
   <!-- Product Details -->
-  <div class="mt-3 flex-1 flex flex-col">    
+  <div class="mt-4 flex flex-1 flex-col">   
     <p class="text-[#101819] text-base font-semibold line-clamp-1">
       {{ item.product.product_name }}
     </p>
-    <p class="text-[#298fa3] text-lg font-bold mt-1">
+    <p class="text-[#298fa3] text-lg font-bold mt-2">
      Base: ₹{{ item.product.base_price }}
     </p>
-    <p class="text-[#298fa3] text-lg font-bold mt-1">
+    <p class="text-[#298fa3] text-lg font-bold mt-2">
      Offer: ₹{{ item.product.offer_price }}
     </p>
     {% if item.product.total_stock > 0 %} 
@@ -162,7 +181,7 @@
     {% csrf_token %}
     <input type="hidden" name="from_wishlist" value="true">
     <select name="variant_id"
-      class="w-full mb-2 rounded-lg border border-gray-300 p-2 text-sm">
+      class="w-full rounded-xl border border-gray-300 p-2.5 text-sm mt-4 mb-3 focus:ring-2 focus:ring-[#298fa3]">
       <option value="">Size & Color</option>
       {% for variant in item.product.variants.all %}
         {% if variant.stock > 0 %}
@@ -173,7 +192,7 @@
       {% endfor %}
     </select>
     <button type="submit"
-      class="w-full flex items-center justify-center rounded-lg h-10 px-4 bg-[#298fa3] text-white text-sm font-bold">
+      class="w-full flex items-center justify-center rounded-xl h-11 bg-[#298fa3] text-white text-sm font-semibold hover:bg-[#237f91] transition">
       Add to Cart
     </button>   
 </form> 
@@ -183,7 +202,7 @@
     {% csrf_token %}
     <button
         type="submit"
-        class="w-full flex items-center justify-center rounded-lg h-10 px-4 border border-red-300 text-red-500 text-sm font-semibold hover:bg-red-50"
+        class="w-full flex items-center justify-center rounded-xl h-11 border border-red-300 text-red-500 text-sm font-semibold hover:bg-red-50 transition"
         onclick="return confirm('Remove this item from wishlist?')">
         Remove
     </button>
@@ -203,11 +222,7 @@
         class="bg-[#298fa3] text-white px-6 py-3 rounded-lg font-semibold">
         Continue Shopping
       </a>
-    </div>
-  {% endif %}
-</div>            
-  </div>
-       <form method="POST" action="{% url 'clear_wishlist' %}">
+      <form method="POST" action="{% url 'clear_wishlist' %}">
     {% csrf_token %}
     <button
         type="submit"
@@ -225,9 +240,14 @@
         Clear Wishlist
     </button>
 </form>
+    </div>
+  {% endif %}
+</div>            
+  </div>    
          </div>
         </div>
-        <footer class="flex justify-center">
+        
+        <footer class="flex justify-center mt-12 border-t bg-white">
           <div class="flex max-w-[960px] flex-1 flex-col">
             <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
               <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
