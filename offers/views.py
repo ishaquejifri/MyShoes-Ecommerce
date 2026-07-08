@@ -74,7 +74,7 @@ def add_category_offer(request):
         if not all([name, category_id, discount, start_date, end_date]):
             messages.error(request, "All required fields must be filled.")
             return render(
-                request, "add_category_offer.html", {"categories": categories}
+                request, "add_category_offer.html", {"categories": categories} 
             )
         
         try:
@@ -131,7 +131,7 @@ def edit_category_offer(request, offer_id):
         return redirect("admin_login")
     
     offer = get_object_or_404(CategoryOffer, id=offer_id)
-    categories = Category.objects.filter(is_listed=True).order_by("category_name")
+    categories = Category.objects.filter(is_active=True).order_by("name")
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
