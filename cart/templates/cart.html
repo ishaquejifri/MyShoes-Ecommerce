@@ -330,7 +330,7 @@
                     <p
                       class="text-[#4c8d9a] text-sm font-normal leading-normal"
                     >
-                      ₹{{ item.product.offer_price }}
+                      Offer: ₹{{ item.product.offer_price }}
                     </p>
                     <p
                       class="text-[#4c8d9a] text-sm font-normal leading-normal"
@@ -541,6 +541,15 @@
         })
           .then((response) => response.json())
           .then((data) => {
+           
+            if (data.message && data.message.trim() !== "") {
+              const toast = document.getElementById("stock-toast");
+              toast.innerText = data.message;
+              toast.classList.remove("hidden");
+              setTimeout(() => {
+                  toast.classList.add("hidden");
+              }, 3000);
+              }
             console.log(data);
             document.getElementById(`qty-${itemId}`).innerText = data.quantity;
             document.getElementById(`subtotal-${itemId}`).innerText =
@@ -584,6 +593,9 @@
   }, 5000); // 5 seconds
   </script>
 
+<div id="stock-toast"
+     class="hidden fixed top-40 right-5 z-[9999] bg-red-600 text-white px-5 py-3 rounded-lg shadow-xl">
+</div>
 
   </body>
 </html>

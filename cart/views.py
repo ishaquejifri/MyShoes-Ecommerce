@@ -120,23 +120,31 @@ def ajax_update_cart(request):
 
         cart_item = get_object_or_404(CartItem,id=item_id,cart__user=request.user)
 
+        message = ""
+
         if action == 'increase':
             if cart_item.quantity < cart_item.variant.stock:
                 cart_item.quantity += 1
+                cart_item.save()
+            else:
+                message = f'Only {cart_item.variant.stock} items available in stock.'   
         elif action == 'decrease':
             if cart_item.quantity > 1:
                 cart_item.quantity -= 1
-        cart_item.save()
+                cart_item.save()
 
         cart = cart_item.cart
         total = sum(item.subtotal() for item in cart_item.cart.items.all())
 
         return JsonResponse({
+            'success': True,
+            'message': message,
             'quantity': cart_item.quantity,
-            'subtotal': cart_item.subtotal(),
-            'total': total,
+            'subtotal': float(cart_item.subtotal()),
+            'total': float(total),
             'cart_count': cart_item.cart.items.count()
-        })                
+        })
+    return JsonResponse({'success': False, 'message': 'Invalid request method.'})                
 
 @never_cache
 @login_required(login_url='login')
