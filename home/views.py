@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 from banner.models import Banner
 from django.utils import timezone
 from coupons.models import Coupon
-
+from offers.utils import apply_offer_to_variant
 
 
 
@@ -23,6 +23,13 @@ def home_page(request):
         is_blocked=False,
         is_listed=True
     ).order_by('-id')[:8]
+
+    for product in products:
+        first_variant = product.variants.filter(is_active=True).first()
+        if first_variant:
+            product.pricing = apply_offer_to_variant(first_variant)
+        else:
+            product.pricing = None     
 
     return render(request,'home.html', {
         'categories' : categories,
