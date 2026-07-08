@@ -184,7 +184,7 @@ def product_details(request,id):
     pricing = {}
 
     for variant in variants:
-         pricing[variant.id] = apply_offers_to_variant(variant)
+         pricing[variant.id] = apply_offer_to_variant(variant)
 
     sizes = variants.values_list('size', flat=True).distinct()
     colors = variants.values_list('color', flat=True).distinct()
