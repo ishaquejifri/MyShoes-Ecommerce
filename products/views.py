@@ -9,6 +9,7 @@ from django.core.paginator import Paginator
 from django.views.decorators.cache import never_cache
 from django.contrib import messages
 from adminpanel.decorators import admin_required
+from offers.utils import apply_offer_to_variant
 
 # Create your views here.
 
@@ -180,6 +181,11 @@ def product_details(request,id):
     product = get_object_or_404(Product,id=id)
     variants = product.variants.all()
 
+    pricing = {}
+
+    for variant in variants:
+         pricing[variant.id] = apply_offers_to_variant(variant)
+
     sizes = variants.values_list('size', flat=True).distinct()
     colors = variants.values_list('color', flat=True).distinct()
 
@@ -189,6 +195,7 @@ def product_details(request,id):
          'variants': variants,
          'colors': colors,
          'sizes': sizes,
+         'pricing': pricing,
 
          })
 

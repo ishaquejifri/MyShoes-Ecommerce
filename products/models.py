@@ -43,7 +43,7 @@ class Product(models.Model):
         category_discount = Decimal('0.00')
 
         # Check Product Offer
-        if hasattr(self, 'product_offer') and self.product_offer.is_active:
+        if hasattr(self, 'product_offers') and self.product_offer.is_active:
             offer = self.product_offer
             if offer.discount_percentage > 0:
                 product_discount = base_price * Decimal(offer.discount_percentage) / Decimal(100)
@@ -51,7 +51,7 @@ class Product(models.Model):
                 product_discount = min(offer.discount_amount, base_price)
 
         # Check Category Offer
-        if self.category and hasattr(self.category, 'category_offer') and self.category.category_offer.is_active:
+        if self.category and hasattr(self.category, 'category_offers') and self.category.category_offer.is_active:
             c_offer = self.category.category_offer
             if c_offer.discount_percentage > 0:
                 category_discount = base_price * Decimal(c_offer.discount_percentage) / Decimal(100)
@@ -186,7 +186,7 @@ class ProductVariant(models.Model):
     size = models.CharField(max_length=20, choices=SIZE_CHOICES)
     color = models.CharField(max_length=50)
     stock = models.PositiveIntegerField(default=0)
-    price = models.DecimalField(max_digits=10,decimal_places=2,null=True)
+    price = models.DecimalField(max_digits=10,decimal_places=2)
     is_active = models.BooleanField(default=True)
 
     def __str__(self):
