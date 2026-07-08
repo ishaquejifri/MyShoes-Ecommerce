@@ -254,7 +254,19 @@
                  {{ product.product_name }}
                 </p>
                 <p class="text-sm text-gray-500">
-                ₹{{ product.base_price }}
+                {% if product.pricing.has_offer %}
+                      <span class="line-through text-gray-400">
+                          ₹{{ product.pricing.original_price }}
+                      </span>
+                      <span class="text-red-600 font-bold">
+                          ₹{{ product.pricing.final_price }}
+                      </span>
+                      <span class="text-green-600">
+                          {{ product.pricing.discount_percentage }}% OFF
+                      </span>
+                  {% else %}
+                      ₹{{ product.pricing.original_price }}
+                  {% endif %}
                 </p>
                 </div>
 
