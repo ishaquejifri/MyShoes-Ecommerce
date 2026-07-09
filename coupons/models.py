@@ -99,7 +99,7 @@ class Coupon(models.Model):
             if already_used:
                 return False, "You have already used this coupon."
             
-            return True, 'You can use this coupon'
+        return True, 'You can use this coupon'
 
     def calculate_discount(self, cart_total):
         ''' calculate discount based on type(fixed/percentage) for given cart total
