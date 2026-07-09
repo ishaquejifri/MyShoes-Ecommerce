@@ -15,8 +15,18 @@ from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 from io import BytesIO
 from coupons.models import Coupon
-
+from payments.models import Payment
+import razorpay
+from django.conf import settings
 # Create your views here.
+
+client = razorpay.Client(
+    auth=(
+        settings.RAZORPAY_KEY_ID,
+        settings.RAZORPAY_KEY_SECRET
+    )
+)
+
 
 def generate_order_id():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
@@ -168,6 +178,58 @@ def place_order(request):
                 total_amount = grand_total,
             )
 
+
+            # ==========================
+            # ONLINE PAYMENT
+            # ==========================
+
+            if payment_method == "online":
+
+                razorpay_order = client.order.create({
+                "amount": int(grand_total * 100),
+                "currency": "INR",
+                "receipt": order.order_id,
+                "payment_capture": 1
+                })
+
+                Payment.objects.create(
+                user=request.user,
+                order=order,
+                amount=grand_total,
+                razorpay_order_id=razorpay_order["id"],
+                status="Pending"
+                )
+
+                # Create Order Items
+                for item in cart_items:
+
+                    OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    variant=item.variant,
+                    product_name=item.product.product_name,
+                    variant_size=item.variant.size,
+                    variant_color=item.variant.color,
+                    price=item.price,
+                    original_price=item.product.base_price,
+                    discount_amount=item.product.base_price-item.price,
+                    quantity=item.quantity,
+                    item_status="placed"
+                )
+                
+
+                return render(
+                    request,
+                    "payment.html",
+                    {   
+                    "order": order,
+                    "razorpay_key": settings.RAZORPAY_KEY_ID,
+                    "razorpay_order_id": razorpay_order["id"],
+                    "amount": int(grand_total * 100),
+                }
+            )
+
+
             # Deduct from Wallet if selected
             if payment_method == 'wallet':
                 wallet, _ = Wallet.objects.get_or_create(user=request.user)
@@ -208,10 +270,10 @@ def place_order(request):
                     quantity = item.quantity,
                     item_status = 'confirmed' if payment_method == 'wallet' else 'placed'
                 )
-
+            if payment_method != 'online':
                 variant.stock -= item.quantity
                 variant.save()
-
+        
             cart_items.delete()
             request.session.pop('coupon_code', None)
 
@@ -355,6 +417,8 @@ def cancel_order_item(request, item_id):
 
 @login_required
 def order_details(request, order_id):
+    print("URL order_id:", order_id)
+    print("User:", request.user)
     order = get_object_or_404(Order, order_id = order_id, user = request.user)
     coupons = Coupon.objects.filter(is_active=True) 
 

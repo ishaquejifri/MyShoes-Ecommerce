@@ -285,7 +285,6 @@
                     value="wallet"
                     {% if wallet.balance < total %}disabled{% endif %}
                   />
-
                   <div>
                     <p class="font-bold text-[#0d1c1c]">Wallet Payment</p>
                     <p class="text-sm text-[#499c9c]">
@@ -296,6 +295,21 @@
                     {% endif %}
                   </div>
                 </label>
+              </div>
+              <div class="px-4 py-3">
+                  <label class="flex items-center gap-3 bg-white border border-[#cee8e8] rounded-xl p-4 cursor-pointer">
+                      <input
+                          type="radio"
+                          name="payment_method"
+                          value="online"
+                      />
+                      <div>
+                          <p class="font-bold text-[#0d1c1c]">Online Payment</p>
+                          <p class="text-sm text-[#499c9c]">
+                              Secure payment using Razorpay
+                          </p>
+                      </div>
+                  </label>
               </div>
             </div>
 
