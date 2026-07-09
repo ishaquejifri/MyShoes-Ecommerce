@@ -16,6 +16,8 @@ class Payment(models.Model):
 
     order = models.OneToOneField(Order, on_delete=models.CASCADE, related_name='payment')
 
+    razorpay_order_id = models.CharField(max_length=200,blank=True,null=True)
+
     razorpay_payment_id = models.CharField(max_length=200,blank=True,null=True)
 
     razorpay_signature = models.TextField(blank=True, null=True)

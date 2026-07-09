@@ -20,8 +20,12 @@ client = razorpay.Client(
           )
 )
 
-
+@require_POST
+@login_required
 def verify_payment(request):
+
+    payment = None
+    order = None
 
     try:
         data = json.loads(request.body)
@@ -32,13 +36,18 @@ def verify_payment(request):
         order_id = data.get('order_id')
 
         order = get_object_or_404(Order, 
-                                  id=order_id,
+                                  id=order_id,  
                                   user=request.user)
+
+        payment = get_object_or_404(Payment, order=order)
+
+        if payment.razorpay_order_id != razorpay_order_id:
+            return JsonResponse({
+                "status": "failed",
+                "message": "Invalid Razorpay Order."
+                }, status=400)
+
         
-        payment = get_object_or_404(Payment,order=order)
-
-        client = client
-
         params = {
             'razorpay_order_id': razorpay_order_id,
             'razorpay_payment_id': razorpay_payment_id,
@@ -53,13 +62,20 @@ def verify_payment(request):
         payment.save()
 
         order.payment_status = 'Paid'
-        order.status = 'Confirmed'
+        order.status = 'confirmed'
         order.save()
 
         order_items = OrderItem.objects.filter(order=order)
 
         for item in order_items:
-            variant = item.variant
+            variant = item.variant  
+
+            if variant.stock < item.quantity:
+                return JsonResponse({
+                    'status': 'failed',
+                     "message": f"{item.product_name} is out of stock."
+                }, status=400)
+            
             variant.stock -= item.quantity
             variant.save()
 
@@ -69,17 +85,19 @@ def verify_payment(request):
 
         return JsonResponse({
             'status': 'success',
-            'redirect_url': reverse('order_success', kwargs={'order_id': order_id})
+            'redirect_url': reverse('order_success', kwargs={'order_id': order.order_id})
 
         })
     
     except razorpay.errors.SignatureVerificationError:
+        
+        if payment:
+            payment.status = 'Failed'
+            payment.save()
 
-        payment.status = 'Failed'
-        payment.save()
-
-        order.status = 'Failed'
-        order.save()
+        if order:
+            order.payment_status = 'Failed'
+            order.save()
 
         return JsonResponse({
             'status': 'failed',
@@ -92,18 +110,17 @@ def verify_payment(request):
             'message': str(e)
         }, status = 500)
 
-
+@login_required
 def place_order(request):
 
     order = Order.objects.create(
         user=request.user,
         total_amount=grand_total,
-        payment_method='Razorpay',
+        payment_method='online',
         status='Pending'  
     )
 
-    client = client
-
+    
     payment_data = {
         'amount': int(grand_total * 100),
         'currency': 'INR',
@@ -125,48 +142,14 @@ def place_order(request):
         'order': order,
         'razorpay_order_id': razorpay_order['id'],
         'razorpay_key': settings.RAZORPAY_KEY_ID,
-        'amount': int(grand_total * 100)
+        'amount': int(grand_total * 100) 
     }
 
     return render(request,'payment.html', context)
 
-def payment_success(request):
 
-    payment_id = request.GET.get('payment_id')
-    order_id = request.GET.get('order_id')
-    signature = request.GET.get('signature')
 
-    payment = Payment.objects.get(
-        razorpay_order_id=order_id
-    )
-
-    client = client
-
-    params = {
-        'razorpay_order_id': order_id,
-        'razorpay_payment_id': payment_id,
-        'razorpay_signature': signature,
-    }
-
-    try:
-        client.utility.verify_payment_signature(params)
-
-        payment.razorpay_payment_id = payment_id
-        payment.razorpay_signature = signature
-        payment.status = 'Success'
-        payment.save()
-
-        order = payment.order
-        order.PAYMENT_STATUS = 'Paid'
-        order.status = 'confirmed'
-        order.save()
-        return redirect('order_success')
-    
-    except:
-        payment.status = 'Failed'
-        payment.save()
-        return redirect('payment_failed')
-
+@login_required
 def payment_failed(request, order_id):
 
     payment = get_object_or_404(Payment, order_id=order_id)
@@ -176,15 +159,14 @@ def payment_failed(request, order_id):
         'order': payment.order,
     })
 
-
+@login_required
 def retry_payment(request, order_id):
 
     order = get_object_or_404(Order, id = order_id)
 
     payment = order.payment
 
-    client = client
-
+    
     razorpay_order = client.order.create({
         'amount': int(order.total_amount * 100),
         'currency': 'INR',
@@ -192,8 +174,8 @@ def retry_payment(request, order_id):
         'payment_capture': 1,
     })
 
-    payment.razorpay_order_id = razorpay_order['id'],
-    payment.status = 'Pending',
+    payment.razorpay_order_id = razorpay_order['id']
+    payment.status = 'Pending'
     payment.save()
 
     context = {
