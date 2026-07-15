@@ -132,6 +132,13 @@ def user_product_details(request,pk):
 
     variants = product.variants.all()
 
+    first_variant = variants.filter(is_active=True).first()
+
+    if first_variant:
+        pricing = apply_offer_to_variant(first_variant)
+    else:
+        pricing = None
+
     sizes = variants.values_list('size', flat=True).distinct()
     colors = variants.values_list('color', flat=True).distinct()
 
@@ -151,6 +158,7 @@ def user_product_details(request,pk):
 
     return render(request,'user_product_details.html',{
         'product': product,
+        'pricing': pricing,
         'related_products': related_products,
         'categories': categories,
         'variants': variants,
