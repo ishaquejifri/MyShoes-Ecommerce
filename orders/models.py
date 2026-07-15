@@ -66,23 +66,36 @@ class Order(models.Model):
         active_items = self.items.exclude(item_status__in=['cancelled', 'returned', 'Cancelled', 'Returned'])
 
         subtotal = sum(
-        item.price * item.quantity
-        for item in active_items
-    )
-
+            item.price * item.quantity
+            for item in active_items
+        )
         self.sub_total = subtotal
 
-        shipping = self.shipping_charge
+        # Recalculate coupon discount proportionally
+        original_subtotal = sum(item.price * item.quantity for item in self.items.all())
+        
+        if original_subtotal > 0:
+            coupon_usage = self.coupon_usage.first()
+            if coupon_usage:
+                original_coupon_discount = coupon_usage.discount_amount
+                self.coupon_discount = ((original_coupon_discount * subtotal) / original_subtotal).quantize(Decimal('0.01'))
+            else:
+                self.coupon_discount = Decimal('0.00')
+        else:
+            self.coupon_discount = Decimal('0.00')
 
+        # Recalculate shipping charge
         if not active_items.exists():
-            shipping = 0
+            self.shipping_charge = Decimal('0.00')
+        else:
+            self.shipping_charge = Decimal('0.00') if subtotal >= Decimal('5000.00') else Decimal('40.00')
 
         self.total_amount = (
-        subtotal +
-        shipping -
-        self.discount_amount
-    )
-
+            subtotal +
+            self.shipping_charge -
+            self.coupon_discount -
+            self.discount_amount
+        )
         self.save()
 
 class OrderItem(models.Model):

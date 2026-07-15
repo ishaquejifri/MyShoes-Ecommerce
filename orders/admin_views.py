@@ -124,34 +124,39 @@ def admin_update_order_status(request, order_id):
                 from accounts.models import Wallet, WalletTransaction
                 wallet, _ = Wallet.objects.get_or_create(user=order.user)
 
+                refund_amount = order.total_amount
+
+                if new_status.lower() in ['cancelled', 'returned']:
+                    order.update_total()
+
                 if new_status.lower() == 'cancelled':
                     # Only paid methods online and wallet get direct refund for cancellations
                     if order.payment_method in ['online', 'wallet']:
                         already_refunded = WalletTransaction.objects.filter(
                             wallet=wallet, order=order, transaction_type='refund', description__icontains="cancelled"
                         ).exists()
-                        if not already_refunded:
+                        if not already_refunded and refund_amount > 0:
                             wallet.deposit(
-                                amount=order.total_amount,
+                                amount=refund_amount,
                                 description=f"Refund for cancelled Order #{order.order_id}",
                                 transaction_type='refund',
                                 order=order
                             )
-                            messages.success(request, f"Refund of ₹{order.total_amount} credited to customer's wallet.")
+                            messages.success(request, f"Refund of ₹{refund_amount} credited to customer's wallet.")
 
                 elif new_status.lower() == 'returned':
                     # All returns get wallet refunds upon admin confirmation
                     already_refunded = WalletTransaction.objects.filter(
                         wallet=wallet, order=order, transaction_type='refund', description__icontains="returned"
                     ).exists()
-                    if not already_refunded:
+                    if not already_refunded and refund_amount > 0:
                         wallet.deposit(
-                            amount=order.total_amount,
+                            amount=refund_amount,
                             description=f"Refund for returned Order #{order.order_id}",
                             transaction_type='refund',
                             order=order
                         )
-                        messages.success(request, f"Refund of ₹{order.total_amount} credited to customer's wallet.")
+                        messages.success(request, f"Refund of ₹{refund_amount} credited to customer's wallet.")
 
             messages.success(request,'Order status updated successfully')
         else:

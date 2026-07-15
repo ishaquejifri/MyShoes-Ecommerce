@@ -337,6 +337,8 @@ def cancel_order(request,order_id):
 
             order.status = 'cancelled'
             order.cancellation_reason = reason
+            
+            old_total_amount = order.total_amount
             order.update_total()
             order.save()
 
@@ -344,12 +346,12 @@ def cancel_order(request,order_id):
             if order.payment_method in ['online', 'wallet']:
                 wallet, _ = Wallet.objects.get_or_create(user=order.user)
                 wallet.deposit(
-                    amount=order.total_amount,
+                    amount=old_total_amount,
                     description=f"Refund for cancelled Order #{order.order_id}",
                     transaction_type='refund',
                     order=order
                 )
-                messages.success(request, f"Refund of ₹{order.total_amount} credited to your wallet.")
+                messages.success(request, f"Refund of ₹{old_total_amount} credited to your wallet.")
 
         messages.success(request, 'Order cancelled Successfully')
         return redirect('order_details', order_id=order.order_id)
@@ -394,20 +396,22 @@ def cancel_order_item(request, item_id):
             order.save()
 
         # Update totals
+        old_total_amount = order.total_amount
         order.update_total()
         order.refresh_from_db()
 
         # Refund item value to wallet if paid via online/wallet
         if order.payment_method in ['online', 'wallet']:
-            refund_amount = order_item.price * order_item.quantity
-            wallet, _ = Wallet.objects.get_or_create(user=order.user)
-            wallet.deposit(
-                amount=refund_amount,
-                description=f"Refund for cancelled item {order_item.product_name} in Order #{order.order_id}",
-                transaction_type='refund',
-                order=order
-            )
-            messages.success(request, f"Refund of ₹{refund_amount} credited to your wallet.")
+            refund_amount = old_total_amount - order.total_amount
+            if refund_amount > 0:
+                wallet, _ = Wallet.objects.get_or_create(user=order.user)
+                wallet.deposit(
+                    amount=refund_amount,
+                    description=f"Refund for cancelled item {order_item.product_name} in Order #{order.order_id}",
+                    transaction_type='refund',
+                    order=order
+                )
+                messages.success(request, f"Refund of ₹{refund_amount} credited to your wallet.")
 
     messages.success(request, "Item cancelled successfully.")
     return redirect(
