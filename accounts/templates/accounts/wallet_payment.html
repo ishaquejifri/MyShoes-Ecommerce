@@ -1,0 +1,86 @@
+{% extends "user_base.html" %}
+{% block title %} Wallet Top-Up Payment {% endblock %}
+{% block content %}
+
+<div class="min-h-screen flex items-center justify-center bg-gray-100">
+    <div class="bg-white shadow-lg rounded-xl p-8 max-w-md w-full text-center">
+        <div class="animate-pulse">
+            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-16 w-16 text-teal-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+        </div>
+        <h2 class="text-2xl font-bold mt-5 text-gray-800">Processing Wallet Top-up</h2>
+        <p class="text-gray-500 mt-3">Please complete the payment in the Razorpay window.</p>
+        <div class="mt-6">
+            <button id="pay-btn" class="bg-teal-600 text-white px-6 py-3 rounded-lg hover:bg-teal-700 font-semibold transition duration-200">
+                Pay Now
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<script>
+var options = {
+    key: "{{ razorpay_key }}",
+    amount: {{ amount }},
+    currency: "INR",
+    name: "MyShoes Wallet",
+    description: "Wallet Top-Up",
+    order_id: "{{ razorpay_order_id }}",
+    handler: function (response) {
+        fetch("{% url 'verify_wallet_payment' %}", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRFToken": "{{ csrf_token }}"
+            },
+            body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature
+            })
+        })
+        .then(res => res.json())
+        .then(data => {
+            if (data.status === "success") {
+                window.location.href = data.redirect_url;
+            } else {
+                alert(data.message || "Payment verification failed.");
+                window.location.href = "{% url 'user_wallet' %}";
+            }
+        })
+        .catch(error => {
+            console.error("Error:", error);
+            alert("Verification error occurred.");
+            window.location.href = "{% url 'user_wallet' %}";
+        });
+    },
+    prefill: {
+        name: "{{ user.get_full_name }}",
+        email: "{{ user.email }}",
+        contact: "{{ user.phone|default:'' }}"
+    },
+    theme: {
+        color: "#0d9488"
+    },
+    modal: {
+        ondismiss: function () {
+            alert("Payment cancelled.");
+            window.location.href = "{% url 'user_wallet' %}";
+        }
+    }
+};
+
+var rzp = new Razorpay(options);
+
+document.getElementById("pay-btn").onclick = function (e) {
+    rzp.open();
+    e.preventDefault();
+};
+
+window.onload = function () {
+    rzp.open();
+};
+</script>
+{% endblock %}
