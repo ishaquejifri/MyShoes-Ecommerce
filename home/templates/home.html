@@ -105,8 +105,7 @@
                 </div>
               </button>
             </a> 
-              {% if user.is_authenticated %}
-
+            {% if user.is_authenticated %}
             <form method="POST" action="{% url 'logout' %}">
                 {% csrf_token %}
                 <button
@@ -344,7 +343,9 @@
         </footer>
       </div>
     </div>
-    <script>
+
+
+<script>
 
 const slides = document.querySelectorAll(".banner-slide");
 const dots = document.querySelectorAll(".dot");
