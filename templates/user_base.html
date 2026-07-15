@@ -34,7 +34,9 @@
                 ></path>
               </svg>
             </div>
+            <a href="{% url 'home' %}">
             <h2 class="text-[#111718] text-lg font-bold leading-tight tracking-[-0.015em]">Lotto Shoes</h2>
+            </a>
           </div>
           <div class="flex flex-1 justify-end gap-8">
             <div class="flex items-center gap-9">
@@ -48,7 +50,8 @@
               {% endfor %}
             </div>
             <div class="flex gap-2">
-              
+              <!-- PROFILE BUTTON -->
+              <a href="{% url 'profile' %}">
               <button
                 class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f4f4] text-[#111718] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
               >
@@ -60,6 +63,9 @@
                   </svg>
                 </div>
               </button>
+              </a>
+               <!-- CART BUTTON -->
+              <a href="{% url 'cart:view_cart'%}">
               <button
                 class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#f0f4f4] text-[#111718] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
               >
@@ -71,26 +77,65 @@
                   </svg>
                 </div>
               </button>
-              <form method="POST" action="{% url 'logout' %}">
+              </a>
+              <!-- WISHLIST BUTTON -->
+              <a href="{% url 'wishlist' %}">
+                  <button
+                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
+                  >
+                    <div
+                      class="text-[#131416]"
+                      data-icon="Heart"
+                      data-size="20px"
+                      data-weight="regular"
+                    >
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="20px"
+                        height="20px"
+                        fill="currentColor"
+                        viewBox="0 0 256 256"
+                      >
+                        <path
+                          d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32Z"
+                        ></path>
+                      </svg>
+                    </div>
+                  </button>
+                </a>
+                <!-- Logout button -->
+               {% if user.is_authenticated %}
+            <form method="POST" action="{% url 'logout' %}">
                 {% csrf_token %}
-
                 <button
-                  type="submit"
-                  class="flex items-center justify-center rounded-lg h-10 px-3 bg-[#f2f3f2] hover:bg-red-50 text-[#131514] hover:text-red-600 transition duration-200"
+                    type="submit"
+                    class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-150"
                 >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
+                    <!-- Logout Icon -->
+                    <svg xmlns="http://www.w3.org/2000/svg"
+                        width="20"
+                        height="20"
+                        fill="currentColor"
+                        viewBox="0 0 256 256">
+                        <path d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"></path>
+                    </svg>
+                    <span class="text-sm font-medium">Logout</span>
+                </button>
+            </form>
+            {% else %}
+            <a href="{% url 'login' %}"
+              class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-green-50 hover:text-green-600 transition duration-150">                
+                <!-- Login Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg"
                     width="20"
                     height="20"
                     fill="currentColor"
-                    viewBox="0 0 256 256"
-                  >
-                    <path
-                      d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"
-                    ></path>
-                  </svg>
-                </button>
-              </form>
+                    viewBox="0 0 256 256">
+                    <path d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"></path>
+                </svg>
+                <span class="text-sm font-medium">Login</span>
+            </a>
+            {% endif %}
             </div>
           </div>
         </header>
@@ -99,6 +144,7 @@
             <div class="flex h-full min-h-[700px] flex-col justify-between bg-white p-4">
               <div class="flex flex-col gap-4">
                 <div class="flex flex-col gap-2">
+                  <a href="{% url 'profile' %}">
                   <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f4f4] transition">
                     <div class="text-[#111718]" data-icon="User" data-size="24px" data-weight="regular">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
@@ -107,8 +153,10 @@
                         ></path>
                       </svg>
                     </div>
-                    <p class="text-[#111718] text-sm font-medium leading-normal">Profile Info</p>
+                    <p class="text-[#111718] text-sm font-medium leading-normal">Profile</p>
                   </div>
+                </a>
+                <a href="{% url 'my_orders' %}">
                   <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f4f4] transition">
                     <div class="text-[#111718]" data-icon="Truck" data-size="24px" data-weight="fill">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
@@ -119,6 +167,8 @@
                     </div>
                     <p class="text-[#111718] text-sm font-medium leading-normal">My Orders</p>
                   </div>
+                </a>
+                <a href="{% url 'wishlist' %}">
                   <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f4f4] transition">
                     <div class="text-[#111718]" data-icon="Heart" data-size="24px" data-weight="regular">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
@@ -129,31 +179,20 @@
                     </div>
                     <p class="text-[#111718] text-sm font-medium leading-normal">Wishlist</p>
                   </div>
+                </a>
+                <a href="{% url 'user_wallet' %}">
                   <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f3f4] transition">
-                    <div
-                      class="text-[#121617]"
-                      data-icon="CreditCard"
-                      data-size="24px"
-                      data-weight="regular"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24px"
-                        height="24px"
-                        fill="currentColor"
-                        viewBox="0 0 256 256"
-                      >
+                    <div class="text-[#121617]" data-icon="CreditCard" data-size="24px" data-weight="regular">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
                         <path
                           d="M224,48H32A16,16,0,0,0,16,64V192a16,16,0,0,0,16,16H224a16,16,0,0,0,16-16V64A16,16,0,0,0,224,48Zm0,16V88H32V64Zm0,128H32V104H224v88Zm-16-24a8,8,0,0,1-8,8H168a8,8,0,0,1,0-16h32A8,8,0,0,1,208,168Zm-64,0a8,8,0,0,1-8,8H120a8,8,0,0,1,0-16h16A8,8,0,0,1,144,168Z"
                         ></path>
                       </svg>
                     </div>
-                    <p
-                      class="text-[#121617] text-sm font-medium leading-normal"
-                    >
-                      Wallet
-                    </p>
+                    <p class="text-[#121617] text-sm font-medium leading-normal">Wallet</p>
                   </div>
+                </a>
+                <a href="{% url 'my_address' %}">
                   <div class="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-[#f4f4f4] transition">
                     <div class="text-[#111718]" data-icon="MapPin" data-size="24px" data-weight="regular">
                       <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor" viewBox="0 0 256 256">
@@ -164,13 +203,39 @@
                     </div>
                     <p class="text-[#111718] text-sm font-medium leading-normal">Addresses</p>
                   </div>
+                </a>
                 </div>
               </div>
             </div>
           </div>
           <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+            {% if messages %}
+               <div id="message-box" class="max-w-md mx-auto mt-4">
+                {% for message in messages %}      
+                  {% if message.tags == 'error' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-red-100 text-red-700 border border-red-300">
+                  {{ message }}
+                  </div>
+                  {% elif message.tags == 'warning' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-yellow-100 text-yellow-800 border border-yellow-300">
+                  {{ message }}
+                  </div>
+                  {% elif message.tags == 'success' %}
+                  <div class="mb-3 px-4 py-3 rounded-md text-sm bg-green-100 text-green-700 border border-green-300">
+                  {{ message }}
+                  </div>
+                  {% else %}
+                 <div class="mb-3 px-4 py-3 rounded-md text-sm bg-gray-100 text-gray-700 border border-gray-300">
+                 {{ message }}
+                 </div>      
+                 {% endif %}
+                {% endfor %}
+               </div>
+              {% endif %}
             <div class="flex flex-wrap justify-between gap-3 p-4"><p class="text-[#111718] tracking-light text-[32px] font-bold leading-tight min-w-72"></p></div>
             {% block content %}
+
+
 
             {% endblock %}              
           </div>     
@@ -220,8 +285,13 @@
         </footer>
       </div>
     </div>
-        
-
-
+     <script>
+      setTimeout(function () {
+        const messageBox = document.getElementById("message-box");
+        if (messageBox) {
+          messageBox.style.display = "none";
+        }
+      }, 5000); // 5000ms = 5 seconds
+    </script> 
     </body>
 </head>
