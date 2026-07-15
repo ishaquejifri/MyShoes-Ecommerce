@@ -6,16 +6,24 @@ from .models import ProductOffer, CategoryOffer
 def get_best_offer_for_product(product):
     """Get the best offer (category offer , product offer)"""
 
+    today = timezone.now().date()
+
     product_offer = ProductOffer.objects.filter(
-        product=product, status="active"
-    ).first()
+        product=product,
+        status="active",
+        start_date__lte=today,
+        end_date__gte=today,
+    ).order_by("-discount").first()  # get the highest discount product offer
 
     # get active category offer
     category_offer = None
     if product.category:
         category_offer = CategoryOffer.objects.filter(
-            category=product.category, status="active"
-        ).first()
+            category=product.category,
+            status="active",
+            start_date__lte=today,
+            end_date__gte=today,
+        ).order_by("-discount").first()  # get the highest discount category offer
 
     # check offers are active and not expired
     if product_offer and not product_offer.is_active:

@@ -80,13 +80,13 @@
           <td class="p-4">{{ offer.start_date|date:"d M Y" }}</td>
           <td class="p-4">{{ offer.end_date|date:"d M Y" }}</td>
           <td class="p-4">
-            {% if offer.status == "Active" %}
+            {% if offer.status == "active" %}
             <span
               class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
             >
               Active
             </span>
-            {% elif offer.status == "Inactive" %}
+            {% elif offer.status == "inactive" %}
             <span
               class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm"
             >

@@ -1,7 +1,7 @@
 {% extends "admin_base.html" %}
 {% load static %}
 
-{% block title %}Offer Dashboard - LottoShoes{% endblock %}
+{% block title %}Offer Dashboard{% endblock %}
 {% block content  %}
 
 <div class="p-6">
@@ -109,15 +109,21 @@
                         {{ offer.discount }}%
                     </td>
                     <td class="p-4">
-                        {% if offer.status == "Active" %}
-                            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                                Active
-                            </span>
-                        {% else %}
-                            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                                Expired
-                            </span>
-                        {% endif %}
+                        {% now "Y-m-d" as today %}
+
+                {% if offer.is_active %}
+                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                        Active
+                    </span>
+                {% elif offer.status == "inactive" %}
+                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                        Inactive
+                    </span>
+                {% else %}
+                    <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                        Expired
+                    </span>
+                {% endif %}
                     </td>
                 </tr>
                 {% empty %}
@@ -163,13 +169,13 @@
                         {{ offer.discount }}%
                     </td>
                     <td class="p-4">
-                        {% if offer.status == "Active" %}
+                        {% if offer.status == "active" %}
                             <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                                 Active
                             </span>
                         {% else %}
                             <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                                Expired
+                                {{offer.status|capfirst}}
                             </span>
                         {% endif %}
                     </td>
