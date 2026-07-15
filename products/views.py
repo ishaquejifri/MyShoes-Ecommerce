@@ -214,6 +214,7 @@ def add_variant(request,product_id):
           if form.is_valid():
                variant = form.save(commit=False)
                variant.product = product
+               variant.price = product.offer_price or product.base_price
                variant.save()
                messages.success(request, 'Variant Added Successfully.')
                return redirect('products:product_details', id=product_id)

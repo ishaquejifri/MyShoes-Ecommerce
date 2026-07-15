@@ -147,6 +147,12 @@
         >
           Select Image
         </button>
+        <button
+          type="button"
+          id="removeMainImage"
+          class="mt-3 bg-red-600 px-5 py-2 rounded-lg text-white hidden">
+          Remove Image
+        </button>
         <input type="hidden" name="cropped_image" id="croppedMainImage" />
       </div>
     </div>
@@ -266,6 +272,26 @@
   });
 
   document
+.getElementById("removeMainImage")
+.addEventListener("click", function(){
+
+    hiddenMain.value="";
+    mainPreview.src="";
+    mainPreview.classList.add("hidden");
+    mainPlaceholder.classList.remove("hidden");
+    this.classList.add("hidden");
+
+});
+
+document
+.getElementById("selectMainImage")
+.textContent="Change Image";
+
+document
+.getElementById("selectMainImage")
+.textContent="Select Image";
+
+  document
     .getElementById("addGalleryImages")
     .addEventListener("click", function () {
       galleryInput.click();
@@ -323,6 +349,9 @@
       mainPreview.src = data;
       mainPreview.classList.remove("hidden");
       mainPlaceholder.classList.add("hidden");
+      document
+    .getElementById("removeMainImage")
+    .classList.remove("hidden");
       closeCropper();
     } else {
       addGalleryPreview(data);
@@ -336,19 +365,37 @@
   });
 
   function addGalleryPreview(data) {
+
     const wrapper = document.createElement("div");
-    wrapper.className = "relative w-36 h-36 border rounded-lg overflow-hidden";
+    wrapper.className =
+        "relative w-36 h-36 rounded-lg overflow-hidden border border-[#356454]";
+
     const img = document.createElement("img");
     img.src = data;
     img.className = "w-full h-full object-cover";
+
+    const removeBtn = document.createElement("button");
+    removeBtn.type = "button";
+    removeBtn.innerHTML = "✕";
+    removeBtn.className =
+        "absolute top-1 right-1 w-7 h-7 rounded-full bg-red-600 text-white hover:bg-red-700";
+
+    const hiddenInput = document.createElement("input");
+    hiddenInput.type = "hidden";
+    hiddenInput.name = "cropped_gallery_images";
+    hiddenInput.value = data;
+
+    removeBtn.onclick = function () {
+        wrapper.remove();
+        hiddenInput.remove();
+    };
+
     wrapper.appendChild(img);
+    wrapper.appendChild(removeBtn);
+
     galleryGrid.appendChild(wrapper);
-    const input = document.createElement("input");
-    input.type = "hidden";
-    input.name = "cropped_gallery_images";
-    input.value = data;
-    galleryHiddenInputs.appendChild(input);
-  }
+    galleryHiddenInputs.appendChild(hiddenInput);
+}
 
   function closeCropper() {
     if (cropper) {
