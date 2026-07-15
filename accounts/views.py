@@ -1,9 +1,14 @@
 from django.shortcuts import render,redirect,get_object_or_404
 import random
+import json
+import razorpay
 from django.views.decorators.cache import never_cache
+from django.views.decorators.http import require_POST
 from django.contrib.auth import authenticate,get_user_model,login,logout
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
+from django.urls import reverse
+from django.http import JsonResponse
 from .models import CustomUser,Address,Wallet,WalletTransaction
 from .forms import SignupForm, LoginForm,AddressForm
 from django.contrib import messages
@@ -90,8 +95,7 @@ def signup(request):
         
         # phone already exists
         if User.objects.filter(phone=digits_only).exists():
-            messages.error(request, 'The phone number is already registered.')
-            return redirect('signup')
+            return signup_error(request,'Phone number already registered.')
         
         # password validation
         if len(password) < 8:
@@ -120,6 +124,16 @@ def signup(request):
 
         if not referral_code:
             referral_code = request.session.get('referral_code', '')
+        
+        # Validate referral code early - show error immediately if invalid
+        if referral_code:
+            if not User.objects.filter(referral_code=referral_code.upper()).exists():
+                messages.error(request, 'Invalid referral code. Please check and try again.')
+                return redirect('signup')
+            # Prevent self-referral
+            if User.objects.filter(referral_code=referral_code.upper(), email=email).exists():
+                messages.error(request, 'You cannot use your own referral code.')
+                return redirect('signup')
 
         request.session['signup_data'] = {
             'first_name': first_name,
@@ -165,10 +179,51 @@ def signup(request):
 
 def signup_error(request, message):
     messages.error(request, message)
-    return render(request, 'signup.html')    
+
+    categories = Category.objects.filter(is_active=True)
+
+    return render(request, 'signup.html',{
+        'categories': categories,
+        'referral_code': request.POST.get('referral_code', ''),
+    })    
 
 def generate_otp():
     return str(random.randint(100000, 999999))
+
+
+def generate_referral_coupon(referrer):
+    """Generate a unique exclusive coupon for the referrer after a successful referral."""
+    import string
+    from coupons.models import Coupon
+    from django.utils import timezone as tz
+    from datetime import timedelta
+    
+    # Generate a unique coupon code like REF-ISHAQUE-X4B2
+    clean = ''.join(c for c in referrer.username if c.isalnum()).upper()[:6]
+    suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+    code = f'REF-{clean}-{suffix}'
+    
+    # Ensure uniqueness
+    while Coupon.objects.filter(code=code).exists():
+        suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        code = f'REF-{clean}-{suffix}'
+    
+    today = tz.now().date()
+    Coupon.objects.create(
+        user=referrer,
+        code=code,
+        description=f'Referral reward coupon for {referrer.email}',
+        discount_type='fixed',
+        discount_amount=Decimal('500.00'),
+        discount_percentage=None,
+        min_purchase_amount=Decimal('1500.00'),
+        start_date=today,
+        end_date=today + timedelta(days=30),
+        usage_limit=1,
+        one_time_use=True,
+        is_active=True,
+    )
+    return code
 
 
 @never_cache
@@ -220,20 +275,13 @@ def verify_otp(request):
                     referred_by=referred_by_user
                 )
 
-                # Payout referral bonuses
+                # Payout referral reward - give referrer a coupon
             if referred_by_user:
-                    referrer_wallet, _ = Wallet.objects.get_or_create(user=referred_by_user)
-                    referrer_wallet.deposit(
-                        amount=Decimal('100.00'),
-                        description=f"Referral reward for inviting {user.email}",
-                        transaction_type='referral_reward'
-                    )
-                    referee_wallet, _ = Wallet.objects.get_or_create(user=user)
-                    referee_wallet.deposit(
-                        amount=Decimal('50.00'),
-                        description=f"Sign up bonus using referral from {referred_by_user.email}",
-                        transaction_type='referral_reward'
-                    )
+                try:
+                    coupon_code = generate_referral_coupon(referred_by_user)
+                    messages.info(request, f"Your referrer received a reward coupon.")
+                except Exception as e:
+                    print(f"Referral coupon generation failed: {e}")
 
             request.session.pop('signup_data', None)
             request.session.pop('otp', None)
@@ -848,9 +896,30 @@ def user_wallet(request):
             amount = Decimal(amount)
             if amount <= 0:
                 raise ValueError
-            wallet.deposit(amount, "Funds deposited to wallet", transaction_type='deposit')
-            messages.success(request, f"₹{amount} deposited successfully to your wallet!")
-            return redirect('user_wallet')
+            
+            # Create Razorpay Order
+            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+            amount_paise = int(amount * 100)
+            
+            razorpay_order = client.order.create({
+                "amount": amount_paise,
+                "currency": "INR",
+                "payment_capture": 1
+            })
+            
+            request.session['pending_wallet_topup'] = {
+                'razorpay_order_id': razorpay_order['id'],
+                'amount': str(amount),
+            }
+            
+            context = {
+                'razorpay_order_id': razorpay_order['id'],
+                'razorpay_key': settings.RAZORPAY_KEY_ID,
+                'amount': amount_paise,
+                'user': request.user,
+                'categories': categories,
+            }
+            return render(request, 'accounts/wallet_payment.html', context)
         except (ValueError, InvalidOperation):
             messages.error(request, "Please enter a valid deposit amount.")
             return redirect('user_wallet')
@@ -860,3 +929,71 @@ def user_wallet(request):
         'transactions': transactions,
         'categories': categories,
     })
+
+
+@require_POST
+@login_required(login_url='login')
+def verify_wallet_payment(request):
+    try:
+        data = json.loads(request.body)
+        razorpay_payment_id = data.get('razorpay_payment_id')
+        razorpay_order_id = data.get('razorpay_order_id')
+        razorpay_signature = data.get('razorpay_signature')
+        
+        # Retrieve from session
+        pending_topup = request.session.get('pending_wallet_topup')
+        if not pending_topup or pending_topup.get('razorpay_order_id') != razorpay_order_id:
+            return JsonResponse({
+                'status': 'failed',
+                'message': 'Invalid session or order ID.'
+            }, status=400)
+            
+        amount = Decimal(pending_topup.get('amount'))
+        
+        # Verify signature
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        params = {
+            'razorpay_order_id': razorpay_order_id,
+            'razorpay_payment_id': razorpay_payment_id,
+            'razorpay_signature': razorpay_signature,
+        }
+        client.utility.verify_payment_signature(params)
+        
+        # Prevent duplicate crediting
+        check_desc = f"Payment ID: {razorpay_payment_id}"
+        if WalletTransaction.objects.filter(description__contains=check_desc).exists():
+            return JsonResponse({
+                'status': 'failed',
+                'message': 'This payment has already been credited.'
+            }, status=400)
+            
+        # Success! Perform wallet deposit
+        wallet, _ = Wallet.objects.get_or_create(user=request.user)
+        wallet.deposit(
+            amount=amount,
+            description=f"Funds deposited to wallet via Razorpay (Payment ID: {razorpay_payment_id})",
+            transaction_type='deposit'
+        )
+        
+        # Clear the session
+        request.session.pop('pending_wallet_topup', None)
+        
+        messages.success(request, f"₹{amount} deposited successfully to your wallet!")
+        
+        return JsonResponse({
+            'status': 'success',
+            'redirect_url': reverse('user_wallet')
+        })
+        
+    except razorpay.errors.SignatureVerificationError:
+        messages.error(request, "Signature verification failed. Top-up not completed.")
+        return JsonResponse({
+            'status': 'failed',
+            'message': 'Signature verification failed.',
+            'redirect_url': reverse('user_wallet')
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'status': 'error',
+            'message': str(e)
+        }, status=500)
