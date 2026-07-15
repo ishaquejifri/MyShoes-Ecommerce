@@ -7,6 +7,8 @@ from accounts.models import CustomUser
 # Create your models here.
 class Coupon(models.Model):
 
+    user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='exclusive_coupons', help_text='Exclusive to this user')
+
     code = models.CharField(max_length=20,unique=True)
     description = models.TextField(blank=True)
 
@@ -92,6 +94,9 @@ class Coupon(models.Model):
         is_valid, message = self.is_valid()
         if not is_valid:
             return False,message
+        
+        if self.user and self.user != user:
+            return False, "This coupon is not valid for your account."
         
         if self.one_time_use:
             already_used = CouponUsage.objects.filter(coupon=self, user=user).exists()

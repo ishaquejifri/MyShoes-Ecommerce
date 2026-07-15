@@ -341,9 +341,13 @@ def user_available_coupons(request):
 
      today = timezone.now().date()
 
-     # Get all active coupon that are valid today
+     # Get all active coupons valid today that are either public (no user restriction)
+     # or exclusively for the logged-in user
+     from django.db.models import Q
      coupons = Coupon.objects.filter(
           is_active=True, start_date__lte=today, end_date__gte=today
+     ).filter(
+          Q(user__isnull=True) | Q(user=request.user)
      ).order_by('-discount_amount')
 
      # Annotate each coupon with whether the user already used it
