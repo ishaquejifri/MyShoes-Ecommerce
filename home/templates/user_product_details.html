@@ -289,16 +289,30 @@
             </h1>
            
             <div class="px-4 py-2">
-              <span class="text-2xl font-bold text-black"
-                >₹{{ product.offer_price }}</span
-              >
-              <span class="text-gray-400 line-through ml-2"
-                >₹{{ product.base_price }}</span
-              >
-              <span class="text-green-600 ml-2 font-semibold">
-                {{ product.discount_percentage }}% OFF
-              </span>
-            </div>
+
+              {% if pricing.has_offer %}
+
+                  <span class="text-2xl font-bold text-red-600">
+                      ₹{{ pricing.final_price }}
+                  </span>
+
+                  <span class="text-gray-400 line-through ml-2">
+                      ₹{{ pricing.original_price }}
+                  </span>
+
+                  <span class="text-green-600 ml-2 font-semibold">
+                      {{ pricing.discount_percentage }}% OFF
+                  </span>
+
+              {% else %}
+
+                  <span class="text-2xl font-bold text-black">
+                      ₹{{ pricing.original_price }}
+                  </span>
+
+              {% endif %}
+
+              </div>
             {% for coupon in coupons %}
             <div
               class="mx-4 my-3 p-3 bg-green-50 border border-green-200 rounded-lg"
