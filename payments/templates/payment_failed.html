@@ -1,4 +1,6 @@
 {% extends "user_base.html" %}
+{% block title %}Payment Failed{% endblock %}
+{% load static %}
 
 {% block content %}
 
@@ -48,7 +50,7 @@
             <p>
                 <strong>Status:</strong>
                 <span class="text-red-600 font-semibold">
-                    {{ order.payment_status }}
+                    {{ order.payment_status }} 
                 </span>
             </p>
 
@@ -56,11 +58,9 @@
 
         <div class="mt-8 space-y-3">
 
-            <a href="{% url 'retry_payment' order.id %}"
-               class="block w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
-
+            <a href="{% url 'payment_options' order.id %}"
+            class="block w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700">
                 Retry Payment
-
             </a>
 
             <a href="{% url 'order_details' order.order_id %}"

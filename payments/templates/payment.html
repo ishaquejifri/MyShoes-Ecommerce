@@ -14,7 +14,7 @@ var options = {
 
     key: "{{ razorpay_key }}",
 
-    amount: "{{ amount }}",
+    amount: {{ amount }},
 
     currency: "INR",
 
@@ -77,6 +77,12 @@ var options = {
 
         });
 
+    },
+
+    prefill: {
+        name: "{{ order.full_name }}",
+        email: "{{ order.user.email }}",
+        contact: "{{ order.mobile }}"
     },
 
     theme: {

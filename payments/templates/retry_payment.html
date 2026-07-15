@@ -49,7 +49,7 @@ var options = {
 
     key: "{{ razorpay_key }}",
 
-    amount: "{{ amount }}",
+    amount: {{ amount }},
 
     currency: "INR",
 
@@ -60,47 +60,6 @@ var options = {
     order_id: "{{ razorpay_order_id }}",
 
     handler: function (response) {
-
-        fetch("/payments/verify-payment/", {
-
-    method: "POST",
-
-    headers: {
-
-        "Content-Type": "application/json",
-
-        "X-CSRFToken": "{{ csrf_token }}"
-
-    },
-
-    body: JSON.stringify({
-
-        razorpay_payment_id: response.razorpay_payment_id,
-
-        razorpay_order_id: response.razorpay_order_id,
-
-        razorpay_signature: response.razorpay_signature,
-
-        order_id: "{{ order.id }}"
-
-    })
-
-})
-.then(res => res.json())
-.then(data => {
-
-    if(data.status === "success"){
-
-        window.location.href = data.redirect_url;
-
-    }
-    else{
-
-        window.location.href = data.redirect_url;
-
-    }
-
-});
 
         fetch("{% url 'verify_payment' %}", {
 
@@ -135,12 +94,22 @@ var options = {
 
             } else {
 
-                window.location.href = "{% url 'payment_failed' order.id %}";
+                window.location.href = data.redirect_url || "{% url 'payment_failed' order.id %}";
 
             }
 
+        })
+        .catch(error => {
+            console.error("Verification error:", error);
+            window.location.href = "{% url 'payment_failed' order.id %}";
         });
 
+    },
+
+    prefill: {
+        name: "{{ order.full_name }}",
+        email: "{{ order.user.email }}",
+        contact: "{{ order.mobile }}"
     },
 
     modal: {
