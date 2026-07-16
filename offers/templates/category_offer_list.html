@@ -1,6 +1,6 @@
 {% extends "admin_base.html" %} 
 {% load static %} 
-{% block title %}CategoryOffers - LottoShoes{% endblock %} 
+{% block title %}CategoryOffers{% endblock %} 
 {% block content %}
 
 <div class="p-6">
@@ -34,19 +34,19 @@
           <option value="">All Status</option>
           <option
             value="active"
-            {% if status_filter  == "Active" %}selected{% endif %}
+            {% if status_filter  == "active" %}selected{% endif %}
           >
             Active
           </option>
           <option
             value="inactive"
-            {% if status_filter == "Inactive" %}selected{% endif %}
+            {% if status_filter == "inactive" %}selected{% endif %}
           >
             Inactive
           </option>
           <option
             value="expired"
-            {% if status_filter == "Expired" %}selected{% endif %}
+            {% if status_filter == "expired" %}selected{% endif %}
           >
             Expired
           </option>
@@ -79,26 +79,23 @@
           <td class="p-4">{{ offer.discount }}%</td>
           <td class="p-4">{{ offer.start_date|date:"d M Y" }}</td>
           <td class="p-4">{{ offer.end_date|date:"d M Y" }}</td>
+          
           <td class="p-4">
-            {% if offer.status == "active" %}
-            <span
-              class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
-            >
-              Active
+            {% now "Y-m-d" as today %}
+
+        {% if offer.is_active %}
+            <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
+                Active
             </span>
-            {% elif offer.status == "inactive" %}
-            <span
-              class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm"
-            >
-              Inactive
+        {% elif offer.status == "inactive" %}
+            <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
+                Inactive
             </span>
-            {% else %}
-            <span
-              class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm"
-            >
-              Expired
+        {% else %}
+            <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
+                Expired
             </span>
-            {% endif %}
+        {% endif %}
           </td>
           <td class="p-4">
             <div class="flex justify-center gap-2">

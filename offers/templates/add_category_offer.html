@@ -102,14 +102,14 @@
                 <select
                     name="status"
                     class="w-full border rounded-lg px-4 py-3">
-                    <option value="Active"
-                        {% if request.POST.status == "Active" %}
+                    <option value="active"
+                        {% if request.POST.status == "active" %}
                             selected
                         {% endif %}>
                         Active
                     </option>
-                    <option value="Inactive"
-                        {% if request.POST.status == "Inactive" %}
+                    <option value="inactive"
+                        {% if request.POST.status == "inactive" %}
                             selected
                         {% endif %}>
                         Inactive

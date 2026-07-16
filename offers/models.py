@@ -38,7 +38,7 @@ class BaseOffer(models.Model):
 
         today = timezone.now().date()
 
-        return (self.status == 'active' and self.start_date <= today <= self.end_date)
+        return (self.status.lower() == 'active' and self.start_date <= today <= self.end_date)
 
     def __str__(self):
         ''' string representation shown in django admin

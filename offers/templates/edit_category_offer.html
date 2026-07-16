@@ -90,14 +90,14 @@
                 <select
                     name="status"
                     class="w-full border rounded-lg px-4 py-3">
-                    <option value="Active"
-                        {% if offer.status == "Active" %}
+                    <option value="active"
+                        {% if offer.status == "active" %}
                             selected
                         {% endif %}>
                         Active
                     </option>
-                    <option value="Inactive"
-                        {% if offer.status == "Inactive" %}
+                    <option value="inactive"
+                        {% if offer.status == "inactive" %}
                             selected
                         {% endif %}>
                         Inactive
