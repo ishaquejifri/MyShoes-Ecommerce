@@ -1,5 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.contrib import messages
+import products
 from products.models import Product
 from category.models import Category
 from django.core.paginator import Paginator
@@ -88,7 +89,16 @@ def user_product_list(request, category_id=None):
     elif sort_option == 'a_z':
         products = products.order_by('product_name') 
     elif sort_option == 'z_a':
-        products = products.order_by('-product_name')                     
+        products = products.order_by('-product_name')   
+
+    # Apply pricing to each product
+    for product in products:
+        first_variant = product.variants.filter(is_active=True).first()
+
+        if first_variant:
+            product.pricing = apply_offer_to_variant(first_variant)
+        else:
+            product.pricing = None                      
 
      
     paginator = Paginator(products,10)

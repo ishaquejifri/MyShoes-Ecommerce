@@ -752,12 +752,34 @@
                 </div>
 
                 <div class="product-price">
-                    Base Price: ₹{{ product.base_price }}
-                </div>
 
-                <div class="product-price">
-                    Offer Price: ₹{{ product.offer_price }}
-                </div>
+              {% if product.pricing %}
+
+                  {% if product.pricing.has_offer %}
+
+                      <span class="text-gray-400 line-through">
+                          ₹{{ product.pricing.original_price }}
+                      </span>
+
+                      <span class="text-red-600 font-bold">
+                          ₹{{ product.pricing.final_price }}
+                      </span>
+
+                      <span class="text-green-600 text-sm">
+                          {{ product.pricing.discount_percentage }}% OFF
+                      </span>
+
+                  {% else %}
+
+                      <span class="font-semibold">
+                          ₹{{ product.pricing.original_price }}
+                      </span>
+
+                  {% endif %}
+
+              {% endif %}
+
+          </div>
             </div>
 
         </a>
