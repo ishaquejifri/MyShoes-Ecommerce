@@ -36,16 +36,16 @@
                     name="status"
                     class="border rounded-lg px-4 py-2">
                     <option value="">All Status</option>
-                    <option value="Active"
-                        {% if status_filter == "Active" %}selected{% endif %}>
+                    <option value="active"
+                        {% if status_filter == "active" %}selected{% endif %}>
                         Active
                     </option>
-                    <option value="Inactive"
-                        {% if status_filter == "Inactive" %}selected{% endif %}>
+                    <option value="inactive"
+                        {% if status_filter == "inactive" %}selected{% endif %}>
                         Inactive
                     </option>
-                    <option value="Expired"
-                        {% if status_filter == "Expired" %}selected{% endif %}>
+                    <option value="expired"
+                        {% if status_filter == "expired" %}selected{% endif %}>
                         Expired
                     </option>
                 </select>
@@ -88,6 +88,7 @@
                     <td class="p-4">
                         {{ offer.end_date|date:"d M Y" }}
                     </td>
+                   
                     <td class="p-4">
                        {% now "Y-m-d" as today %}
 
