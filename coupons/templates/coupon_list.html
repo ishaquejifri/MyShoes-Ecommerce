@@ -50,6 +50,7 @@
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-120 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Coupon ID</th>
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-240 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Code</th>
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-360 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Discount</th>
+        <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-360 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Min.Purchase</th>
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-480 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Expiry Date</th>
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-600 px-4 py-3 text-left text-white w-[400px] text-sm font-medium leading-normal">Usage Count</th>
         <th class="table-20a16d26-35ac-43f3-bbf2-f54f8f2542a3-column-720 px-4 py-3 text-left text-white w-60 text-sm font-medium leading-normal">Status</th>
@@ -75,8 +76,11 @@
         {% if coupon.discount_type == 'percentage' %}
             {{ coupon.discount_percentage }}%
         {% else %}
-            ₹{{ coupon.discount_amount }}
+            ₹ {{ coupon.discount_amount }}
         {% endif %}
+    </td>
+    <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
+       ₹ {{ coupon.min_purchase_amount }}
     </td>
     <!-- Expiry -->
     <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
