@@ -8,6 +8,8 @@ from category.models import Category
 from products.models import ProductVariant
 from wishlist.models import Wishlist
 from django.views.decorators.cache import never_cache
+from decimal import Decimal
+
 
 
 # Create your views here.
@@ -85,13 +87,24 @@ def view_cart(request):
     cart_items = cart.items.all()
 
     cart_count = sum(item.quantity for item in cart.items.all())
-    total = sum(item.subtotal() for item in cart_items)
+    subtotal = sum(item.subtotal() for item in cart_items) 
+
+    if subtotal >= 5000:
+        shipping_charge = Decimal('0.00')
+    else:
+        shipping_charge = Decimal('40.00')  
+
+    total = subtotal + shipping_charge      
+    
 
     return render(request,'cart.html', {
         'cart_items': cart_items,
         'total': total,
+        'subtotal': subtotal,
+        'shipping_charge': shipping_charge,
         'cart_count': cart_count,
         'categories': categories,
+       
     })  
 
 @never_cache
