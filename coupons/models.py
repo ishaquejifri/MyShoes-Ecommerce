@@ -89,6 +89,11 @@ class Coupon(models.Model):
             return False, 'This coupon has reached its usage limits.'
         return True, 'Valid' 
 
+    @property
+    def is_currently_valid(self):
+        valid, _ = self.is_valid()
+        return valid    
+
     def can_user_use(self,user):
         # checking  a specific user can use this
         is_valid, message = self.is_valid()
@@ -128,7 +133,9 @@ class Coupon(models.Model):
 
         final_total = cart_total - discount
 
-        return discount,final_total                
+        return discount,final_total 
+
+
 
 class CouponUsage(models.Model):
     ''' Track which user used which coupon'''
