@@ -49,7 +49,7 @@ def checkout(request):
     if subtotal >= 5000:
         shipping_charge = Decimal('0.00')
     else:
-        shipping_charge = Decimal('40.00')    
+        shipping_charge = Decimal('40.00')     
 
     # Coupon details calculation
     coupon_code = request.session.get('coupon_code')
@@ -239,6 +239,24 @@ def place_order(request):
                     transaction_type='payment',
                     order=order
                 )
+                order.payment_status = 'Paid'
+                order.save()
+                
+                # Create Payment object for wallet
+                Payment.objects.create(
+                    user=request.user,
+                    order=order,
+                    amount=grand_total,
+                    status='Success'
+                )
+            elif payment_method == 'cod':
+                # Create Payment object for COD
+                Payment.objects.create(
+                    user=request.user,
+                    order=order,
+                    amount=grand_total,
+                    status='Pending'
+                )
 
             # Record Coupon Usage
             if coupon and coupon_discount > 0:
@@ -270,9 +288,9 @@ def place_order(request):
                     quantity = item.quantity,
                     item_status = 'confirmed' if payment_method == 'wallet' else 'placed'
                 )
-            if payment_method != 'online':
-                variant.stock -= item.quantity
-                variant.save()
+                if payment_method != 'online':
+                    variant.stock -= item.quantity
+                    variant.save()
         
             cart_items.delete()
             request.session.pop('coupon_code', None)

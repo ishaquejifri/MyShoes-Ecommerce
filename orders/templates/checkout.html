@@ -394,32 +394,70 @@
                 </div>
                 {% endif %}
               </div>
-                 <!-- Apply coupon -->
-                  <div class="bg-white rounded-lg p-4 border border-[#cee8e8] m-4">
-                    <h3 class="font-semibold text-base mb-2">
-                      Apply Coupon
-                    </h3>
-                    <div class="flex gap-2">
-                      <input type="text"
-                         id="coupon-code-input"
-                         placeholder="Enter Code"
-                         value="{% if coupon %}{{ coupon.code }}{% endif %}"
-                         class="border border-[#cee8e8] rounded-lg px-3 py-1 flex-1 text-sm">
-                      <button type="button"
-                              onclick="submitCoupon()"
-                              class="bg-[#0df2f2] text-[#0d1c1c] px-4 py-1 rounded-lg font-bold text-sm">
-                          Apply
-                      </button>
-                    </div>
-                    {% if coupon %}
-                    <div class="mt-3 p-2 bg-green-50 rounded-lg text-green-700 flex justify-between items-center text-sm border border-green-200">
-                      <div>
-                        <strong>{{ coupon.code }}</strong> applied
-                      </div>
-                      <button type="button" onclick="removeCoupon()" class="text-red-600 hover:text-red-800 font-bold">Remove</button>
-                    </div>
-                    {% endif %}
+                 <!-- Apply Coupon & Available Coupons Section -->
+                <div class="bg-white rounded-lg p-4 border border-[#cee8e8] m-4">
+                  <h3 class="font-semibold text-base mb-2 text-[#0d1c1c]">
+                    Apply Coupon
+                  </h3>
+
+                  <!-- Input and Apply Button -->
+                  <div class="flex gap-2">
+                    <input type="text"
+                          id="coupon-code-input"
+                          placeholder="Enter Code"
+                          value="{% if coupon %}{{ coupon.code }}{% endif %}"
+                          class="border border-[#cee8e8] rounded-lg px-3 py-1.5 flex-1 text-sm focus:outline-none focus:border-[#0df2f2] uppercase">
+                    <button type="button"
+                            onclick="submitCoupon()"
+                            class="bg-[#0df2f2] text-[#0d1c1c] px-4 py-1.5 rounded-lg font-bold text-sm hover:opacity-90 transition">
+                      Apply
+                    </button>
                   </div>
+
+                  <!-- Applied Coupon Banner -->
+                  {% if coupon %}
+                  <div class="mt-3 p-2.5 bg-green-50 rounded-lg text-green-700 flex justify-between items-center text-sm border border-green-200">
+                    <div>
+                      <span class="font-bold">{{ coupon.code }}</span> applied
+                    </div>
+                    <button type="button" onclick="removeCoupon()" class="text-red-600 hover:text-red-800 font-bold text-xs underline">
+                      Remove
+                    </button>
+                  </div>
+                  {% endif %}
+
+                  <!-- AVAILABLE COUPONS LIST -->
+                  {% if available_coupons %}
+                  <div class="mt-4 pt-3 border-t border-[#cee8e8]">
+                    <p class="text-xs font-bold text-[#499c9c] uppercase tracking-wider mb-2">
+                      Available Offers ({{ available_coupons|length }})
+                    </p>
+
+                    <div class="space-y-2 max-h-48 overflow-y-auto pr-1">
+                      {% for item in available_coupons %}
+                      <div class="p-2.5 border border-dashed border-[#82d8d8] rounded-lg bg-[#f0fbfb] flex items-center justify-between gap-2">
+                        <div class="min-w-0">
+                          <div class="flex items-center gap-1.5">
+                            <span class="font-bold text-xs bg-white text-[#0d1c1c] px-2 py-0.5 rounded border border-[#0df2f2] tracking-wider">
+                              {{ item.code }}
+                            </span>
+                          </div>
+                          <p class="text-xs text-[#499c9c] mt-1 line-clamp-1">
+                            Min purchase: ₹{{ item.min_purchase_amount }}
+                          </p>
+                        </div>
+
+                        <button type="button"
+                                onclick="applyCouponCode('{{ item.code }}')"
+                                class="text-xs font-bold text-[#0d1c1c] bg-[#0df2f2] hover:bg-[#0bcbcb] px-2.5 py-1 rounded transition shrink-0">
+                          Apply
+                        </button>
+                      </div>
+                      {% endfor %}
+                    </div>
+                  </div>
+                  {% endif %}
+                </div>
               <!-- TOTAL -->
               <div class="p-4">
                 <div class="flex justify-between gap-x-6 py-2">
@@ -576,6 +614,26 @@
       function removeCoupon() {
           document.getElementById('remove-coupon-form').submit();
       }
+
+      function submitCoupon() {
+    const code = document.getElementById('coupon-code-input').value.trim();
+    if (code) {
+        document.getElementById('hidden-coupon-code').value = code;
+        document.getElementById('apply-coupon-form').submit();
+    } else {
+        alert('Please enter a coupon code.');
+    }
+}
+
+// Quick apply button handler for available coupons
+function applyCouponCode(code) {
+    document.getElementById('coupon-code-input').value = code;
+    submitCoupon();
+}
+
+function removeCoupon() {
+    document.getElementById('remove-coupon-form').submit();
+}
 
       setTimeout(() => {
         const alerts = document.querySelectorAll('.alert-message');
