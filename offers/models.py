@@ -45,7 +45,21 @@ class BaseOffer(models.Model):
             Example : Summer Sale (30%)'''   
         return f'{self.name} ({self.discount}%)' 
 
+    @property
+    def computed_status(self):
 
+        today = timezone.now().date()
+
+        if self.status == 'inactive':
+            return 'inactive'
+        if today > self.end_date:
+            return 'expired'
+        if today < self.start_date:
+            return 'inactive'
+        
+        return 'active'        
+             
+           
 class CategoryOffer(BaseOffer):
     # offer applied to entire category
 

@@ -142,18 +142,31 @@ def get_offer_statistics():
     }
     """
     
+    from accounts.models import WalletTransaction
+    from django.db.models import Sum
+
+    today = timezone.now().date()
+
     total_category = CategoryOffer.objects.count()
-    active_category = CategoryOffer.objects.filter(status="active").count()
+    active_category = CategoryOffer.objects.filter(status="active",
+        start_date__lte=today,
+        end_date__gte=today).count()
 
     total_product = ProductOffer.objects.count()
-    active_product = ProductOffer.objects.filter(status="active").count()
+    active_product = ProductOffer.objects.filter(status="active",
+        start_date__lte=today,
+        end_date__gte=today).count()
+
+    total_referral_rewards = WalletTransaction.objects.filter(transaction_type='referral_reward').count()
+    total_referral_amount = WalletTransaction.objects.filter(transaction_type='referral_reward').aggregate(total=Sum('amount'))['total'] or 0
 
     return {
         "total_category_offers": total_category,
         "active_category_offers": active_category,
         "total_product_offers": total_product,
         "active_product_offers": active_product,
-        
+        "total_referral_rewards": total_referral_rewards,
+        "total_referral_amount": total_referral_amount,
     }
 
 

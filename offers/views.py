@@ -9,6 +9,7 @@ from .models import CategoryOffer,ProductOffer
 from category.models import Category
 from products.models import Product
 from .utils import get_offer_statistics
+from django.utils import timezone
 
 # Create your views here.
 
@@ -23,6 +24,8 @@ def category_offer_list(request):
     search_query = request.GET.get("search", "")
     status_filter = request.GET.get("status", "")
 
+    today = timezone.now().date()
+    
     offers = (
         CategoryOffer.objects.all().select_related("category").order_by("-created_at")
     )
@@ -34,8 +37,12 @@ def category_offer_list(request):
             | Q(category__category_name__icontains=search_query)  # category name
         )
 
-    if status_filter:
-        offers = offers.filter(status=status_filter)
+    if status_filter == "active":
+        offers = offers.filter(status="active", start_date__lte=today, end_date__gte=today)
+    elif status_filter == "expired":
+        offers = offers.filter(Q(end_date__lt=today) | Q(status="expired"))
+    elif status_filter == "inactive":
+        offers = offers.filter(status="inactive", end_date__gte=today)
 
     paginator = Paginator(offers, 10)
     page_number = request.GET.get("page")
@@ -231,6 +238,8 @@ def product_offer_list(request):
     search_query = request.GET.get("search", "")
     status_filter = request.GET.get("status", "")
 
+    today = timezone.now().date()
+
     offers = (
         ProductOffer.objects.all().select_related("product").order_by("-created_at")
     )
@@ -242,9 +251,12 @@ def product_offer_list(request):
             | Q(product__product_name__icontains=search_query)
         )
 
-    if status_filter:
-        offers = offers.filter(status=status_filter)
-
+    if status_filter == 'active':
+        offers = offers.filter(status='active', start_date__lte=today, end_date__gte=today)
+    elif status_filter == 'inactive':
+        offers = offers.filter(status='inactive', end_date__gte=today)
+    elif status_filter == 'expired':
+        offers = offers.filter(Q(end_date__lt=today)|Q(status='expired'))        
 
     paginator = Paginator(offers, 10)
     page_number = request.GET.get("page")
