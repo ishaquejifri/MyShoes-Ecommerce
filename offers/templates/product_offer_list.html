@@ -92,7 +92,7 @@
                     <td class="p-4">
                        {% now "Y-m-d" as today %}
 
-                    {% if offer.is_active %}
+                    {% if offer.status == "active" %}
                         <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
                             Active
                         </span>
