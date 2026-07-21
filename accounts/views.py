@@ -174,6 +174,9 @@ def signup(request):
     ref = request.GET.get('ref', '').strip()
     if ref:
         request.session['referral_code'] = ref
+        referral_code = ref
+    else:
+        referral_code = request.session.get('referral_code', '')
         
     return render(request,'signup.html',{'referral_code': referral_code,})
 
@@ -275,13 +278,28 @@ def verify_otp(request):
                     referred_by=referred_by_user
                 )
 
-                # Payout referral reward - give referrer a coupon
             if referred_by_user:
                 try:
+                    # Credit Referrer Wallet with ₹100
+                    referrer_wallet, _ = Wallet.objects.get_or_create(user=referred_by_user)
+                    referrer_wallet.deposit(
+                        amount=Decimal('100.00'),
+                        description=f"Referral reward for inviting {user.email}",
+                        transaction_type='referral_reward'
+                    )
+
+                    # Credit New User Wallet with ₹50
+                    user_wallet, _ = Wallet.objects.get_or_create(user=user)
+                    user_wallet.deposit(
+                        amount=Decimal('50.00'),
+                        description="Referral signup bonus",
+                        transaction_type='referral_reward'
+                    )
+
                     coupon_code = generate_referral_coupon(referred_by_user)
-                    messages.info(request, f"Your referrer received a reward coupon.")
+                    messages.info(request, "Your referrer received a reward coupon and ₹100. You received ₹50 signup bonus.")
                 except Exception as e:
-                    print(f"Referral coupon generation failed: {e}")
+                    print(f"Referral reward failed: {e}")
 
             request.session.pop('signup_data', None)
             request.session.pop('otp', None)
