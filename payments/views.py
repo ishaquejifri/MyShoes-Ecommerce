@@ -47,6 +47,12 @@ def verify_payment(request):
                                   id=order_id,  
                                   user=request.user)
 
+        if order.payment_status == 'Paid':
+            return JsonResponse({
+                'status': 'success',
+                'redirect_url': reverse('order_success', kwargs={'order_id': order.order_id})
+            })
+
         payment = get_object_or_404(Payment, order=order)
 
         if payment.razorpay_order_id != razorpay_order_id:
@@ -258,9 +264,17 @@ def payment_options(request, order_id):
                 variant.stock -= item.quantity
                 variant.save()
 
-            payment = order.payment
-            payment.status = "Pending"
-            payment.save()
+            payment, created = Payment.objects.get_or_create(
+                order=order,
+                defaults={
+                    'user': request.user,
+                    'amount': order.total_amount,
+                    'status': 'Pending'
+                }
+            )
+            if not created:
+                payment.status = "Pending"
+                payment.save()
 
             CartItem.objects.filter(
                 cart__user=request.user
@@ -286,17 +300,30 @@ def wallet_retry_payment(request, order_id):
         messages.error(request, 'Insufficient wallet balance. ')
         return redirect('payment_options', order.id)
     
-    wallet.balance -= order.total_amount
-    wallet.save()
+    # Deduct from Wallet using withdraw method to log the transaction
+    wallet.withdraw(
+        order.total_amount,
+        f"Payment for Order #{order.order_id}",
+        transaction_type='payment',
+        order=order
+    )
 
     order.payment_method = 'wallet'
     order.payment_status = 'Paid'
     order.status = 'confirmed'
     order.save()
 
-    payment = order.payment
-    payment.status = 'Success'
-    payment.save()
+    payment, created = Payment.objects.get_or_create(
+        order=order,
+        defaults={
+            'user': request.user,
+            'amount': order.total_amount,
+            'status': 'Success'
+        }
+    )
+    if not created:
+        payment.status = 'Success'
+        payment.save()
 
     order_items = OrderItem.objects.filter(order=order)
 
