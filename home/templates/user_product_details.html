@@ -1,565 +1,394 @@
 <html>
-  <head>
-    <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
-    <link
-      rel="stylesheet"
-      as="style"
-      onload="this.rel = 'stylesheet'"
-      href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Serif%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900"
-    />
-    <title>{{product.product_name}}</title>
-    <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
-    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-  </head>
-  <body>
-     <div
-      class="relative flex h-auto min-h-screen w-full flex-col bg-white group/design-root overflow-x-hidden"
-      style="
+
+<head>
+  <link rel="preconnect" href="https://fonts.gstatic.com/" crossorigin="" />
+  <link rel="stylesheet" as="style" onload="this.rel = 'stylesheet'"
+    href="https://fonts.googleapis.com/css2?display=swap&amp;family=Noto+Serif%3Awght%40400%3B500%3B700%3B900&amp;family=Noto+Sans%3Awght%40400%3B500%3B700%3B900" />
+  <title>{{product.product_name}}</title>
+  <link rel="icon" type="image/x-icon" href="data:image/x-icon;base64," />
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+</head>
+
+<body>
+  <div class="relative flex h-auto min-h-screen w-full flex-col bg-white group/design-root overflow-x-hidden" style="
         --select-button-svg: url(&quot;data:image/svg+xml,%3csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%2724px%27 height=%2724px%27 fill=%27rgb(103,127,131)%27 viewBox=%270 0 256 256%27%3e%3cpath d=%27M181.66,170.34a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-48-48a8,8,0,0,1,11.32-11.32L128,212.69l42.34-42.35A8,8,0,0,1,181.66,170.34Zm-96-84.68L128,43.31l42.34,42.35a8,8,0,0,0,11.32-11.32l-48-48a8,8,0,0,0-11.32,0l-48,48A8,8,0,0,0,85.66,85.66Z%27%3e%3c/path%3e%3c/svg%3e&quot;);
         font-family: Manrope, &quot;Noto Sans&quot;, sans-serif;
-      "
-    >
-      <div class="layout-container flex h-full grow flex-col pt-5">
-        <header
-          class="fixed top-0 left-0 w-full z-50 bg-white shadow-md flex items-center justify-between whitespace-nowrap border-b border-[#e8eef2] px-10 py-3 bg-white"
-        >
-          <div class="flex items-center gap-4 text-[#131416]">
-            <div class="size-4">
-              <svg
-                viewBox="0 0 48 48"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"
-                  fill="currentColor"
-                ></path>
-                <path
-                  fill-rule="evenodd"
-                  clip-rule="evenodd"
-                  d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"
-                  fill="currentColor"
-                ></path>
-              </svg>
-            </div>
-            <a href="{% url 'home' %}">
-              <h2
-                class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em]"
-              >
-                Lotto Shoes
-              </h2>
+      ">
+    <div class="layout-container flex h-full grow flex-col pt-5">
+      <header
+        class="fixed top-0 left-0 w-full z-50 bg-white shadow-md flex items-center justify-between whitespace-nowrap border-b border-[#e8eef2] px-10 py-3 bg-white">
+        <div class="flex items-center gap-4 text-[#131416]">
+          <div class="size-4">
+            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M24 18.4228L42 11.475V34.3663C42 34.7796 41.7457 35.1504 41.3601 35.2992L24 42V18.4228Z"
+                fill="currentColor"></path>
+              <path fill-rule="evenodd" clip-rule="evenodd"
+                d="M24 8.18819L33.4123 11.574L24 15.2071L14.5877 11.574L24 8.18819ZM9 15.8487L21 20.4805V37.6263L9 32.9945V15.8487ZM27 37.6263V20.4805L39 15.8487V32.9945L27 37.6263ZM25.354 2.29885C24.4788 1.98402 23.5212 1.98402 22.646 2.29885L4.98454 8.65208C3.7939 9.08038 3 10.2097 3 11.475V34.3663C3 36.0196 4.01719 37.5026 5.55962 38.098L22.9197 44.7987C23.6149 45.0671 24.3851 45.0671 25.0803 44.7987L42.4404 38.098C43.9828 37.5026 45 36.0196 45 34.3663V11.475C45 10.2097 44.2061 9.08038 43.0155 8.65208L25.354 2.29885Z"
+                fill="currentColor"></path>
+            </svg>
+          </div>
+          <a href="{% url 'home' %}">
+            <h2 class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em]">
+              Lotto Shoes
+            </h2>
+          </a>
+        </div>
+        <div class="flex flex-1 justify-end gap-8">
+          <div class="flex items-center gap-9">
+            {% for category in categories %}
+            <a href="{% url 'user_product_list' %}?category={{ category.id }}"
+              class="text-[#121617] text-sm font-medium leading-normal">
+              {{ category.name }}
             </a>
+            {% endfor %}
           </div>
-          <div class="flex flex-1 justify-end gap-8">
-            <div class="flex items-center gap-9">
-              {% for category in categories %}
-              <a
-                href="{% url 'user_product_list' %}?category={{ category.id }}"
-                class="text-[#121617] text-sm font-medium leading-normal"
-              >
-                {{ category.name }}
-              </a>
-              {% endfor %}
-            </div>
-            <div class="flex gap-2">             
-              <a href="{% url 'profile'%}">
-                <button
-                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-                >
-                  <div
-                    class="text-[#131416]"
-                    data-icon="User"
-                    data-size="20px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20px"
-                      height="20px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
-                      <path
-                        d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z"
-                      ></path>
-                    </svg>
-                  </div>
-                </button>
-              </a>
-              <!-- CART BUTTON -->
-              <a href="{% url 'cart:view_cart'%}">
-                <button
-                  class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-                >
-                  <div
-                    class="text-[#131416]"
-                    data-icon="ShoppingBag"
-                    data-size="20px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="20px"
-                      height="20px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
-                      <path
-                        d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z"
-                      ></path>
-                    </svg>
-                  </div>
-                </button>
-              </a>
-             <!-- WISHLIST BUTTON -->
-              <a href="{% url 'wishlist' %}">
-                  <button
-                    class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5"
-                  >
-                    <div
-                      class="text-[#131416]"
-                      data-icon="Heart"
-                      data-size="20px"
-                      data-weight="regular"
-                    >
-                      <svg
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="20px"
-                        height="20px"
-                        fill="currentColor"
-                        viewBox="0 0 256 256"
-                      >
-                        <path
-                          d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32Z"
-                        ></path>
-                      </svg>
-                    </div>
-                  </button>
-                </a>
-              <!-- LOGOUT BUTTON  -->
-              <form method="POST" action="{% url 'logout' %}">
-                {% csrf_token %}
-                <button
-                  type="submit"
-                  class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-150"
-                >
-                  <!-- Logout Icon -->
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    width="20"
-                    height="20"
-                    fill="currentColor"
-                    viewBox="0 0 256 256"
-                  >
+          <div class="flex gap-2">
+            <a href="{% url 'profile'%}">
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                <div class="text-[#131416]" data-icon="User" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                    viewBox="0 0 256 256">
                     <path
-                      d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z"
-                    ></path>
+                      d="M230.92,212c-15.23-26.33-38.7-45.21-66.09-54.16a72,72,0,1,0-73.66,0C63.78,166.78,40.31,185.66,25.08,212a8,8,0,1,0,13.85,8c18.84-32.56,52.14-52,89.07-52s70.23,19.44,89.07,52a8,8,0,1,0,13.85-8ZM72,96a56,56,0,1,1,56,56A56.06,56.06,0,0,1,72,96Z">
+                    </path>
                   </svg>
+                </div>
+              </button>
+            </a>
+            <!-- CART BUTTON -->
+            <a href="{% url 'cart:view_cart'%}">
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                <div class="text-[#131416]" data-icon="ShoppingBag" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,160H40V56H216V200ZM176,88a48,48,0,0,1-96,0,8,8,0,0,1,16,0,32,32,0,0,0,64,0,8,8,0,0,1,16,0Z">
+                    </path>
+                  </svg>
+                </div>
+              </button>
+            </a>
+            <!-- WISHLIST BUTTON -->
+            <a href="{% url 'wishlist' %}">
+              <button
+                class="flex max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 bg-[#ecedee] text-[#131416] gap-2 text-sm font-bold leading-normal tracking-[0.015em] min-w-0 px-2.5">
+                <div class="text-[#131416]" data-icon="Heart" data-size="20px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20px" height="20px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M178,32c-20.65,0-38.73,8.88-50,23.89C116.73,40.88,98.65,32,78,32A62.07,62.07,0,0,0,16,94c0,70,103.79,126.66,108.21,129a8,8,0,0,0,7.58,0C136.21,220.66,240,164,240,94A62.07,62.07,0,0,0,178,32Z">
+                    </path>
+                  </svg>
+                </div>
+              </button>
+            </a>
+            <!-- LOGOUT BUTTON  -->
+            <form method="POST" action="{% url 'logout' %}">
+              {% csrf_token %}
+              <button type="submit"
+                class="w-full flex items-center gap-3 px-4 py-2 rounded-md text-gray-700 hover:bg-red-50 hover:text-red-600 transition duration-150">
+                <!-- Logout Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor"
+                  viewBox="0 0 256 256">
+                  <path
+                    d="M216,128a8,8,0,0,1-8,8H111.31l26.35,26.34a8,8,0,0,1-11.32,11.32l-40-40a8,8,0,0,1,0-11.32l40-40a8,8,0,0,1,11.32,11.32L111.31,120H208A8,8,0,0,1,216,128ZM48,40A16,16,0,0,1,64,24h72a8,8,0,0,1,0,16H64V216h72a8,8,0,0,1,0,16H64a16,16,0,0,1-16-16Z">
+                  </path>
+                </svg>
 
-                  <span class="text-sm font-medium">Logout</span>
-                </button>
-              </form>
-            </div>
+                <span class="text-sm font-medium">Logout</span>
+              </button>
+            </form>
           </div>
-        </header>
-          {% if messages %}
-          <div class="fixed top-20 right-5 z-50 space-y-2">
-            {% for message in messages %}
-              <div class="alert-message px-4 py-2 rounded-lg text-white shadow-lg
+        </div>
+      </header>
+      {% if messages %}
+      <div class="fixed top-20 right-5 z-50 space-y-2">
+        {% for message in messages %}
+        <div class="alert-message px-4 py-2 rounded-lg text-white shadow-lg
                 {% if message.tags == 'error' %}bg-red-500{% endif %}
                 {% if message.tags == 'success' %}bg-green-500{% endif %}
                 {% if message.tags == 'warning' %}bg-yellow-500{% endif %}
                 {% if message.tags == 'info' %}bg-blue-500{% endif %}">
-                {{ message }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endif %}
-        <div class="px-4 py-2 mt-20 text-sm text-gray-500">
-          <a href="{% url 'home' %}" class="hover:underline">Home</a> /
-          <a href="{% url 'user_product_list' %}" class="hover:underline"
-            >Products</a
-          >
-          /
-          <span class="text-black">{{ product.product_name }}</span>
+          {{ message }}
         </div>
-        <div class="gap-6 px-6 flex flex-col lg:flex-row flex-1 justify-center py-5">
-          <div
-            class="layout-content-container flex flex-col max-w-[920px] flex-1"
-          >
-            <div class="flex w-full grow bg-neutral-50 @container p-4">
-              <div
-                class="w-full gap-1 overflow-hidden bg-neutral-50 @[480px]:gap-2 aspect-[3/2] rounded-lg flex"
-              >
-                <div class="w-full aspect-auto rounded-none flex-1">
-                  <div
-                    class="relative overflow-hidden rounded-lg group h-[500px] bg-gray-100"
-                  >
-                    <img
-                      id="mainImage"
-                      src="{{ product.image.url }}"
-                      class="w-full h-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-150 cursor-zoom-in"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div
-              class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4"
-            >
-              {% for image in product.images.all %}
-              <img
-                src="{{ image.image.url }}"
-                onclick="changeMainImage('{{ image.image.url }}')"
-                class="w-full h-32 object-cover rounded-lg cursor-pointer border hover:border-black"
-              />
-              {% endfor %}
-            </div>
-            <h3
-              class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4"
-            >
-              Product Specifications
-            </h3>
-            <div class="px-4 py-4">
-              <h3 class="font-bold text-lg mb-2">Highlights</h3>
-              <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
-                <li>Premium quality material</li>
-                <li>Comfortable for long wear</li>
-                <li>Durable sole grip</li>
-                <li>Elegant modern design</li>
-              </ul>
-            </div>
-            <h3
-              class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4"
-            >
-              Shipping &amp; Returns
-            </h3>
-            <p
-              class="text-[#131416] text-base font-normal leading-normal pb-3 pt-1 px-4"
-            >
-              Free shipping on orders over ₹5000. Returns accepted within 30 days
-              of purchase.
-            </p>
-            <h3
-              class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4"
-            >
-              Customer Reviews
-            </h3>
-            <div
-              class="flex flex-col gap-8 overflow-x-hidden bg-neutral-50 p-4"
-            >              
-              <div class="flex flex-col gap-3 bg-neutral-50">
-                <div class="flex items-center gap-3">             
-                 </div>              
-                 <div class="flex gap-9 text-[#6c727a]">                           
-                </div>
-              </div>
-            </div>
-            <h3 class="px-4 text-lg font-bold">Related Products</h3>
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4">
-        {% for item in related_products %}
-        <a href="{% url 'user_product_details' item.id %}">
-        <div class="border rounded-lg p-2 hover:shadow-md transition">
-            <img
-                src="{{ item.image.url }}"
-                alt="{{ item.product_name }}"
-                class="w-full h-32 object-cover rounded-md"
-            />
-            <p class="text-sm font-medium mt-2 truncate">
-                {{ item.product_name }}
-            </p>
-            <p class="text-xs text-gray-600">
-                Base: ₹{{ item.base_price }}
-            </p>
-            <p class="text-sm font-semibold text-green-600">
-                Offer: ₹{{ item.offer_price }}
-            </p>
-        </div>
-        </a>
         {% endfor %}
-       </div>
-          </div>
-          <div class="layout-content-container flex flex-col w-full lg:w-[360px] shrink-0">
-            <h1
-              class="text-[#131416] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5"
-            >
-              {{product.product_name}}
-            </h1>
-           
-            <div class="px-4 py-2">
-
-              {% if pricing.has_offer %}
-
-                  <span class="text-2xl font-bold text-red-600">
-                      ₹{{ pricing.final_price }}
-                  </span>
-
-                  <span class="text-gray-400 line-through ml-2">
-                      ₹{{ pricing.original_price }}
-                  </span>
-
-                  <span class="text-green-600 ml-2 font-semibold">
-                      {{ pricing.discount_percentage }}% OFF
-                  </span>
-
-              {% else %}
-
-                  <span class="text-2xl font-bold text-black">
-                      ₹{{ pricing.original_price }}
-                  </span>
-
-              {% endif %}
-
+      </div>
+      {% endif %}
+      <div class="px-4 py-2 mt-20 text-sm text-gray-500">
+        <a href="{% url 'home' %}" class="hover:underline">Home</a> /
+        <a href="{% url 'user_product_list' %}" class="hover:underline">Products</a>
+        /
+        <span class="text-black">{{ product.product_name }}</span>
+      </div>
+      <div class="gap-6 px-6 flex flex-col lg:flex-row flex-1 justify-center py-5">
+        <div class="layout-content-container flex flex-col max-w-[920px] flex-1">
+          <div class="flex w-full grow bg-neutral-50 @container p-4">
+            <div class="w-full gap-1 overflow-hidden bg-neutral-50 @[480px]:gap-2 aspect-[3/2] rounded-lg flex">
+              <div class="w-full aspect-auto rounded-none flex-1">
+                <div class="relative overflow-hidden rounded-lg group h-[500px] bg-gray-100">
+                  <img id="mainImage" src="{{ product.image.url }}"
+                    class="w-full h-full object-contain rounded-lg transition-transform duration-500 group-hover:scale-150 cursor-zoom-in" />
+                </div>
               </div>
-            {% for coupon in coupons %}
-            <div
-              class="mx-4 my-3 p-3 bg-green-50 border border-green-200 rounded-lg"
-            >            
-              <p class="text-sm text-green-700 font-medium">
-                Coupons: {{ coupon.code }} <br>
-                Description: {{ coupon.description }}             
-              </p>              
             </div>
+          </div>
+          <div class="grid grid-cols-[repeat(auto-fit,minmax(158px,1fr))] gap-3 p-4">
+            {% for image in product.images.all %}
+            <img src="{{ image.image.url }}" onclick="changeMainImage('{{ image.image.url }}')"
+              class="w-full h-32 object-cover rounded-lg cursor-pointer border hover:border-black" />
             {% endfor %}
-            <div class="px-4 py-2">
-              {% if total_stock > 0 %}
-              <span class="text-green-600 font-medium"
-                >In Stock ({{ variant.total_stock }} available)</span
-              >
-              {% else %}
-              <span class="text-red-600 font-medium">Out of Stock</span>
-              {% endif %}
-              {% for variant in variants %}
+          </div>
+          <h3 class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+            Product Specifications
+          </h3>
+          <div class="px-4 py-4">
+            <h3 class="font-bold text-lg mb-2">Highlights</h3>
+            <ul class="list-disc list-inside text-gray-600 text-sm space-y-1">
+              <li>Premium quality material</li>
+              <li>Comfortable for long wear</li>
+              <li>Durable sole grip</li>
+              <li>Elegant modern design</li>
+            </ul>
+          </div>
+          <h3 class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+            Shipping &amp; Returns
+          </h3>
+          <p class="text-[#131416] text-base font-normal leading-normal pb-3 pt-1 px-4">
+            Free shipping on orders over ₹5000. Returns accepted within 30 days
+            of purchase.
+          </p>
+          <h3 class="text-[#131416] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+            Customer Reviews
+          </h3>
+          <div class="flex flex-col gap-8 overflow-x-hidden bg-neutral-50 p-4">
+            <div class="flex flex-col gap-3 bg-neutral-50">
+              <div class="flex items-center gap-3">
+              </div>
+              <div class="flex gap-9 text-[#6c727a]">
+              </div>
+            </div>
+          </div>
+          <h3 class="px-4 text-lg font-bold">Related Products</h3>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-3 p-4">
+            {% for item in related_products %}
+            <a href="{% url 'user_product_details' item.id %}">
+              <div class="border rounded-lg p-2 hover:shadow-md transition">
+                <img src="{{ item.image.url }}" alt="{{ item.product_name }}"
+                  class="w-full h-32 object-cover rounded-md" />
+                <p class="text-sm font-medium mt-2 truncate">
+                  {{ item.product_name }}
+                </p>
+                <p class="text-xs text-gray-600">
+                  Base: ₹{{ item.base_price }}
+                </p>
+                <p class="text-sm font-semibold text-green-600">
+                  Offer: ₹{{ item.offer_price }}
+                </p>
+              </div>
+            </a>
+            {% endfor %}
+          </div>
+        </div>
+        <div class="layout-content-container flex flex-col w-full lg:w-[360px] shrink-0">
+          <h1 class="text-[#131416] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 text-left pb-3 pt-5">
+            {{product.product_name}}
+          </h1>
 
-              <p>
+          <div class="px-4 py-2">
+
+            {% if pricing.has_offer %}
+
+            <span class="text-2xl font-bold text-red-600">
+              ₹{{ pricing.final_price }}
+            </span>
+
+            <span class="text-gray-400 line-through ml-2">
+              ₹{{ pricing.original_price }}
+            </span>
+
+            <span class="text-green-600 ml-2 font-semibold">
+              {{ pricing.discount_percentage }}% OFF
+            </span>
+
+            {% else %}
+
+            <span class="text-2xl font-bold text-black">
+              ₹{{ pricing.original_price }}
+            </span>
+
+            {% endif %}
+
+          </div>
+          
+          <div class="px-4 py-2">
+            {% if total_stock > 0 %}
+            <span class="text-green-600 font-medium">In Stock ({{ variant.total_stock }} available)</span>
+            {% else %}
+            <span class="text-red-600 font-medium">Out of Stock</span>
+            {% endif %}
+            {% for variant in variants %}
+
+            <p>
               {{ variant.size }} -
               {{ variant.color }} -
               Stock: {{ variant.stock }}
-              </p>
+            </p>
 
+            {% endfor %}
+          </div>
+
+          <p class="text-[#131416] text-base font-normal leading-normal pb-3 pt-1 px-4">
+            {{product.description}}
+          </p>
+
+          <!-- VARIANT + ADD TO CART -->
+          {% if variants %}
+          <form method="POST" action="{% url 'cart:add_to_cart' product.id %}" onsubmit="return validateVariant();"
+            class="px-4 py-3">
+
+            {% csrf_token %}
+
+            <h3 class="text-lg font-bold pb-3">
+              Select Variant
+            </h3>
+
+            <div class="flex flex-wrap gap-3 mb-5">
+              {% for variant in variants %}
+              <label
+                class="border rounded-lg px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition">
+
+                <input type="radio" name="variant_id" value="{{ variant.id }}" {% if variant.stock == 0 %}disabled{% endif %} required>
+
+                <span class="text-sm">
+                  {{ variant.size }} | {{ variant.color }}
+
+                  {% if variant.stock == 0 %}
+                  <span class="text-red-500">(Out of stock)</span>
+                  {% endif %}
+                </span>
+
+              </label>
               {% endfor %}
             </div>
 
-            <p
-              class="text-[#131416] text-base font-normal leading-normal pb-3 pt-1 px-4"
-            >
-              {{product.description}}
-            </p>
+            <button type="submit"
+              class="w-full h-11 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition">
+              Add to Cart
+            </button>
 
-           <!-- VARIANT + ADD TO CART -->
-{% if variants %}
-<form method="POST"
-      action="{% url 'cart:add_to_cart' product.id %}"
-      onsubmit="return validateVariant();"
-      class="px-4 py-3">
+          </form>
 
-    {% csrf_token %}
-
-    <h3 class="text-lg font-bold pb-3">
-        Select Variant
-    </h3>
-
-    <div class="flex flex-wrap gap-3 mb-5">
-        {% for variant in variants %}
-        <label
-            class="border rounded-lg px-4 py-2 flex items-center gap-2 cursor-pointer hover:bg-gray-100 transition">
-
-            <input
-                type="radio"
-                name="variant_id"
-                value="{{ variant.id }}"
-                {% if variant.stock == 0 %}disabled{% endif %}
-                required
-            >
-
-            <span class="text-sm">
-                {{ variant.size }} | {{ variant.color }}
-
-                {% if variant.stock == 0 %}
-                    <span class="text-red-500">(Out of stock)</span>
-                {% endif %}
-            </span>
-
-        </label>
-        {% endfor %}
-    </div>
-
-    <button
-        type="submit"
-        class="w-full h-11 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition"
-    >
-        Add to Cart
-    </button>
-
-</form>
-
-{% else %}
-<div class="px-4 py-3">
-    <button
-        disabled
-        class="w-full h-11 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed"
-    >
-        No Variants Available
-    </button>
-</div>
-{% endif %}
-            <div class="flex px-4 py-3">
-              <a href="{% url 'add_to_wishlist' product.id %}">
-                <button
-                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-[#21262c] text-neutral-50 text-sm font-bold leading-normal tracking-[0.015em]"
-                >
-                  <span class="truncate"> ❤️ Add to Wishlist</span>
-                </button>
-              </a>
-            </div>
+          {% else %}
+          <div class="px-4 py-3">
+            <button disabled class="w-full h-11 bg-gray-400 text-white rounded-lg font-semibold cursor-not-allowed">
+              No Variants Available
+            </button>
+          </div>
+          {% endif %}
+          <div class="flex px-4 py-3">
+            <a href="{% url 'add_to_wishlist' product.id %}">
+              <button
+                class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 flex-1 bg-[#21262c] text-neutral-50 text-sm font-bold leading-normal tracking-[0.015em]">
+                <span class="truncate"> ❤️ Add to Wishlist</span>
+              </button>
+            </a>
           </div>
         </div>
-        <footer class="flex justify-center">
-          <div class="flex max-w-[960px] flex-1 flex-col">
-            <footer
-              class="flex flex-col gap-6 px-5 py-10 text-center @container"
-            >
-              <div
-                class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around"
-              >
-                <a
-                  class="text-[#6c727a] text-sm font-normal leading-normal min-w-40"
-                  href="#"
-                  >About Us</a
-                >
-                <a
-                  class="text-[#6c727a] text-sm font-normal leading-normal min-w-40"
-                  href="#"
-                  >Contact</a
-                >
-                <a
-                  class="text-[#6c727a] text-sm font-normal leading-normal min-w-40"
-                  href="#"
-                  >FAQ</a
-                >
-                <a
-                  class="text-[#6c727a] text-sm font-normal leading-normal min-w-40"
-                  href="#"
-                  >Returns &amp; Exchanges</a
-                >
-                <a
-                  class="text-[#6c727a] text-sm font-normal leading-normal min-w-40"
-                  href="#"
-                  >Privacy Policy</a
-                >
-              </div>
-              <div class="flex flex-wrap justify-center gap-4">
-                <a href="#">
-                  <div
-                    class="text-[#6c727a]"
-                    data-icon="TwitterLogo"
-                    data-size="24px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24px"
-                      height="24px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
-                      <path
-                        d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z"
-                      ></path>
-                    </svg>
-                  </div>
-                </a>
-                <a href="#">
-                  <div
-                    class="text-[#6c727a]"
-                    data-icon="InstagramLogo"
-                    data-size="24px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24px"
-                      height="24px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
-                      <path
-                        d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"
-                      ></path>
-                    </svg>
-                  </div>
-                </a>
-                <a href="#">
-                  <div
-                    class="text-[#6c727a]"
-                    data-icon="FacebookLogo"
-                    data-size="24px"
-                    data-weight="regular"
-                  >
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24px"
-                      height="24px"
-                      fill="currentColor"
-                      viewBox="0 0 256 256"
-                    >
-                      <path
-                        d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,191.63V152h24a8,8,0,0,0,0-16H136V112a16,16,0,0,1,16-16h16a8,8,0,0,0,0-16H152a32,32,0,0,0-32,32v24H96a8,8,0,0,0,0,16h24v63.63a88,88,0,1,1,16,0Z"
-                      ></path>
-                    </svg>
-                  </div>
-                </a>
-              </div>
-              <p class="text-[#6c727a] text-sm font-normal leading-normal">
-                @2026 Lotto Shoes All rights reserved.
-              </p>
-            </footer>
-          </div>
-        </footer>
       </div>
+      <footer class="flex justify-center">
+        <div class="flex max-w-[960px] flex-1 flex-col">
+          <footer class="flex flex-col gap-6 px-5 py-10 text-center @container">
+            <div class="flex flex-wrap items-center justify-center gap-6 @[480px]:flex-row @[480px]:justify-around">
+              <a class="text-[#6c727a] text-sm font-normal leading-normal min-w-40" href="#">About Us</a>
+              <a class="text-[#6c727a] text-sm font-normal leading-normal min-w-40" href="#">Contact</a>
+              <a class="text-[#6c727a] text-sm font-normal leading-normal min-w-40" href="#">FAQ</a>
+              <a class="text-[#6c727a] text-sm font-normal leading-normal min-w-40" href="#">Returns &amp; Exchanges</a>
+              <a class="text-[#6c727a] text-sm font-normal leading-normal min-w-40" href="#">Privacy Policy</a>
+            </div>
+            <div class="flex flex-wrap justify-center gap-4">
+              <a href="#">
+                <div class="text-[#6c727a]" data-icon="TwitterLogo" data-size="24px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M247.39,68.94A8,8,0,0,0,240,64H209.57A48.66,48.66,0,0,0,168.1,40a46.91,46.91,0,0,0-33.75,13.7A47.9,47.9,0,0,0,120,88v6.09C79.74,83.47,46.81,50.72,46.46,50.37a8,8,0,0,0-13.65,4.92c-4.31,47.79,9.57,79.77,22,98.18a110.93,110.93,0,0,0,21.88,24.2c-15.23,17.53-39.21,26.74-39.47,26.84a8,8,0,0,0-3.85,11.93c.75,1.12,3.75,5.05,11.08,8.72C53.51,229.7,65.48,232,80,232c70.67,0,129.72-54.42,135.75-124.44l29.91-29.9A8,8,0,0,0,247.39,68.94Zm-45,29.41a8,8,0,0,0-2.32,5.14C196,166.58,143.28,216,80,216c-10.56,0-18-1.4-23.22-3.08,11.51-6.25,27.56-17,37.88-32.48A8,8,0,0,0,92,169.08c-.47-.27-43.91-26.34-44-96,16,13,45.25,33.17,78.67,38.79A8,8,0,0,0,136,104V88a32,32,0,0,1,9.6-22.92A30.94,30.94,0,0,1,167.9,56c12.66.16,24.49,7.88,29.44,19.21A8,8,0,0,0,204.67,80h16Z">
+                    </path>
+                  </svg>
+                </div>
+              </a>
+              <a href="#">
+                <div class="text-[#6c727a]" data-icon="InstagramLogo" data-size="24px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z">
+                    </path>
+                  </svg>
+                </div>
+              </a>
+              <a href="#">
+                <div class="text-[#6c727a]" data-icon="FacebookLogo" data-size="24px" data-weight="regular">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24px" height="24px" fill="currentColor"
+                    viewBox="0 0 256 256">
+                    <path
+                      d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm8,191.63V152h24a8,8,0,0,0,0-16H136V112a16,16,0,0,1,16-16h16a8,8,0,0,0,0-16H152a32,32,0,0,0-32,32v24H96a8,8,0,0,0,0,16h24v63.63a88,88,0,1,1,16,0Z">
+                    </path>
+                  </svg>
+                </div>
+              </a>
+            </div>
+            <p class="text-[#6c727a] text-sm font-normal leading-normal">
+              @2026 Lotto Shoes All rights reserved.
+            </p>
+          </footer>
+        </div>
+      </footer>
     </div>
+  </div>
 
-    <script>
-      function changeMainImage(imageUrl) {
-        const mainImage = document.getElementById("mainImage");
-        mainImage.src = imageUrl;
-      }
-    </script>
-    <script>
-  function changeMainImage(imageUrl) {
-    const mainImage = document.getElementById("mainImage");
-    mainImage.src = imageUrl;
-  }
-
-  function validateVariant() {
-    const selected = document.querySelector(
-      'input[name="variant_id"]:checked'
-    );
-
-    if (!selected) {
-      alert("Please select a variant");
-      return false;
+  <script>
+    function changeMainImage(imageUrl) {
+      const mainImage = document.getElementById("mainImage");
+      mainImage.src = imageUrl;
+    }
+  </script>
+  <script>
+    function changeMainImage(imageUrl) {
+      const mainImage = document.getElementById("mainImage");
+      mainImage.src = imageUrl;
     }
 
-    return true;
-  }
-</script>
+    function validateVariant() {
+      const selected = document.querySelector(
+        'input[name="variant_id"]:checked'
+      );
 
+      if (!selected) {
+        alert("Please select a variant");
+        return false;
+      }
 
-    <script>
-  setTimeout(() => {
-    const alerts = document.querySelectorAll('.alert-message');
-    alerts.forEach((alert) => {
-      alert.style.transition = 'opacity 0.5s ease';
-      alert.style.opacity = '0';
-      setTimeout(() => {
-        alert.remove();
-      }, 500);
-    });
-  }, 5000); // 5 seconds
+      return true;
+    }
   </script>
 
-  </body>
+
+  <script>
+    setTimeout(() => {
+      const alerts = document.querySelectorAll('.alert-message');
+      alerts.forEach((alert) => {
+        alert.style.transition = 'opacity 0.5s ease';
+        alert.style.opacity = '0';
+        setTimeout(() => {
+          alert.remove();
+        }, 500);
+      });
+    }, 5000); // 5 seconds
+  </script>
+
+</body>
+
 </html>

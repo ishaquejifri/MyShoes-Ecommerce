@@ -9,8 +9,11 @@ from django.views.decorators.cache import never_cache
 from django.contrib.auth.decorators import login_required
 from banner.models import Banner
 from django.utils import timezone
-from coupons.models import Coupon
+from coupons.models import Coupon, CouponUsage
 from offers.utils import apply_offer_to_variant
+from django.db.models import F, Q
+from django.utils import timezone
+
 
 
 
@@ -122,8 +125,9 @@ def user_product_list(request, category_id=None):
 @never_cache
 @login_required
 def user_product_details(request,pk):
-    categories = Category.objects.filter(is_active=True)
-    coupons = Coupon.objects.filter(is_active=True) 
+    categories = Category.objects.filter(is_active=True) 
+
+    
     try:
         product = get_object_or_404(Product,
                                  pk=pk,
@@ -174,8 +178,7 @@ def user_product_details(request,pk):
         'variants': variants,
         'total_stock': total_stock,
         'sizes': sizes,
-        'colors': colors,
-        'coupons': coupons,
+        'colors': colors,        
     })
 
 
