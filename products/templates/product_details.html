@@ -91,7 +91,7 @@
                       </h3>
 
                       <a
-                        href="{% url 'products:add_variant' product.id %}"
+                        href="{% url 'products:add_variant' product.uuid %}"
                         class="px-4 py-2 bg-[#10b77f] text-[#11221c] text-sm font-bold rounded-lg hover:bg-[#0ea56f] transition"
                       >
                         + Add Variant
@@ -128,12 +128,12 @@
                           <td class="py-3 px-2">{{ variant.stock }}</td>
                         <td class="py-3 px-2">
                         <div class="flex gap-2">
-                          <a href="{% url 'products:edit_variant' variant.id %}"
+                          <a href="{% url 'products:edit_variant' variant.uuid %}"
                            class="px-3 py-1 bg-yellow-500 text-black rounded text-xs font-bold">
                          Edit
                        </a>
 
-                    <a href="{% url 'products:delete_variant' variant.id %}"
+                    <a href="{% url 'products:delete_variant' variant.uuid %}"
                     onclick="return confirm('Delete this variant?');"
                     class="px-3 py-1 bg-red-600 text-white rounded text-xs font-bold">
                     Delete
@@ -160,14 +160,14 @@
             </div>
             <div class="flex justify-stretch">
               <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
-                <a href="{% url 'products:edit_product' product.id %}">
+                <a href="{% url 'products:edit_product' product.uuid %}">
                 <button
                   class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#10b77f] text-[#11221c] text-sm font-bold leading-normal tracking-[0.015em]"
                 >
                   <span class="truncate">Edit Product</span>
                 </button>
               </a>
-              <a href="{% url 'products:delete_product' product.id %}"
+              <a href="{% url 'products:delete_product' product.uuid %}"
               onclick="return confirm('Are you sure you want to delete this product?');">
                 <button
                   class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#23483c] text-white text-sm font-bold leading-normal tracking-[0.015em]"

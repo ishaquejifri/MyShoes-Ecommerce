@@ -108,8 +108,8 @@ def add_product(request):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def edit_product(request,id):
-    product = get_object_or_404(Product,id=id)
+def edit_product(request,product_uuid):
+    product = get_object_or_404(Product,uuid=product_uuid)
     gallery_images = product.images.all()
     variants = product.variants.all()
 
@@ -176,9 +176,9 @@ def edit_product(request,id):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def product_details(request,id):
+def product_details(request,product_uuid):
 
-    product = get_object_or_404(Product,id=id)
+    product = get_object_or_404(Product,uuid=product_uuid)
     variants = product.variants.all()
 
     pricing = {}
@@ -202,9 +202,9 @@ def product_details(request,id):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login') 
-def add_variant(request,product_id):
+def add_variant(request,product_uuid):
      
-     product = get_object_or_404(Product,id=product_id)
+     product = get_object_or_404(Product,uuid=product_uuid)
 
      if request.method=="POST":
           form = ProductVariantForm(
@@ -217,7 +217,7 @@ def add_variant(request,product_id):
                variant.price = product.offer_price or product.base_price
                variant.save()
                messages.success(request, 'Variant Added Successfully.')
-               return redirect('products:product_details', id=product_id)
+               return redirect('products:product_details', uuid=product_uuid)
           else:
                messages.error(request, 'This size and color combination is already exists for this product.')
           
@@ -233,9 +233,9 @@ def add_variant(request,product_id):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def edit_variant(request, variant_id):
+def edit_variant(request, variant_uuid):
 
-     variant = get_object_or_404(ProductVariant, id=variant_id)
+     variant = get_object_or_404(ProductVariant, uuid=variant_uuid)
 
      if request.method == "POST":
           form = ProductVariantForm(request.POST, instance=variant)
@@ -243,7 +243,7 @@ def edit_variant(request, variant_id):
           if form.is_valid():
                form.save()
                messages.success(request, 'Variant Updated Successfully.')
-               return redirect('products:product_details', id=variant.product.id)
+               return redirect('products:product_details', uuid=variant.product.uuid)
           else:
                messages.error(request, 'This size and color combination is already exists for this product.')
      else:
@@ -258,19 +258,19 @@ def edit_variant(request, variant_id):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def delete_variant(request, variant_id):
-     variant = get_object_or_404(ProductVariant,id=variant_id)
+def delete_variant(request, variant_uuid):
+     variant = get_object_or_404(ProductVariant,uuid=variant_uuid)
      product_id = variant.product.id
 
      variant.delete()
      messages.success(request, 'Variant Deleted Successfully.')
-     return redirect('products:product_details',id=product_id)
+     return redirect('products:product_details',uuid=variant_uuid)
 
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def toggle_listing(request,id):
-     product = get_object_or_404(Product,id=id, is_deleted=False) 
+def toggle_listing(request,product_uuid):
+     product = get_object_or_404(Product,uuid=product_uuid, is_deleted=False) 
 
      product.is_listed = not product.is_listed
      product.save()
@@ -286,8 +286,8 @@ def toggle_listing(request,id):
 @never_cache
 @admin_required
 @login_required(login_url='admin_login')
-def delete_product(request,id):
-     product = get_object_or_404(Product, id=id, is_deleted=False)
+def delete_product(request,product_uuid):
+     product = get_object_or_404(Product, uuid=product_uuid, is_deleted=False)
      product.is_deleted = True
      product.save()
      messages.success(request, 'Product moved to trash.')

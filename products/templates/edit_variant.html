@@ -8,7 +8,7 @@
       Edit Variant
     </p>
     <a
-      href="{% url 'products:product_details' variant.product.id %}"
+      href="{% url 'products:product_details' variant.product.uuid %}"
       class="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#25463b] text-white text-sm font-bold"
     >
       Back
@@ -72,7 +72,7 @@
             </button>
 
             <a
-              href="{% url 'products:product_details' variant.product.id %}"
+              href="{% url 'products:product_details' variant.product.uuid %}"
               class="flex-1 flex items-center justify-center rounded-lg h-10 px-4 bg-[#25463b] text-white text-sm font-bold hover:bg-[#356454] transition"
             >
               Cancel

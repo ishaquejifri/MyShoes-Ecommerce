@@ -5,10 +5,12 @@ from PIL import Image
 from decimal import Decimal
 from django.db.models.signals import post_save, post_delete
 from django.dispatch import receiver
+import uuid
 
 # Create your models here.
 
 class Product(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4,editable=False,unique=True)
     product_name = models.CharField(max_length=200, unique=True)
     slug = models.SlugField(max_length=200, unique=True)
     base_price = models.DecimalField(max_digits=10, decimal_places=2)
@@ -182,6 +184,7 @@ class ProductVariant(models.Model):
         ('12', '12'),
     ]
   
+    uuid = models.UUIDField(default=uuid.uuid4,unique=True,editable=False)
     product = models.ForeignKey(Product,on_delete=models.CASCADE,related_name='variants')
     size = models.CharField(max_length=20, choices=SIZE_CHOICES)
     color = models.CharField(max_length=50)
