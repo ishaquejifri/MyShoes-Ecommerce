@@ -72,44 +72,35 @@
         </div>
         <!-- PRODUCTS -->
         <div class="pt-5 flex flex-col gap-4">
-
           {% for item in order.items.all %}
-
           <div class="flex items-center gap-4">
-
-            <img
-              src="{{ item.product.image.url }}"
-              class="w-20 h-20 object-cover rounded-xl border"
-            >
+            <img src="{{ item.product.image.url }}" class="w-20 h-20 object-cover rounded-xl border" />
 
             <div class="flex-1">
-
               <p class="font-bold text-[#131514]">
                 {{ item.product_name }}
               </p>
 
               <p class="text-sm text-[#6f7b74]">
-                {{ item.variant_size }} |
-                {{ item.variant_color }}
+                {{ item.variant_size }} | {{ item.variant_color }}
               </p>
 
               <p class="text-sm text-[#6f7b74]">
                 Quantity: {{ item.quantity }}
               </p>
-
             </div>
 
-            <p class="font-bold text-[#131514]">
-             Amount:  ₹{{ item.product.offer_price }}
-            </p>
-          </br><p class="font-text-[#131514]">
-             Shipping:  ₹{{ order.shipping_charge }}
-            </p>
-
+            <!-- Cleaned Price display per item -->
+            <div class="text-right">
+              <p class="font-bold text-[#131514]">
+                ₹{{ item.price }}
+              </p>
+              {% if item.item_status|lower == 'cancelled' %}
+                <span class="text-xs text-red-600 font-semibold">Cancelled</span>
+              {% endif %}
+            </div>
           </div>
-
           {% endfor %}
-
         </div>
 
         <!-- BUTTONS -->

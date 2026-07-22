@@ -1,6 +1,6 @@
 from django.shortcuts import render,redirect,get_object_or_404
 from django.http import HttpResponse
-import string,random
+import string,random,time
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from decimal import Decimal
@@ -18,6 +18,7 @@ from coupons.models import Coupon
 from payments.models import Payment
 import razorpay
 from django.conf import settings
+
 # Create your views here.
 
 client = razorpay.Client(
@@ -160,6 +161,10 @@ def place_order(request):
     try:
         with transaction.atomic():
             order_id = generate_order_id()
+
+            initial_status = 'confirmed' if payment_method == 'wallet' else 'pending'
+            initial_payment_status = 'Paid' if payment_method == 'wallet' else 'Pending'
+
             order = Order.objects.create(
                 order_id = order_id,
                 user = request.user,
@@ -171,24 +176,52 @@ def place_order(request):
                 state = address.state,
                 postal_code = address.postal_code,
                 payment_method = payment_method,
-                status = 'confirmed' if payment_method == 'wallet' else 'pending',
+                status = initial_status,
+                payment_status = initial_payment_status,
                 sub_total = subtotal,
                 shipping_charge = shipping,
                 coupon_discount = coupon_discount,
                 total_amount = grand_total,
             )
 
+            # Create Order Items for all payment types
+            for item in cart_items:
+                variant = item.variant
+                # Check stock upfront
+                if variant.stock < item.quantity:
+                    raise ValueError(f"Only {variant.stock} stock available for {item.product.product_name}")
+                
+                OrderItem.objects.create(
+                    order=order,
+                    product=item.product,
+                    variant=variant,
+                    product_name=item.product.product_name,
+                    variant_size=variant.size,
+                    variant_color=variant.color,
+                    price=item.price,
+                    original_price=item.product.base_price,
+                    discount_amount=item.product.base_price - item.price,
+                    quantity=item.quantity,
+                    item_status='confirmed' if payment_method == 'wallet' else 'placed'
+                )
+
+                # ONLY deduct stock immediately for COD and Wallet (NOT Online)
+                if payment_method != 'online':
+                    variant.stock -= item.quantity
+                    variant.save()
 
             # ==========================
             # ONLINE PAYMENT
             # ==========================
 
             if payment_method == "online":
+                amount_in_paise = int(round(float(grand_total) * 100))
+                unique_receipt = f"{order.order_id}_{int(time.time())}"
 
                 razorpay_order = client.order.create({
-                "amount": int(grand_total * 100),
+                "amount": amount_in_paise,
                 "currency": "INR",
-                "receipt": order.order_id,
+                "receipt": unique_receipt[:40],
                 "payment_capture": 1
                 })
 
@@ -200,23 +233,8 @@ def place_order(request):
                 status="Pending"
                 )
 
-                # Create Order Items
-                for item in cart_items:
-
-                    OrderItem.objects.create(
-                    order=order,
-                    product=item.product,
-                    variant=item.variant,
-                    product_name=item.product.product_name,
-                    variant_size=item.variant.size,
-                    variant_color=item.variant.color,
-                    price=item.price,
-                    original_price=item.product.base_price,
-                    discount_amount=item.product.base_price-item.price,
-                    quantity=item.quantity,
-                    item_status="placed"
-                )
-                
+                # NOTE: We DO NOT delete cart_items here.
+                # Cart will be cleared inside verify_payment view when payment succeeds!
 
                 return render(
                     request,
@@ -225,13 +243,12 @@ def place_order(request):
                     "order": order,
                     "razorpay_key": settings.RAZORPAY_KEY_ID,
                     "razorpay_order_id": razorpay_order["id"],
-                    "amount": int(grand_total * 100),
+                    "amount": amount_in_paise,
                 }
             )
 
-
-            # Deduct from Wallet if selected
-            if payment_method == 'wallet':
+            # WALLET PAYMENT            
+            elif payment_method == 'wallet':
                 wallet, _ = Wallet.objects.get_or_create(user=request.user)
                 wallet.withdraw(
                     grand_total,
@@ -239,9 +256,7 @@ def place_order(request):
                     transaction_type='payment',
                     order=order
                 )
-                order.payment_status = 'Paid'
-                order.save()
-                
+                                
                 # Create Payment object for wallet
                 Payment.objects.create(
                     user=request.user,
@@ -249,6 +264,8 @@ def place_order(request):
                     amount=grand_total,
                     status='Success'
                 )
+
+            # CASH ON DELIVERY    
             elif payment_method == 'cod':
                 # Create Payment object for COD
                 Payment.objects.create(
@@ -270,28 +287,7 @@ def place_order(request):
                 coupon.times_used += 1
                 coupon.save(update_fields=['times_used'])
 
-            for item in cart_items:
-                variant = item.variant
-                if variant.stock < item.quantity:
-                    raise ValueError(f"Only {variant.stock} stock available for {item.product.product_name}")
-                
-                OrderItem.objects.create(
-                    order = order,
-                    product = item.product,
-                    variant = variant,
-                    product_name = item.product.product_name,
-                    variant_size = variant.size,
-                    variant_color = variant.color,
-                    price = item.price,
-                    original_price = item.product.base_price,
-                    discount_amount = item.product.base_price - item.price,
-                    quantity = item.quantity,
-                    item_status = 'confirmed' if payment_method == 'wallet' else 'placed'
-                )
-                if payment_method != 'online':
-                    variant.stock -= item.quantity
-                    variant.save()
-        
+                    
             cart_items.delete()
             request.session.pop('coupon_code', None)
 
@@ -319,6 +315,13 @@ def my_order(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     categories = Category.objects.filter(is_active=True)
 
+    # EXCLUDE online orders where payment_status is 'Pending' or 'Failed'
+    # (These are incomplete Razorpay attempts)
+    orders = orders.exclude(
+        payment_method = 'online',
+        payment_status__in=['pending', 'failed']
+    ).order_by('-created_at')
+
     context = {
         'orders': orders,
         'categories': categories,
@@ -329,47 +332,55 @@ def my_order(request):
 @login_required
 def cancel_order(request,order_id):
     categories = Category.objects.filter(is_active=True)
-    order = get_object_or_404(Order, order_id=order_id,user=request.user)
+    order = get_object_or_404(Order, order_id=order_id, user=request.user)
 
     if order.status.lower() == 'delivered':
         messages.error(request,'Delivered orders cannot be cancelled' )
-        return redirect('my_orders')
+        return redirect('my_orders', order.order_id)
 
     if order.status.lower() == 'cancelled':
         messages.warning(request,'Order already cancelled')
-        return redirect('my_orders')
+        return redirect('my_orders', order.order_id)
     
     if request.method == 'POST':
         reason = request.POST.get('reason')
        
-        with transaction.atomic():
-            #Restore stock
-            for item in order.items.all():
-                if item.item_status.lower() not in ['cancelled', 'returned']:
-                    variant = item.variant
-                    variant.stock += item.quantity
-                    variant.save()
+        with transaction.atomic():            
 
-                    item.item_status = 'cancelled'
-                    item.save()
+            # 1. Refund full order amount ONLY if paid
+            if order.payment_status == 'Paid':
+                wallet, _ = Wallet.objects.get_or_create(user=request.user)
+                wallet.deposit(
+                amount=order.total_amount,
+                description=f"Refund for cancelled Order #{order.order_id}",
+                transaction_type='refund',
+                order=order
+            )
+                order.payment_status = 'Refunded'
+                messages.success(request, f"Order cancelled. ₹{order.total_amount} refunded to your wallet.")
+            else:
+                messages.info(request, "Order cancelled.")
 
+            # 2. Update order status and cancel reason (DO NOT call update_total here!)
             order.status = 'cancelled'
             order.cancellation_reason = reason
-            
-            old_total_amount = order.total_amount
-            order.update_total()
             order.save()
+            
+            # 3. Update all item statuses inside the order
+            order_items = OrderItem.objects.filter(order=order)
 
-            # Process refund directly if paid via online or wallet
-            if order.payment_method in ['online', 'wallet']:
-                wallet, _ = Wallet.objects.get_or_create(user=order.user)
-                wallet.deposit(
-                    amount=old_total_amount,
-                    description=f"Refund for cancelled Order #{order.order_id}",
-                    transaction_type='refund',
-                    order=order
-                )
-                messages.success(request, f"Refund of ₹{old_total_amount} credited to your wallet.")
+            # Restock items ONLY if stock was actually deducted (Paid orders or COD)
+            should_restock = (order.payment_status in ['Paid', 'Refunded']) or (order.payment_method == 'cod')
+
+            for item in order_items:
+                if item.item_status != 'cancelled':
+                    item.item_status = 'cancelled'
+                    item.save()
+                    
+                    if should_restock:
+                        variant = item.variant
+                        variant.stock += item.quantity
+                        variant.save()
 
         messages.success(request, 'Order cancelled Successfully')
         return redirect('order_details', order_id=order.order_id)
@@ -393,43 +404,50 @@ def cancel_order_item(request, item_id):
             'order_details',
             order_id=order_item.order.order_id
         )
+    
+    order = order_item.order
 
     with transaction.atomic():
-        #cancel the item
+        # 1. Calculate the exact item price to refund BEFORE modifying anything
+        # Item total = (item.price * quantity)
+        item_refund_amount = order_item.price * order_item.quantity
+
+        # 2. Update Item Status
         order_item.item_status = 'cancelled'
         order_item.save()
 
-        # Restore stock
-        variant = order_item.variant
-        variant.stock += order_item.quantity
-        variant.save()
+        # 3. Restock ONLY if stock was deducted (Paid online order or COD/Wallet)
+        if order.payment_status in ['Paid', 'Refunded'] or order.payment_method == 'cod':
+            variant = order_item.variant
+            variant.stock += order_item.quantity
+            variant.save()
 
-        order = order_item.order
-        remaining_items = order.items.exclude(
-            item_status__in=['cancelled', 'returned']
-        )
-
+        # 4. Check if all items in order are now cancelled
+        remaining_items = order.items.exclude(item_status__in=['cancelled', 'returned'])
         if not remaining_items.exists():
             order.status = 'cancelled'
             order.save()
 
-        # Update totals
-        old_total_amount = order.total_amount
+        # 5. Update Order Totals
         order.update_total()
-        order.refresh_from_db()
 
-        # Refund item value to wallet if paid via online/wallet
-        if order.payment_method in ['online', 'wallet']:
-            refund_amount = old_total_amount - order.total_amount
-            if refund_amount > 0:
-                wallet, _ = Wallet.objects.get_or_create(user=order.user)
-                wallet.deposit(
-                    amount=refund_amount,
-                    description=f"Refund for cancelled item {order_item.product_name} in Order #{order.order_id}",
-                    transaction_type='refund',
-                    order=order
-                )
-                messages.success(request, f"Refund of ₹{refund_amount} credited to your wallet.")
+        # 6. Refund ONLY the specific item amount to wallet if order was Paid
+        if order.payment_status == 'Paid':
+            wallet, _ = Wallet.objects.get_or_create(user=request.user)
+            wallet.deposit(
+                amount=item_refund_amount,
+                description=f"Refund for cancelled item ({order_item.product_name}) in Order #{order.order_id}",
+                transaction_type='refund',
+                order=order
+            )
+            # If all items are cancelled, mark order payment_status as Refunded
+            if not remaining_items.exists():
+                order.payment_status = 'Refunded'
+                order.save()
+
+            messages.success(request, f"Item cancelled. ₹{item_refund_amount} refunded to your wallet.")
+        else:
+            messages.info(request, "Item cancelled.")
 
     messages.success(request, "Item cancelled successfully.")
     return redirect(

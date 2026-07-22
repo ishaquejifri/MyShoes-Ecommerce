@@ -235,17 +235,14 @@
 
                         {% if item.item_status|lower != 'cancelled' and item.item_status|lower != 'delivered' %}
 
-                        <div class="mt-6">
-
-                            <a
-                                href="{% url 'cancel_order_item' item.id %}"
-                                class="inline-flex items-center px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition"
-                            >
-                                Cancel Item
-                            </a>
-
-                        </div>
-
+                       <div class="mt-6">
+                        <a
+                            href="{% url 'cancel_order_item' item.id %}"
+                            class="inline-flex items-center px-5 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg font-semibold transition"
+                        >
+                            Cancel Item
+                        </a>
+                    </div>
                         {% endif %}
 
                     </div>
