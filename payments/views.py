@@ -2,6 +2,7 @@ from django.shortcuts import render,redirect,get_object_or_404
 from django.conf import settings
 import razorpay
 import json
+import time
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
@@ -27,14 +28,6 @@ client = razorpay.Client(
 @login_required
 def verify_payment(request):
 
-    payment = None
-    order = None
-
-    print("=" * 50)
-    print("VERIFY PAYMENT CALLED")
-    print(request.body)
-    print("=" * 50)
-
     try:
         data = json.loads(request.body)
 
@@ -46,15 +39,16 @@ def verify_payment(request):
         order = get_object_or_404(Order, 
                                   id=order_id,  
                                   user=request.user)
-
-        if order.payment_status == 'Paid':
-            return JsonResponse({
-                'status': 'success',
-                'redirect_url': reverse('order_success', kwargs={'order_id': order.order_id})
-            })
-
+        
         payment = get_object_or_404(Payment, order=order)
 
+        # if order.payment_status == 'Paid':
+        #     return JsonResponse({
+        #         'status': 'success',
+        #         'redirect_url': reverse('order_success', kwargs={'order_id': order.order_id})
+        #     })
+
+        
         if payment.razorpay_order_id != razorpay_order_id:
             return JsonResponse({
                 "status": "failed",
@@ -70,6 +64,18 @@ def verify_payment(request):
 
         client.utility.verify_payment_signature(params)
 
+        order_items = OrderItem.objects.filter(order=order)
+        for item in order_items:
+            if item.variant.stock < item.quantity:
+                return JsonResponse({
+                    'status': 'failed',
+                    'message': f"{item.product_name} is out of stock."
+                }, status=400)
+            
+        for item in order_items:
+            item.variant.stock -= item.quantity
+            item.variant.save()    
+
         payment.razorpay_payment_id = razorpay_payment_id
         payment.razorpay_signature = razorpay_signature
         payment.status = 'Success'
@@ -79,41 +85,30 @@ def verify_payment(request):
         order.status = 'confirmed'
         order.save()
 
-        # Record Coupon Usage for Online Payments
-        coupon_code = request.session.get('coupon_code')
-        if coupon_code:
-            try:
-                from coupons.models import Coupon, CouponUsage
-                coupon = Coupon.objects.get(code=coupon_code)
-                if not CouponUsage.objects.filter(coupon=coupon, order=order).exists():
-                    CouponUsage.objects.create(
-                        coupon=coupon,
-                        user=request.user,
-                        order=order,
-                        discount_amount=order.coupon_discount,
-                        cart_total_before_discount=order.sub_total
-                    )
-                    coupon.times_used += 1
-                    coupon.save(update_fields=['times_used'])
-            except Exception as e:
-                print("Error recording coupon usage for online order:", e)
+        # # Record Coupon Usage for Online Payments
+        # coupon_code = request.session.get('coupon_code')
+        # if coupon_code:
+        #     try:
+        #         from coupons.models import Coupon, CouponUsage
+        #         coupon = Coupon.objects.get(code=coupon_code)
+        #         if not CouponUsage.objects.filter(coupon=coupon, order=order).exists():
+        #             CouponUsage.objects.create(
+        #                 coupon=coupon,
+        #                 user=request.user,
+        #                 order=order,
+        #                 discount_amount=order.coupon_discount,
+        #                 cart_total_before_discount=order.sub_total
+        #             )
+        #             coupon.times_used += 1
+        #             coupon.save(update_fields=['times_used'])
+        #     except Exception as e:
+        #         print("Error recording coupon usage for online order:", e)
             
-            # Clear coupon from session
-            request.session.pop('coupon_code', None)
+        #     # Clear coupon from session
+        #     request.session.pop('coupon_code', None)
 
-        order_items = OrderItem.objects.filter(order=order)
+        
 
-        for item in order_items:
-            variant = item.variant  
-
-            if variant.stock < item.quantity:
-                return JsonResponse({
-                    'status': 'failed',
-                     "message": f"{item.product_name} is out of stock."
-                }, status=400)
-            
-            variant.stock -= item.quantity
-            variant.save()
 
         CartItem.objects.filter(
             cart__user=request.user
@@ -121,67 +116,70 @@ def verify_payment(request):
 
         return JsonResponse({
             'status': 'success',
-            'redirect_url': reverse('order_success', kwargs={'order_id': order.order_id})
+            'redirect_url': reverse('order_success', kwargs={'order_id': order.id})
 
         })
     
     except razorpay.errors.SignatureVerificationError:
         
-        if payment:
+        if 'payment' in locals():
             payment.status = 'Failed'
             payment.save()
 
-        if order:
+        if 'order' in locals():
             order.payment_status = 'Failed'
+            order.status = 'Cancelled'
             order.save()
 
         return JsonResponse({
             'status': 'failed',
-            'redirect_url': reverse('payment_failed', kwargs={'order_id': order_id})
+            'message': 'Signature verification failed',
+            'redirect_url': reverse('payment_failed', kwargs={'order_id': order.id})
         })
     
     except Exception as e:
+        print('Payment verification Error:', str(e))
         return JsonResponse({
             'status': 'error',
             'message': str(e)
         }, status = 500)
 
-@login_required
-def place_order(request):
+# @login_required
+# def place_order(request):
 
-    order = Order.objects.create(
-        user=request.user,
-        total_amount=grand_total,
-        payment_method='online',
-        status='Pending'  
-    )
+#     order = Order.objects.create(
+#         user=request.user,
+#         total_amount=grand_total,
+#         payment_method='online',
+#         status='Pending'  
+#     )
 
     
-    payment_data = {
-        'amount': int(grand_total * 100),
-        'currency': 'INR',
-        'payment_capture': 1
-    }
+#     payment_data = {
+#         'amount': int(round(grand_total * 100)),
+#         'currency': 'INR',
+#         'payment_capture': 1
+#     }
     
-    razorpay_order = client.order.create(
-        data=payment_data
-    )
+#     razorpay_order = client.order.create(
+#         data=payment_data
+#     )
 
-    Payment.objects.create(
-        user=request.user,
-        order=order,
-        amount=grand_total,
-        razorpay_order_id=razorpay_order['id']
-    )
+#     Payment.objects.create(
+#         user=request.user,
+#         order=order,
+#         amount=grand_total,
+#         razorpay_order_id=razorpay_order['id']
+#     )
 
-    context = {
-        'order': order,
-        'razorpay_order_id': razorpay_order['id'],
-        'razorpay_key': settings.RAZORPAY_KEY_ID,
-        'amount': int(grand_total * 100) 
-    }
+#     context = {
+#         'order': order,
+#         'razorpay_order_id': razorpay_order['id'],
+#         'razorpay_key': settings.RAZORPAY_KEY_ID,
+#         'amount': int(grand_total * 100) 
+#     }
 
-    return render(request,'payment.html', context)
+#     return render(request,'payment.html', context)
 
 
 
@@ -198,28 +196,45 @@ def payment_failed(request, order_id):
 @login_required
 def retry_payment(request, order_id):
 
-    order = get_object_or_404(Order, id = order_id)
+    order = get_object_or_404(Order, id=order_id, user=request.user)
 
-    payment = order.payment
+    amount_in_paise = int(round(float(order.total_amount) * 100 ))
 
+    unique_receipt = f'{order.order_id} - {int(time.time())}'
     
-    razorpay_order = client.order.create({
-        'amount': int(order.total_amount * 100),
+    try:
+        razorpay_order = client.order.create({
+        'amount': amount_in_paise,
         'currency': 'INR',
-        'receipt': str(order.order_id),
+        'receipt': unique_receipt[:40],
         'payment_capture': 1,
     })
+        
+    except Exception as e:
+        print("Razorpay Order Creation Failed:", e)
+        messages.error(request, "Could not initiate payment gateway.")
+        return redirect('payment_options', order.id) 
 
-    payment.razorpay_order_id = razorpay_order['id']
-    payment.status = 'Pending'
-    payment.save()
+    payment, created = Payment.objects.get_or_create(
+        order=order,
+        defaults={
+            'user': request.user,
+            'amount': order.total_amount,
+            'status': 'Pending',
+            'razorpay_order_id': razorpay_order['id']
+        }
+    )
+
+    if not created:
+        payment.razorpay_order_id = razorpay_order['id']
+        payment.status = 'Pending'
+        payment.save()
 
     context = {
         'order': order,
-        'payment': payment,
         'razorpay_order_id': razorpay_order['id'],
         'razorpay_key': settings.RAZORPAY_KEY_ID,
-        'amount': int(order.total_amount * 100 ),
+        'amount': amount_in_paise,
     }
 
     return render(request, 'retry_payment.html', context)

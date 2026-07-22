@@ -48,15 +48,10 @@
 var options = {
 
     key: "{{ razorpay_key }}",
-
     amount: {{ amount }},
-
     currency: "INR",
-
     name: "MyShoes",
-
     description: "Retry Order Payment",
-
     order_id: "{{ razorpay_order_id }}",
 
     handler: function (response) {

@@ -8,89 +8,61 @@
             Pay Now
           </button>
 
-          <script>
+
+<script>
 
 var options = {
 
-    key: "{{ razorpay_key }}",
-
-    amount: {{ amount }},
-
-    currency: "INR",
-
-    name: "MyShoes",
-
-    description: "Order Payment",
-
-    order_id: "{{ razorpay_order_id }}",
+    "key": "{{ razorpay_key }}",
+    "amount": {{ amount }},
+    "currency": "INR",
+    "name": "MyShoes",
+    "description": "Order Payment",
+    "order_id": "{{ razorpay_order_id }}",
 
     handler: function (response) {
-
         fetch("{% url 'verify_payment' %}", {
-
             method: "POST",
-
             headers: {
                 "Content-Type": "application/json",
                 "X-CSRFToken": "{{ csrf_token }}"
             },
-
             body: JSON.stringify({
-
                 order_id: "{{ order.id }}",
-
                 razorpay_order_id: response.razorpay_order_id,
-
                 razorpay_payment_id: response.razorpay_payment_id,
-
                 razorpay_signature: response.razorpay_signature
-
             })
-
         })
 
         .then(res => res.json())
-
         .then(data => {
-
             if (data.status === "success") {
-
                 window.location.href = data.redirect_url;
-
             }
-
             else {
-
                 alert(data.message || "Payment Failed");
-
-                window.location.href = data.redirect_url;
-
+                if (data.redirect_url) {
+                    window.location.href = data.redirect_url;
+                }
             }
-
         })
 
         .catch(error => {
-
-            console.log(error);
-
-            alert("Payment Verification Failed");
-
+            console.error(error);
+            alert("Payment Verification Error");
         });
-
     },
 
-    prefill: {
-        name: "{{ order.full_name }}",
-        email: "{{ order.user.email }}",
-        contact: "{{ order.mobile }}"
+    "prefill": {
+        "name": "{{ request.user.full_name }}",
+        "email": "{{ request.user.email }}",
+        "contact": "{{ request.user.mobile }}"
     },
 
-    theme: {
-
+    "theme": {
         color: "#3399cc"
-
     }
-
 };
 
 var rzp = new Razorpay(options);
@@ -104,11 +76,8 @@ rzp.on('payment.failed', function (response) {
 });
 
 document.getElementById("pay-btn").onclick = function (e) {
-
     rzp.open();
-
     e.preventDefault();
-
 };
 
 window.onload = function () {
