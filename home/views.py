@@ -13,6 +13,7 @@ from coupons.models import Coupon, CouponUsage
 from offers.utils import apply_offer_to_variant
 from django.db.models import F, Q
 from django.utils import timezone
+from django.http import Http404
 
 
 
@@ -129,12 +130,9 @@ def user_product_details(request,pk):
 
     
     try:
-        product = get_object_or_404(Product,
-                                 pk=pk,
-                                 is_deleted=False
-                                 )
-    except Product.DoesNotExist:
-        return render(request, '404.html', status=404)    
+        product = Product.objects.get(pk=pk, is_deleted=False)
+    except (Product.DoesNotExist, ValueError):
+        return render(request, '404.html', status=404)
     
     if ( not product.is_listed  or not product.is_available or product.is_blocked ):
         return render(
