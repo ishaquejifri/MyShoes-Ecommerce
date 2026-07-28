@@ -25,14 +25,33 @@
             Redirecting to Razorpay
         </h2>
 
-        <p class="text-gray-500 mt-3">
+        <p class="text-gray-500 mt-3 text-sm">
             Please wait while we open the payment window.
         </p>
+
+        {% if "rzp_test" in razorpay_key %}
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mt-4 text-left text-xs text-amber-900">
+            <p class="font-bold mb-2">💡 Test Mode — Use these credentials:</p>
+            <ul class="space-y-2 text-amber-800">
+                <li>
+                    <strong>Card (Recommended):</strong><br>
+                    Number: <code class="bg-amber-100 px-1 rounded font-mono">4718 6081 1046 9002</code><br>
+                    Expiry: <code class="bg-amber-100 px-1 rounded font-mono">09/26</code> &nbsp; CVV: <code class="bg-amber-100 px-1 rounded font-mono">123</code>
+                </li>
+                <li>
+                    <strong>UPI:</strong> Type <code class="bg-amber-100 px-1 rounded font-mono">success@razorpay</code> in the UPI ID field and press Verify.
+                </li>
+                <li>
+                    <strong>Netbanking:</strong> Select any bank → Click <em>"Continue to Netbanking"</em> → Click <em>"Success"</em> on mock bank page.
+                </li>
+            </ul>
+        </div>
+        {% endif %}
 
         <div class="mt-6">
             <button
                 id="pay-btn"
-                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700">
+                class="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 font-semibold w-full">
                 Retry Payment
             </button>
         </div>
@@ -47,12 +66,12 @@
 
 var options = {
 
-    key: "{{ razorpay_key }}",
+    key: "{{ razorpay_key|escapejs }}",
     amount: {{ amount }},
     currency: "INR",
     name: "MyShoes",
-    description: "Retry Order Payment",
-    order_id: "{{ razorpay_order_id }}",
+    description: "Retry Order Payment #{{ order.order_id|escapejs }}",
+    order_id: "{{ razorpay_order_id|escapejs }}",
 
     handler: function (response) {
 
@@ -89,6 +108,7 @@ var options = {
 
             } else {
 
+                alert(data.message || "Payment Verification Failed");
                 window.location.href = data.redirect_url || "{% url 'payment_failed' order.id %}";
 
             }
@@ -96,15 +116,16 @@ var options = {
         })
         .catch(error => {
             console.error("Verification error:", error);
+            alert("Payment Verification Error.");
             window.location.href = "{% url 'payment_failed' order.id %}";
         });
 
     },
 
     prefill: {
-        name: "{{ order.full_name }}",
-        email: "{{ order.user.email }}",
-        
+        name: "{{ order.full_name|default:request.user.username|escapejs }}",
+        email: "{{ order.user.email|escapejs }}",
+        contact: "{{ order.mobile|default:''|escapejs }}"
     },
 
     modal: {
@@ -121,11 +142,51 @@ var options = {
 
         color: "#2563eb"
 
+    },
+
+    config: {
+        display: {
+            blocks: {
+                utib: {
+                    name: "Pay with UPI",
+                    instruments: [
+                        { method: "upi" }
+                    ]
+                },
+                banks: {
+                    name: "Pay with Netbanking",
+                    instruments: [
+                        { method: "netbanking" }
+                    ]
+                },
+                cards: {
+                    name: "Pay with Card",
+                    instruments: [
+                        { method: "card" }
+                    ]
+                },
+                wallets: {
+                    name: "Pay with Wallet",
+                    instruments: [
+                        { method: "wallet" }
+                    ]
+                }
+            },
+            sequence: ["block.utib", "block.cards", "block.banks", "block.wallets"],
+            preferences: {
+                show_default_blocks: true
+            }
+        }
     }
 
 };
 
 var rzp = new Razorpay(options);
+
+rzp.on('payment.failed', function (response) {
+    console.error("Razorpay Payment Failed:", response.error);
+    alert(response.error.description || "Payment attempt failed. Please try another payment method or try again.");
+});
 
 document.getElementById("pay-btn").onclick = function(e){
 

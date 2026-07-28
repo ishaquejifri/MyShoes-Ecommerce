@@ -1,24 +1,82 @@
 {% extends "user_base.html" %}
-{% block title %} Payment {% endblock %}
+{% block title %} Online Payment - MyShoes {% endblock %}
 
 {% block content %}
-<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+<div class="min-h-[70vh] flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-md w-full text-center border border-gray-100">
+        
+        <!-- Loading Animation Icon -->
+        <div class="flex justify-center mb-6">
+            <div class="relative w-20 h-20 flex items-center justify-center rounded-full bg-blue-50 text-blue-600">
+                <svg class="animate-spin h-10 w-10 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </div>
+        </div>
 
-<div class="text-center my-5">
-    <h3>Complete Your Order</h3>
-    <button id="pay-btn" class="btn btn-primary btn-lg mt-3">
-        Pay Now
-    </button>
+        <h2 class="text-2xl font-bold text-gray-800">
+            Complete Your Payment
+        </h2>
+
+        <p class="text-gray-500 mt-2 text-sm">
+            Opening secure Razorpay payment window. Please do not refresh or close this page.
+        </p>
+
+        <div class="bg-gray-50 rounded-xl p-4 mt-6 text-left border border-gray-100">
+            <div class="flex justify-between text-sm py-1">
+                <span class="text-gray-500">Order ID:</span>
+                <span class="font-bold text-gray-800">#{{ order.order_id }}</span>
+            </div>
+            <div class="flex justify-between text-sm py-1">
+                <span class="text-gray-500">Amount to Pay:</span>
+                <span class="font-bold text-blue-600">₹{{ order.total_amount }}</span>
+            </div>
+        </div>
+
+        {% if "rzp_test" in razorpay_key %}
+        <div class="bg-amber-50 border border-amber-200 rounded-xl p-3.5 mt-4 text-left text-xs text-amber-900">
+            <p class="font-bold mb-2">💡 Test Mode — Use these credentials:</p>
+            <ul class="space-y-2 text-amber-800">
+                <li>
+                    <strong>Card (Recommended):</strong><br>
+                    Number: <code class="bg-amber-100 px-1 rounded font-mono">4718 6081 1046 9002</code><br>
+                    Expiry: <code class="bg-amber-100 px-1 rounded font-mono">09/26</code> &nbsp; CVV: <code class="bg-amber-100 px-1 rounded font-mono">123</code>
+                </li>
+                <li>
+                    <strong>UPI:</strong> Type <code class="bg-amber-100 px-1 rounded font-mono">success@razorpay</code> in the UPI ID field and press Verify.
+                </li>
+                <li>
+                    <strong>Netbanking:</strong> Select any bank → Click <em>"Continue to Netbanking"</em> → Click <em>"Success"</em> on mock bank page.
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+
+        <div class="mt-6">
+            <button
+                id="pay-btn"
+                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3.5 px-6 rounded-xl shadow-md transition duration-200 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+                Pay Now
+            </button>
+        </div>
+
+    </div>
 </div>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
 <script>
 var options = {
-    "key": "{{ razorpay_key }}",
+    "key": "{{ razorpay_key|escapejs }}",
     "amount": {{ amount }},
     "currency": "INR",
     "name": "MyShoes",
-    "description": "Order Payment",
-    "order_id": "{{ razorpay_order_id }}",
+    "description": "Order Payment #{{ order.order_id|escapejs }}",
+    "order_id": "{{ razorpay_order_id|escapejs }}",
 
     "handler": function (response) {
         fetch("{% url 'verify_payment' %}", {
@@ -52,17 +110,53 @@ var options = {
     },
 
     "prefill": {
-        "name": "{{ request.user.full_name|default:request.user.username }}",
-        "email": "{{ request.user.email }}"
+        "name": "{{ order.full_name|default:request.user.username|escapejs }}",
+        "email": "{{ request.user.email|escapejs }}",
+        "contact": "{{ order.mobile|default:''|escapejs }}"
     },
 
     "theme": {
-        "color": "#3399cc"
+        "color": "#2563eb"
     },
 
     "modal": {
         "ondismiss": function() {
             window.location.href = "{% url 'payment_failed' order.id %}";
+        }
+    },
+
+    "config": {
+        "display": {
+            "blocks": {
+                "utib": {
+                    "name": "Pay with UPI",
+                    "instruments": [
+                        { "method": "upi" }
+                    ]
+                },
+                "banks": {
+                    "name": "Pay with Netbanking",
+                    "instruments": [
+                        { "method": "netbanking" }
+                    ]
+                },
+                "cards": {
+                    "name": "Pay with Card",
+                    "instruments": [
+                        { "method": "card" }
+                    ]
+                },
+                "wallets": {
+                    "name": "Pay with Wallet",
+                    "instruments": [
+                        { "method": "wallet" }
+                    ]
+                }
+            },
+            "sequence": ["block.utib", "block.cards", "block.banks", "block.wallets"],
+            "preferences": {
+                "show_default_blocks": true
+            }
         }
     }
 };
@@ -70,7 +164,8 @@ var options = {
 var rzp = new Razorpay(options);
 
 rzp.on('payment.failed', function (response) {
-    window.location.href = "{% url 'payment_failed' order.id %}";
+    console.error("Razorpay Payment Failed:", response.error);
+    alert(response.error.description || "Payment attempt failed. Please try another payment method or try again.");
 });
 
 document.getElementById("pay-btn").onclick = function (e) {

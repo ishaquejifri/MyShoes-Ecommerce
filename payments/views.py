@@ -7,7 +7,6 @@ from django.http import JsonResponse, HttpResponse
 from django.views.decorators.http import require_POST
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.csrf import csrf_exempt
-from urllib3 import request
 from orders.models import Order,OrderItem
 from cart.models import Cart,CartItem
 from .models import Payment
@@ -101,10 +100,11 @@ def verify_payment(request):
             order.status = 'confirmed'
             order.save()        
 
-            # clear user cart
+            # clear user cart and session coupon
             CartItem.objects.filter(
-            cart__user=request.user
+                cart__user=request.user
             ).delete()
+            request.session.pop('coupon_code', None)
 
         
         return JsonResponse({
@@ -120,7 +120,6 @@ def verify_payment(request):
 
         if 'order' in locals():
             order.payment_status = 'Failed'
-            order.status = 'Cancelled'
             order.save()
             redirect_target = reverse('payment_failed', kwargs={'order_id': order.id})
         else:
@@ -133,6 +132,8 @@ def verify_payment(request):
         }, status=400)
     
     except Exception as e:
+        import traceback
+        traceback.print_exc()
         return JsonResponse({
             'status': 'error',
             'message': str(e)
@@ -163,13 +164,14 @@ def retry_payment(request, order_id):
     
     try:
         razorpay_order = client.order.create({
-        'amount': amount_in_paise,
-        'currency': 'INR',
-        'receipt': unique_receipt,
-        'payment_capture': 1,
-    })
+            'amount': amount_in_paise,
+            'currency': 'INR',
+            'receipt': unique_receipt,
+            'payment_capture': 1,
+        })
         
     except Exception as e:
+        messages.error(request, f"Failed to initialize payment: {str(e)}")
         return redirect('payment_options', order.id) 
 
     payment, created = Payment.objects.get_or_create(
@@ -193,7 +195,7 @@ def retry_payment(request, order_id):
         'razorpay_key': settings.RAZORPAY_KEY_ID,
         'amount': amount_in_paise,
     }
-
+    print(settings.RAZORPAY_KEY_ID)
     return render(request, 'retry_payment.html', context)
 
 @login_required
@@ -339,7 +341,7 @@ def deduct_stock(order):
 @csrf_exempt    
 def razorpay_webhook(request):
     '''
-    Asynchoronous server to server handler for razorpay payment events
+    Asynchronous server to server handler for razorpay payment events
     '''
     webhook_secret = getattr(settings, 'RAZORPAY_WEBHOOK_SECRET', '')
     request_body = request.body.decode('utf-8')
@@ -356,17 +358,17 @@ def razorpay_webhook(request):
         event_data = json.loads(request_body)
         event_type = event_data.get('event')
 
-        if event_type =='payment.captured':
+        if event_type == 'payment.captured':
             payment_entity = event_data['payload']['payment']['entity']
             razorpay_order_id = payment_entity['order_id']
             razorpay_payment_id = payment_entity['id']  
 
             try:
                 payment = Payment.objects.get(razorpay_order_id=razorpay_order_id)
-                if payment != 'Success':
+                if payment.status != 'Success':
                     with transaction.atomic():
                         payment.status = 'Success'
-                        payment.razorpay_payment_id= razorpay_payment_id
+                        payment.razorpay_payment_id = razorpay_payment_id
                         payment.save()
 
                         order = payment.order
@@ -374,7 +376,7 @@ def razorpay_webhook(request):
                         order.status = 'confirmed'
                         order.save()
 
-                        #deduct stock if not already deducted
+                        # deduct stock if not already deducted
                         for item in order.items.all():
                             if item.item_status != 'confirmed':
                                 item.variant.stock = max(0, item.variant.stock - item.quantity)
@@ -383,10 +385,10 @@ def razorpay_webhook(request):
                                 item.save()
 
                         CartItem.objects.filter(cart__user=order.user).delete()
-            except payment.DoesNotExist:
+            except Payment.DoesNotExist:
                 pass 
         elif event_type == 'payment.failed':
-            payment_entity = event_type['payload']['payment']['entity']
+            payment_entity = event_data['payload']['payment']['entity']
             razorpay_order_id = payment_entity['order_id']
 
             try:
@@ -396,7 +398,6 @@ def razorpay_webhook(request):
                     payment.save()
                     order = payment.order
                     order.payment_status = 'Failed'
-                    order.status = 'cancelled'
                     order.save()
             except Payment.DoesNotExist:
                 pass
@@ -404,6 +405,7 @@ def razorpay_webhook(request):
         return HttpResponse(status=200)
     except Exception:
         return HttpResponse(status=500)
+
                     
 
 
