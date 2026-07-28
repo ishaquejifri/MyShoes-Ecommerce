@@ -112,8 +112,18 @@
                         Payment Status
                     </p>
 
-                    <p class="font-semibold">
-                        {{ order.status }}
+                    <p class="font-semibold mt-1">
+                        <span class="px-3 py-1 rounded-full text-xs font-semibold
+                            {% if order.payment_status|lower == 'paid' %}
+                                bg-green-100 text-green-700
+                            {% elif order.payment_status|lower == 'failed' %}
+                                bg-red-100 text-red-700
+                            {% else %}
+                                bg-yellow-100 text-yellow-700
+                            {% endif %}
+                        ">
+                            {{ order.payment_status }}
+                        </span>
                     </p>
                 </div>
 
@@ -326,6 +336,26 @@
 
                 <hr>
 
+                <div>
+                    <p class="text-gray-500 text-sm">
+                        Payment Status
+                    </p>
+
+                    <p class="font-semibold mt-1">
+                        <span class="px-3 py-1 rounded-full text-sm font-semibold
+                            {% if order.payment_status|lower == 'paid' %}
+                                bg-green-100 text-green-700
+                            {% elif order.payment_status|lower == 'failed' %}
+                                bg-red-100 text-red-700
+                            {% else %}
+                                bg-yellow-100 text-yellow-700
+                            {% endif %}
+                        ">
+                            {{ order.payment_status }}
+                        </span>
+                    </p>
+                </div>
+
                 <div class="flex justify-between text-xl font-bold">
 
                     <span>
@@ -354,6 +384,15 @@
             ← Back
 
         </a>
+
+        {% if order.payment_status|lower != 'paid' and order.status|lower != 'cancelled' %}
+            <a href="{% url 'payment_options' order.id %}"
+               class="px-6 py-3 rounded-lg bg-blue-600 hover:bg-blue-700 text-white transition font-semibold">
+
+                💳 Pay Now / Retry Payment
+
+            </a>
+        {% endif %}
 
         {% if order.status|lower == 'delivered' %}
 

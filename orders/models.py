@@ -5,7 +5,7 @@ from decimal import Decimal
 # Create your models here.
 
 class Order(models.Model):
-    order_id = models.CharField(max_length=10,unique=True,editable=False)
+    order_id = models.CharField(max_length=50,unique=True,editable=False)
     user = models.ForeignKey(CustomUser,on_delete=models.PROTECT,related_name='orders')
     shipping_address = models.ForeignKey(Address,on_delete=models.SET_NULL,null=True,related_name='orders')
     

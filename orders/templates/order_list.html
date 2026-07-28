@@ -104,13 +104,21 @@
         </div>
 
         <!-- BUTTONS -->
-        <div class="flex gap-3 mt-6">
+        <div class="flex flex-wrap gap-3 mt-6">
           <a
             href="{% url 'order_details' order.order_id %}"
             class="px-5 h-10 inline-flex items-center justify-center rounded-lg bg-[#26402f] text-white text-sm font-bold"
           >
             View Details
           </a>
+          {% if order.payment_status|lower != 'paid' and order.status|lower != 'cancelled' %}
+          <a
+            href="{% url 'payment_options' order.id %}"
+            class="px-5 h-10 inline-flex items-center justify-center rounded-lg bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold"
+          >
+            Pay Now
+          </a>
+          {% endif %}
           {% if order.status|lower != 'cancelled' and order.status|lower != 'delivered' and order.status|lower != 'returned' %}
           <a
             href="{% url 'cancel_order' order.order_id %}"

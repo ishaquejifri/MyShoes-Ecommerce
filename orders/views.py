@@ -298,13 +298,6 @@ def my_order(request):
     orders = Order.objects.filter(user=request.user).order_by('-created_at')
     categories = Category.objects.filter(is_active=True)
 
-    # EXCLUDE online orders where payment_status is 'Pending' or 'Failed'
-    # (These are incomplete Razorpay attempts)
-    orders = orders.exclude(
-        payment_method = 'online',
-        payment_status__in=['pending', 'failed']
-    ).order_by('-created_at')
-
     context = {
         'orders': orders,
         'categories': categories,
