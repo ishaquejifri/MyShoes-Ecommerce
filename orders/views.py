@@ -14,7 +14,7 @@ from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import letter
 from io import BytesIO
-from coupons.models import Coupon
+from coupons.models import Coupon, CouponUsage
 from payments.models import Payment
 import razorpay
 from django.conf import settings
@@ -30,7 +30,7 @@ client = razorpay.Client(
 
 
 def generate_order_id():
-    return ''.join(random.choices(string.ascii_uppercase + string.digits, k=10))
+    return f'ORD{int(time.time())}'
 
 @login_required
 def checkout(request):
@@ -140,7 +140,7 @@ def place_order(request):
     coupon = None
     if coupon_code:
         try:
-            from coupons.models import Coupon, CouponUsage
+            
             coupon = Coupon.objects.get(code=coupon_code)
             is_valid, msg = coupon.is_valid()
             if is_valid:
@@ -160,13 +160,13 @@ def place_order(request):
 
     try:
         with transaction.atomic():
-            order_id = generate_order_id()
+            order_id_str = generate_order_id()
 
             initial_status = 'confirmed' if payment_method == 'wallet' else 'pending'
             initial_payment_status = 'Paid' if payment_method == 'wallet' else 'Pending'
 
             order = Order.objects.create(
-                order_id = order_id,
+                order_id = order_id_str,
                 user = request.user,
                 shipping_address = address,
                 full_name = address.full_name,
@@ -209,72 +209,6 @@ def place_order(request):
                 if payment_method != 'online':
                     variant.stock -= item.quantity
                     variant.save()
-
-            # ==========================
-            # ONLINE PAYMENT
-            # ==========================
-
-            if payment_method == "online":
-                amount_in_paise = int(round(float(grand_total) * 100))
-                unique_receipt = f"{order.order_id}_{int(time.time())}"
-
-                razorpay_order = client.order.create({
-                "amount": amount_in_paise,
-                "currency": "INR",
-                "receipt": unique_receipt[:40],
-                "payment_capture": 1
-                })
-
-                Payment.objects.create(
-                user=request.user,
-                order=order,
-                amount=grand_total,
-                razorpay_order_id=razorpay_order["id"],
-                status="Pending"
-                )
-
-                # NOTE: We DO NOT delete cart_items here.
-                # Cart will be cleared inside verify_payment view when payment succeeds!
-
-                return render(
-                    request,
-                    "payment.html",
-                    {   
-                    "order": order,
-                    "razorpay_key": settings.RAZORPAY_KEY_ID,
-                    "razorpay_order_id": razorpay_order["id"],
-                    "amount": amount_in_paise,
-                }
-            )
-
-            # WALLET PAYMENT            
-            elif payment_method == 'wallet':
-                wallet, _ = Wallet.objects.get_or_create(user=request.user)
-                wallet.withdraw(
-                    grand_total,
-                    f"Payment for Order #{order_id}",
-                    transaction_type='payment',
-                    order=order
-                )
-                                
-                # Create Payment object for wallet
-                Payment.objects.create(
-                    user=request.user,
-                    order=order,
-                    amount=grand_total,
-                    status='Success'
-                )
-
-            # CASH ON DELIVERY    
-            elif payment_method == 'cod':
-                # Create Payment object for COD
-                Payment.objects.create(
-                    user=request.user,
-                    order=order,
-                    amount=grand_total,
-                    status='Pending'
-                )
-
             # Record Coupon Usage
             if coupon and coupon_discount > 0:
                 CouponUsage.objects.create(
@@ -286,17 +220,66 @@ def place_order(request):
                 )
                 coupon.times_used += 1
                 coupon.save(update_fields=['times_used'])
+            # Payment handling branching
+            if payment_method == 'wallet':
+                wallet, _ = Wallet.objects.get_or_create(user=request.user)
+                wallet.withdraw(
+                    grand_total,
+                    f"Payment for Order #{order_id_str}",
+                    transaction_type='payment',
+                    order=order
+                )
+                Payment.objects.create(
+                    user=request.user,
+                    order=order,
+                    amount=grand_total,
+                    status='Success'
+                )
+                cart_items.delete()
+                request.session.pop('coupon_code', None)
+            elif payment_method == 'cod':
+                Payment.objects.create(
+                    user=request.user,
+                    order=order,
+                    amount=grand_total,
+                    status='Pending'
+                )
+                cart_items.delete()
+                request.session.pop('coupon_code', None)
+            elif payment_method == 'online':
+                amount_in_paise = int(round(float(grand_total) * 100))
+                unique_receipt = f"rec_{order.id}_{int(time.time())}"[:40]
 
-                    
-            cart_items.delete()
-            request.session.pop('coupon_code', None)
+                razorpay_order = client.order.create({
+                    "amount": amount_in_paise,
+                    "currency": "INR",
+                    "receipt": unique_receipt,
+                    "payment_capture": 1
+                })
 
+                Payment.objects.create(
+                    user=request.user,
+                    order=order,
+                    amount=grand_total,
+                    razorpay_order_id=razorpay_order["id"],
+                    status="Pending"
+                )
+                return render(
+                    request,
+                    "payment.html",
+                    {
+                        "order": order,
+                        "razorpay_key": settings.RAZORPAY_KEY_ID,
+                        "razorpay_order_id": razorpay_order["id"],
+                        "amount": amount_in_paise,
+                    }
+                )
     except Exception as e:
         messages.error(request, str(e))
         return redirect('checkout')
 
-    messages.success(request,"Order Placed Successfully")
-    return redirect('order_success', order_id = order.order_id)
+    messages.success(request, "Order Placed Successfully")
+    return redirect('order_success', order_id=order.order_id)    
 
 @login_required
 def order_success(request,order_id):
