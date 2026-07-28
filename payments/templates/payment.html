@@ -1,18 +1,18 @@
 {% extends "user_base.html" %}
 {% block title %} Payment {% endblock %}
+
 {% block content %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
-          <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
-
-          <button id="pay-btn">
-            Pay Now
-          </button>
-
+<div class="text-center my-5">
+    <h3>Complete Your Order</h3>
+    <button id="pay-btn" class="btn btn-primary btn-lg mt-3">
+        Pay Now
+    </button>
+</div>
 
 <script>
-
 var options = {
-
     "key": "{{ razorpay_key }}",
     "amount": {{ amount }},
     "currency": "INR",
@@ -20,7 +20,7 @@ var options = {
     "description": "Order Payment",
     "order_id": "{{ razorpay_order_id }}",
 
-    handler: function (response) {
+    "handler": function (response) {
         fetch("{% url 'verify_payment' %}", {
             method: "POST",
             headers: {
@@ -34,56 +34,52 @@ var options = {
                 razorpay_signature: response.razorpay_signature
             })
         })
-
         .then(res => res.json())
         .then(data => {
             if (data.status === "success") {
                 window.location.href = data.redirect_url;
-            }
-            else {
-                alert(data.message || "Payment Failed");
+            } else {
+                alert(data.message || "Payment Verification Failed");
                 if (data.redirect_url) {
                     window.location.href = data.redirect_url;
                 }
             }
         })
-
         .catch(error => {
-            console.error(error);
-            alert("Payment Verification Error");
+            console.error("Fetch Error:", error);
+            alert("Payment Verification Error.");
         });
     },
 
     "prefill": {
-        "name": "{{ request.user.full_name }}",
-        "email": "{{ request.user.email }}",
-        "contact": "{{ request.user.mobile }}"
+        "name": "{{ request.user.full_name|default:request.user.username }}",
+        "email": "{{ request.user.email }}"
     },
 
     "theme": {
-        color: "#3399cc"
+        "color": "#3399cc"
+    },
+
+    "modal": {
+        "ondismiss": function() {
+            window.location.href = "{% url 'payment_failed' order.id %}";
+        }
     }
 };
 
 var rzp = new Razorpay(options);
 
 rzp.on('payment.failed', function (response) {
-
-    alert("Payment Failed");
-
-   window.location.href = "{% url 'payment_failed' order.id %}";
-
+    window.location.href = "{% url 'payment_failed' order.id %}";
 });
 
 document.getElementById("pay-btn").onclick = function (e) {
-    rzp.open();
     e.preventDefault();
-};
-
-window.onload = function () {
     rzp.open();
 };
 
+document.addEventListener("DOMContentLoaded", function() {
+    rzp.open();
+});
 </script>
-            
-{% endblock %}          
+{% endblock %}
