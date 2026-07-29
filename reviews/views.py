@@ -11,12 +11,12 @@ from .forms import ReviewForm
 
 
 @login_required
-def add_review(request, product_id):
-    product = get_object_or_404(Product, id=product_id)
+def add_review(request, product_uuid):
+    product = get_object_or_404(Product, uuid=product_uuid)
 
     if not has_purchased_product(request.user, product):
         messages.error(request, 'You can only review products you have purchased.')
-        return redirect('user_product_details', product_id)
+        return redirect('user_product_details', product.uuid)
     
     # if review already exists - upadate it
     try:
@@ -33,7 +33,7 @@ def add_review(request, product_id):
             review.product = product
             review.save()
             messages.success(request, 'Your review has been submitted.')
-            return redirect('user_product_details', product_id)
+            return redirect('user_product_details', product.uuid)
     else:
         form = ReviewForm(instance=existing_review)
 

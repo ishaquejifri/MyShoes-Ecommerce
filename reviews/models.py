@@ -1,10 +1,12 @@
 from django.db import models
 from products.models import Product
 from django.conf import settings
+import uuid
 
 # Create your models here.
 
 class Review(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE)
     rating = models.PositiveIntegerField(default=1)
