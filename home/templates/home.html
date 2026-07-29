@@ -237,7 +237,7 @@
             <h2 class="text-[#0f161a] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">New Arrivals</h2>
             <div class="flex overflow-x-auto gap-4 p-4">
               {% for product in products %}
-              <a href="{% url 'user_product_details' product.id %}">
+              <a href="{% url 'user_product_details' product.uuid %}">
             <div class="flex flex-col gap-3 min-w-[200px]">
       
               <div class="w-full h-40 rounded-lg overflow-hidden">

@@ -45,7 +45,7 @@ def home_page(request):
 
 @never_cache
 @login_required
-def user_product_list(request, category_id=None):
+def user_product_list(request, category_uuid=None):
     products = Product.objects.filter(
         is_deleted=False,
         is_available=True,
@@ -57,8 +57,10 @@ def user_product_list(request, category_id=None):
     category = None
     category_id = request.GET.get('category')
 
-    if category_id:
-        category = Category.objects.filter(id=category_id, is_active=True).first()
+    if category_uuid:
+        category = Category.objects.filter(uuid=category_uuid, is_active=True).first()
+    elif category_id:
+        category = Category.objects.filter(uuid=category_id, is_active=True).first()
 
         if category:
             products = products.filter(category=category)
@@ -125,12 +127,12 @@ def user_product_list(request, category_id=None):
 
 @never_cache
 @login_required
-def user_product_details(request,pk):
+def user_product_details(request, product_uuid):
     categories = Category.objects.filter(is_active=True) 
 
     
     try:
-        product = Product.objects.get(pk=pk, is_deleted=False)
+        product = Product.objects.get(uuid=product_uuid, is_deleted=False)
     except (Product.DoesNotExist, ValueError):
         return render(request, '404.html', status=404)
     
@@ -182,8 +184,8 @@ def user_product_details(request,pk):
 
 @never_cache
 @login_required
-def add_to_wishlist(request,product_id):
-    product = get_object_or_404(Product, id = product_id)
+def add_to_wishlist(request, product_uuid):
+    product = get_object_or_404(Product, uuid=product_uuid)
 
     wishlist_item = Wishlist.objects.filter(
         user = request.user,
