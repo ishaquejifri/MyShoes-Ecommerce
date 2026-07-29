@@ -3,9 +3,11 @@ from django.utils import timezone
 from decimal import Decimal
 from django.core.validators import MinValueValidator
 from accounts.models import CustomUser
+import uuid
 
 # Create your models here.
 class Coupon(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
 
     user = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True, blank=True, related_name='exclusive_coupons', help_text='Exclusive to this user')
 

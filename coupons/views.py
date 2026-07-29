@@ -158,12 +158,12 @@ def add_coupon(request):
 
 
 @login_required(login_url='admin_login')
-def edit_coupon(request, coupon_id):
+def edit_coupon(request, coupon_uuid):
      if not request.user.is_superuser:
           messages.error(request, "You do not have permission to access this page.")
           return redirect('admin_login')
      
-     coupon = get_object_or_404(Coupon, id=coupon_id)
+     coupon = get_object_or_404(Coupon, uuid=coupon_uuid)
 
      if request.method == 'POST':
           code = request.POST.get('code','').strip().upper()
@@ -184,7 +184,7 @@ def edit_coupon(request, coupon_id):
                messages.error(request, 'Please fill all required fields.')
                return render(request, 'edit_coupon.html',{'coupon': coupon})
           
-          if Coupon.objects.filter(code=code).exclude(id=coupon_id).exists():
+          if Coupon.objects.filter(code=code).exclude(uuid=coupon_uuid).exists():
                messages.error(request, f'Coupon code {code} is already exists.')
                return render(request, 'edit_coupon.html', {'coupon': coupon})
           
@@ -271,12 +271,12 @@ def edit_coupon(request, coupon_id):
 
 
 @login_required(login_url='admin_login')
-def delete_coupon(request, coupon_id):
+def delete_coupon(request, coupon_uuid):
      if not request.user.is_superuser:
           messages.error(request, 'Your do not have the permission to perform this action.')
           return redirect('admin_login')
      
-     coupon = get_object_or_404(Coupon, id=coupon_id)
+     coupon = get_object_or_404(Coupon, uuid=coupon_uuid)
      code = coupon.code
 
      # check if coupon has been used
@@ -292,14 +292,14 @@ def delete_coupon(request, coupon_id):
           
 
 @login_required(login_url='admin_login')
-def toggle_coupon_status(request, coupon_id):
+def toggle_coupon_status(request, coupon_uuid):
      # activati/deactivate coupons
 
      if not request.user.is_superuser:
           messages.error(request, "You are not permitted to do this action.")
           return redirect('admin_login')
      
-     coupon = get_object_or_404(Coupon,id=coupon_id)
+     coupon = get_object_or_404(Coupon, uuid=coupon_uuid)
 
      coupon.is_active = not coupon.is_active
      coupon.save()
@@ -310,14 +310,14 @@ def toggle_coupon_status(request, coupon_id):
 
 
 @login_required(login_url='admin_login')
-def coupon_usage_history(request, coupon_id):
+def coupon_usage_history(request, coupon_uuid):
      """ view all usage history of specific coupon """
 
      if not request.user.is_superuser:
           messages.error(request, 'You do not have permission to access this page.')
           return redirect('admin_login')
 
-     coupon = get_object_or_404(Coupon, id=coupon_id)
+     coupon = get_object_or_404(Coupon, uuid=coupon_uuid)
 
      usages = (CouponUsage.objects.filter(coupon=coupon).select_related('user','order').order_by('-used_at')) 
 
