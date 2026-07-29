@@ -14,6 +14,7 @@ from offers.utils import apply_offer_to_variant
 from django.db.models import F, Q
 from django.utils import timezone
 from django.http import Http404
+import uuid
 
 
 
@@ -57,15 +58,21 @@ def user_product_list(request, category_uuid=None):
     category = None
     category_id = request.GET.get('category')
 
-    if category_uuid:
-        category = Category.objects.filter(uuid=category_uuid, is_active=True).first()
-    elif category_id:
-        category = Category.objects.filter(uuid=category_id, is_active=True).first()
+    target_uuid = category_uuid or category_id
+
+    if target_uuid:
+        try:
+            # Validate that target_uuid is actually a valid UUID format
+            valid_uuid = uuid.UUID(str(target_uuid))
+            category = Category.objects.filter(uuid=valid_uuid, is_active=True).first()
+        except ValueError:
+            # Executes if target_uuid is '3' or any invalid UUID string
+            category = None
 
         if category:
             products = products.filter(category=category)
         else:
-            messages.warning(request, 'No More.')    
+            messages.warning(request, 'Category not found.')  
 
     wishlist_product_ids = []
 

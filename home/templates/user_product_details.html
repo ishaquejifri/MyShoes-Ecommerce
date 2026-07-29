@@ -323,8 +323,7 @@
               {% endif %} {% for variant in variants %}
 
               <p>
-                {{ variant.size }} - {{ variant.color }} - Stock: {{
-                variant.stock }}
+                {{ variant.size }} - {{ variant.color }} - Stock: {{ variant.stock }}
               </p>
 
               {% endfor %}
@@ -357,19 +356,12 @@
                     type="radio"
                     name="variant_id"
                     value="{{ variant.id }}"
-                    {%
-                    if
-                    variant.stock=""
-                    ="0"
-                    %}disabled{%
-                    endif
-                    %}
+                    {% if variant.stock == 0 %}disabled{% endif %}
                     required
                   />
 
                   <span class="text-sm">
-                    {{ variant.size }} | {{ variant.color }} {% if variant.stock
-                    == 0 %}
+                    {{ variant.size }} | {{ variant.color }} {% if variant.stock == 0 %}
                     <span class="text-red-500">(Out of stock)</span>
                     {% endif %}
                   </span>

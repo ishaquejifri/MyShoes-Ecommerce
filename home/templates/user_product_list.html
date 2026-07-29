@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
     <title>
-      {% if category %} {{ category.name }} Shoes {% else %} All Products {%
-      endif %}
+      {% if category %} {{ category.name }} Shoes {% else %} All Products {% endif %}
     </title>
     <style>
       .filter-form {
@@ -560,7 +559,7 @@
         <div class="nav-links">
           {% for category in categories %}
           <a
-            href="{% url 'user_product_list' %}?category={{ category.id }}"
+            href="{% url 'user_product_list' %}?category={{ category.uuid }}"
             class="text-[#121617] text-sm font-medium leading-normal"
           >
             {{ category.name }}
