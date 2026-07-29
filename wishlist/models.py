@@ -1,10 +1,12 @@
 from django.db import models
 from accounts.models import CustomUser
 from products.models import Product
+import uuid
 
 # Create your models here.
 
 class Wishlist(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(CustomUser,on_delete=models.CASCADE)
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)

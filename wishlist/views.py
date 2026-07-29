@@ -38,12 +38,12 @@ def wishlist(request):
 
 @never_cache
 @login_required
-def add_to_wishlist(request, product_id):
+def add_to_wishlist(request, product_uuid):
     if not request.user.is_authenticated:
         messages.warning(request,'Please Login First')
         return redirect('login')
     
-    product = get_object_or_404(Product, id=product_id)
+    product = get_object_or_404(Product, uuid=product_uuid)
 
     wishlist_item,created = Wishlist.objects.get_or_create(user = request.user,product=product)
 
@@ -56,8 +56,8 @@ def add_to_wishlist(request, product_id):
 
 @never_cache
 @login_required
-def remove_wishlist(request,wishlist_id):
-    wishlist_item = get_object_or_404(Wishlist, id=wishlist_id,user=request.user)
+def remove_wishlist(request, wishlist_uuid):
+    wishlist_item = get_object_or_404(Wishlist, uuid=wishlist_uuid, user=request.user)
     wishlist_item.delete()
 
     messages.success(request,'Item Removed from Wishlist')
