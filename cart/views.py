@@ -15,12 +15,12 @@ from decimal import Decimal
 # Create your views here.
 @never_cache
 @login_required(login_url='login')
-def add_to_cart(request,product_id):
+def add_to_cart(request, product_uuid):
     if not request.user.is_authenticated:
         messages.warning(request,"⚠️ Please Login to purchase the Product")
-        return redirect(f'/user/login/?next=/cart/add/{product_id}/')
+        return redirect(f'/user/login/?next=/cart/add/{product_uuid}/')
 
-    product = get_object_or_404(Product,id=product_id)
+    product = get_object_or_404(Product, uuid=product_uuid)
 
     variant_id = request.POST.get('variant_id')
     
@@ -109,8 +109,8 @@ def view_cart(request):
 
 @never_cache
 @login_required(login_url='login')
-def update_cart(request,item_id, action):
-    cart_item = get_object_or_404(CartItem,id=item_id,cart__user=request.user)
+def update_cart(request, item_uuid, action):
+    cart_item = get_object_or_404(CartItem, uuid=item_uuid, cart__user=request.user)
 
     if action == 'increase' and cart_item.quantity < cart_item.product.stock:
         cart_item.quantity += 1
@@ -161,8 +161,8 @@ def ajax_update_cart(request):
 
 @never_cache
 @login_required(login_url='login')
-def remove_from_cart(request,item_id):
-    cart_item = get_object_or_404(CartItem, id=item_id, cart__user=request.user)
+def remove_from_cart(request, item_uuid):
+    cart_item = get_object_or_404(CartItem, uuid=item_uuid, cart__user=request.user)
     cart_item.delete()
 
     return redirect('cart:view_cart')

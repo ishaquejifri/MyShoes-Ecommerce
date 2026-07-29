@@ -1,6 +1,7 @@
 from django.db import models
 from accounts.models import CustomUser
 from products.models import Product,ProductVariant
+import uuid
 
 # Create your models here.
 
@@ -16,6 +17,7 @@ class Cart(models.Model):
     
 class CartItem(models.Model):
     MAX_QUANTITY_PER_PRODUCT = 5
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     cart = models.ForeignKey(Cart,on_delete=models.CASCADE,related_name='items')
     product = models.ForeignKey(Product,on_delete=models.CASCADE)
     variant = models.ForeignKey(ProductVariant,on_delete=models.CASCADE,null=True,blank=True)
