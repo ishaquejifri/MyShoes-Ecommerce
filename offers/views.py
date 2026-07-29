@@ -131,13 +131,13 @@ def add_category_offer(request):
     return render(request, "add_category_offer.html", context)
 
 @login_required(login_url="admin_login")
-def edit_category_offer(request, offer_id):
+def edit_category_offer(request, offer_uuid):
 
     if not request.user.is_superuser:
         messages.error(request, "You do not have permission to access this page.")
         return redirect("admin_login")
     
-    offer = get_object_or_404(CategoryOffer, id=offer_id)
+    offer = get_object_or_404(CategoryOffer, uuid=offer_uuid)
     categories = Category.objects.filter(is_active=True).order_by("name")
 
     if request.method == "POST":
@@ -217,14 +217,14 @@ def edit_category_offer(request, offer_id):
     return render(request, "edit_category_offer.html", context)
 
 @login_required(login_url='admin_login')
-def delete_category_offer(request, offer_id):
+def delete_category_offer(request, offer_uuid):
 
     if not request.user.is_superuser:
         messages.error(request, "You do not have permission to perform this action.")
         return redirect("admin_login")
     
 
-    offer = get_object_or_404(CategoryOffer, id=offer_id)
+    offer = get_object_or_404(CategoryOffer, uuid=offer_uuid)
     offer_name = offer.name
     offer.delete()
 
@@ -342,13 +342,13 @@ def add_product_offer(request):
 
 
 @login_required(login_url="admin_login")
-def edit_product_offer(request, offer_id):
+def edit_product_offer(request, offer_uuid):
 
     if not request.user.is_superuser:
         messages.error(request, "You do not have the permission to accesss this page.")
         return redirect("admin_login")
     
-    offer = get_object_or_404(ProductOffer, id=offer_id)
+    offer = get_object_or_404(ProductOffer, uuid=offer_uuid)
     products = Product.objects.filter(is_listed=True).order_by("product_name")
 
     if request.method == "POST":
@@ -416,12 +416,12 @@ def edit_product_offer(request, offer_id):
     return render(request, "edit_product_offer.html", context)
 
 @login_required(login_url="admin_login")
-def delete_product_offer(request, offer_id):
+def delete_product_offer(request, offer_uuid):
     if not request.user.is_superuser:
         messages.error(request, "You do not have the permission to accesss this page.")
         return redirect("admin_login")
     
-    offer = get_object_or_404(ProductOffer, id=offer_id)
+    offer = get_object_or_404(ProductOffer, uuid=offer_uuid)
     offer_name = offer.name
     offer.delete()
     messages.success(request, f'Product offer "{offer_name} deleted successfully."')

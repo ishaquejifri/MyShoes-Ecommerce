@@ -3,6 +3,7 @@ from django.utils import timezone
 from category.models import Category
 from products.models import Product
 import logging
+import uuid
 # Create your models here.
 
 logger = logging.getLogger('project_logger')
@@ -63,6 +64,7 @@ class BaseOffer(models.Model):
 class CategoryOffer(BaseOffer):
     # offer applied to entire category
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     category = models.ForeignKey(Category, on_delete=models.CASCADE, related_name='category_offers')
     class Meta:
         ordering = ['-created_at']
@@ -70,6 +72,7 @@ class CategoryOffer(BaseOffer):
 class ProductOffer(BaseOffer):
     # offer applied to specific product
 
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='product_offers')
     class Meta:
         ordering = ['-created_at']

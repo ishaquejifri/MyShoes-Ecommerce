@@ -1,7 +1,5 @@
-{% extends "admin_base.html" %} 
-{% load static %} 
-{% block title %}CategoryOffers{% endblock %} 
-{% block content %}
+{% extends "admin_base.html" %} {% load static %} {% block title
+%}CategoryOffers{% endblock %} {% block content %}
 
 <div class="p-6">
   <!-- Breadcrumb -->
@@ -34,19 +32,37 @@
           <option value="">All Status</option>
           <option
             value="active"
-            {% if status_filter  == "active" %}selected{% endif %}
+            {%
+            if
+            status_filter=""
+            ="active"
+            %}selected{%
+            endif
+            %}
           >
             Active
           </option>
           <option
             value="inactive"
-            {% if status_filter == "inactive" %}selected{% endif %}
+            {%
+            if
+            status_filter=""
+            ="inactive"
+            %}selected{%
+            endif
+            %}
           >
             Inactive
           </option>
           <option
             value="expired"
-            {% if status_filter == "expired" %}selected{% endif %}
+            {%
+            if
+            status_filter=""
+            ="expired"
+            %}selected{%
+            endif
+            %}
           >
             Expired
           </option>
@@ -79,32 +95,38 @@
           <td class="p-4">{{ offer.discount }}%</td>
           <td class="p-4">{{ offer.start_date|date:"d M Y" }}</td>
           <td class="p-4">{{ offer.end_date|date:"d M Y" }}</td>
-          
+
           <td class="p-4">
             {% if offer.computed_status == "active" %}
-                <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm">
-                    Active
-                </span>
+            <span
+              class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm"
+            >
+              Active
+            </span>
             {% elif offer.computed_status == "inactive" %}
-                <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm">
-                    Inactive
-                </span>
+            <span
+              class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-sm"
+            >
+              Inactive
+            </span>
             {% else %}
-                <span class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm">
-                    Expired
-                </span>
+            <span
+              class="bg-red-100 text-red-700 px-3 py-1 rounded-full text-sm"
+            >
+              Expired
+            </span>
             {% endif %}
-         </td>
+          </td>
           <td class="p-4">
             <div class="flex justify-center gap-2">
               <a
-                href="{% url 'edit_category_offer' offer.id %}"
+                href="{% url 'edit_category_offer' offer.uuid %}"
                 class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded"
               >
                 Edit
               </a>
               <a
-                href="{% url 'delete_category_offer' offer.id %}"
+                href="{% url 'delete_category_offer' offer.uuid %}"
                 onclick="return confirm('Delete this offer?');"
                 class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded"
               >
@@ -134,8 +156,8 @@
       >
         Previous
       </a>
-      {% endif %} {% for num in offers.paginator.page_range %} 
-      {% if offers.number == num %}
+      {% endif %} {% for num in offers.paginator.page_range %} {% if
+      offers.number == num %}
       <span class="px-4 py-2 bg-blue-600 text-white rounded"> {{ num }} </span>
       {% else %}
       <a
