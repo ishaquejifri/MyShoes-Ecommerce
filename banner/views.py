@@ -29,8 +29,8 @@ def add_banner(request):
     
 @admin_required
 @never_cache
-def edit_banner(request, id):
-    banner = get_object_or_404(Banner, id=id)
+def edit_banner(request, uuid):
+    banner = get_object_or_404(Banner, uuid=uuid)
 
     if request.method == "POST":
         form = BannerForm(request.POST, request.FILES, instance=banner)
@@ -45,14 +45,14 @@ def edit_banner(request, id):
     return render(request, "edit_banner.html", {"form": form})
 
 
-def delete_banner(request,id):
-    banner = get_object_or_404(Banner, id=id)
+def delete_banner(request, uuid):
+    banner = get_object_or_404(Banner, uuid=uuid)
     banner.delete()
     messages.success(request, 'Banner deleted successfully')
     return redirect('banner_list')  
 
-def toggle_banner(request,id):
-    banner = get_object_or_404(Banner, id=id)
+def toggle_banner(request, uuid):
+    banner = get_object_or_404(Banner, uuid=uuid)
     banner.is_active = not banner.is_active
     banner.save()
     return redirect('banner_list')

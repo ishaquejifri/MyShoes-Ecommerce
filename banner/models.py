@@ -1,6 +1,8 @@
 from django.db import models
+import uuid
 
 class Banner(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     BANNER_TYPES = (
         ('hero', 'Hero Banner'),
         ('offer', 'Offer Banner'),
