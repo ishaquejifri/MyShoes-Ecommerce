@@ -833,10 +833,10 @@ def add_address(request):
 
 @never_cache
 @login_required(login_url='login')
-def edit_address(request,id):
+def edit_address(request, uuid):
 
     next_url = request.GET.get('next') or request.POST.get('next')
-    address = get_object_or_404(Address,id=id,user=request.user)
+    address = get_object_or_404(Address, uuid=uuid, user=request.user)
 
     if request.method == "POST":
         form = AddressForm(request.POST,instance=address)
@@ -873,7 +873,7 @@ def edit_address(request,id):
 
 @never_cache
 @login_required(login_url='login')
-def delete_address(request, id):
+def delete_address(request, uuid):
 
     if request.method != "POST":
         return redirect('my_address')
@@ -882,7 +882,7 @@ def delete_address(request, id):
 
     address = get_object_or_404(
         Address,
-        id=id,
+        uuid=uuid,
         user=request.user
     )
 

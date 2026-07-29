@@ -6,6 +6,7 @@ from django.dispatch import receiver
 from decimal import Decimal
 import random
 import string
+import uuid
 
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=15,null=True,blank=True)
@@ -22,6 +23,7 @@ class CustomUser(AbstractUser):
     
 
 class Address(models.Model):
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     user = models.ForeignKey(settings.AUTH_USER_MODEL,on_delete=models.CASCADE,related_name='addresses')
     full_name = models.CharField(max_length=100)
     phone = models.CharField(max_length=15)
@@ -116,4 +118,4 @@ def create_user_wallet_and_referral(sender, instance, created, **kwargs):
         instance.save(update_fields=['referral_code'])
 
         # Create Wallet
-        Wallet.objects.get_or_create(user=instance)
+        Wallet.objects.get_or_create(user=instance)
