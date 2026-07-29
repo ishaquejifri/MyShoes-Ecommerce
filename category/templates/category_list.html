@@ -58,9 +58,9 @@
                         </td>
                       <td class="table-026f8c07-3785-4d63-9c68-9f8a974bba26-column-656 h-[72px] px-4 py-2 w-60 text-sm font-bold leading-normal tracking-[0.015em] text-[#9abcae]">
   
-                        <a href="{% url 'edit_category' cat.id %}" class="mr-2 text-blue-400">Edit</a>
+                        <a href="{% url 'edit_category' cat.uuid %}" class="mr-2 text-blue-400">Edit</a>
 
-                        <a href="{% url 'toggle_category_status' cat.id %}"
+                        <a href="{% url 'toggle_category_status' cat.uuid %}"
                           onclick="return confirm('Are you sure you want to change the category status?')"
                               class="text-yellow-400">
                             {% if cat.is_active %}

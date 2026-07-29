@@ -54,8 +54,8 @@ def add_category(request):
 
 @never_cache
 @login_required(login_url='admin_login')
-def edit_category(request,id):
-    category = get_object_or_404(Category, id=id)
+def edit_category(request, uuid):
+    category = get_object_or_404(Category, uuid=uuid)
 
     if request.method == 'POST':
         category.name = request.POST.get('name')
@@ -75,8 +75,8 @@ def edit_category(request,id):
 
 @never_cache
 @login_required(login_url='admin_login')
-def toggle_category_status(request,id):
-    category = Category.objects.get(id=id)
+def toggle_category_status(request, uuid):
+    category = Category.objects.get(uuid=uuid)
     category.is_active = not category.is_active
     category.save()
 
@@ -84,8 +84,8 @@ def toggle_category_status(request,id):
 
 @never_cache
 @login_required(login_url='admin_login')
-def delete_category(request,id):
-    category = Category.objects.get(id=id)
+def delete_category(request, uuid):
+    category = Category.objects.get(uuid=uuid)
 
     category.is_active = False
     category.save()
