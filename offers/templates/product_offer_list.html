@@ -156,8 +156,7 @@ Offers{% endblock %} {% block content %}
       >
         Previous
       </a>
-      {% endif %} {% for num in offers.paginator.page_range %} {% if
-      offers.number == num %}
+      {% endif %} {% for num in offers.paginator.page_range %} {% if offers.number == num %}
       <span class="px-4 py-2 bg-blue-600 text-white rounded"> {{ num }} </span>
       {% else %}
       <a

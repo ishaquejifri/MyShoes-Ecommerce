@@ -1,5 +1,6 @@
-{% extends 'admin_base.html' %} {% block title %} Coupon List {% endblock %} {%
-block content %}
+{% extends 'admin_base.html' %} 
+{% block title %} Coupon List {% endblock %} 
+{% block content %}
 
 <div class="flex flex-wrap justify-between gap-3 p-4">
   <p
@@ -118,8 +119,7 @@ block content %}
         <!-- Discount -->
         <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
           {% if coupon.discount_type == 'percentage' %} {{
-          coupon.discount_percentage }}% {% else %} ₹ {{ coupon.discount_amount
-          }} {% endif %}
+          coupon.discount_percentage }}% {% else %} ₹ {{ coupon.discount_amount }} {% endif %}
         </td>
         <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
           ₹ {{ coupon.min_purchase_amount }}
@@ -130,8 +130,7 @@ block content %}
         </td>
         <!-- Usage Count -->
         <td class="h-[72px] px-4 py-2 text-[#9abcae] text-sm">
-          {{ coupon.times_used }} {% if coupon.usage_limit %} / {{
-          coupon.usage_limit }} {% endif %}
+          {{ coupon.times_used }} {% if coupon.usage_limit %} / {{ coupon.usage_limit }} {% endif %}
         </td>
         <!-- Status -->
         <td class="h-[72px] px-4 py-2">
