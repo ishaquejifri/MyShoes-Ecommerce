@@ -269,11 +269,13 @@
             validate: (val) => {
               const trimmed = val.trim();
               if (!trimmed) return "Phone number is required.";
-              const digits = trimmed.replace(/\D/g, '');
-              if (digits.length !== 10) return "Phone number must contain exactly 10 digits.";
-              if (/^(\d)\1{9}$/.test(digits)) return "Invalid phone number (cannot be all same digits).";
-              const sequentialPatterns = ['1234567890', '0123456789', '9876543210', '0987654321'];
+              const digits = trimmed;
+              if (digits.length !== 10) return "Phone number must contain exactly 10 digits.";              
+              if (!'6789'.includes(digits[0])) return "Enter a valid Indian mobile number.";
+              if (/^(\d)\1{9}$/.test(digits)) return "Invalid phone number (cannot be all same digits).";              
+              const sequentialPatterns = ['1234567890', '0123456789', '9876543210', '0987654321'];         
               if (sequentialPatterns.includes(digits)) return "Enter a valid phone number.";
+              if (digits.slice(0, 2).repeat(5) === digits) return "Enter a valid phone number.";
               return "";
             }
           },
