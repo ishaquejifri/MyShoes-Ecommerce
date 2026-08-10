@@ -201,14 +201,13 @@ def add_to_wishlist(request, product_uuid):
         product = product
     ).first()
 
-    if wishlist_item:
-        wishlist_item.delete()
-        messages.warning(request, f'{product.product_name} removed from wishlist 💔')
+    if wishlist_item:        
+        messages.warning(request, f'{product.product_name} is already in your wishlist 💔')
     else:
         Wishlist.objects.create(user=request.user,product=product)
         messages.success(request, f'{product.product_name} added to wishlist ❤️') 
 
-    return redirect(request.META.get('HTTP_REFERER'))       
+    return redirect('user_product_details', product_uuid=product.uuid)       
 
     
 
