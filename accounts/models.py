@@ -7,13 +7,14 @@ from decimal import Decimal
 import random
 import string
 import uuid
+from .validators import validate_profile_image
 
 class CustomUser(AbstractUser):
     phone = models.CharField(max_length=15,null=True,blank=True)
     is_block = models.BooleanField(default=False)
     otp = models.CharField(max_length=6, null=True, blank=True)
     otp_created_at = models.DateTimeField(null=True, blank=True)
-    profile_image = models.ImageField(upload_to='profile_images/',blank=True,null=True)
+    profile_image = models.ImageField(upload_to='profile_images/', validators=[validate_profile_image], blank=True, null=True)
     
     referral_code = models.CharField(max_length=20, unique=True, null=True, blank=True)
     referred_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='referrals')
