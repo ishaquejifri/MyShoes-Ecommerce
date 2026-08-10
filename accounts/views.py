@@ -72,15 +72,21 @@ def signup(request):
             return signup_error(request,'Email already registered.')
         
         # phone validation
-        digits_only = re.sub(r'\D','', phone)
+        phone = phone.strip()        
 
-        if not digits_only.isdigit():
+        if not phone.isdigit():
             messages.error(request, 'Phone number should contain digits only.')
             return redirect('signup')
+
+        digits_only = phone
         
         if len(digits_only) != 10:
             messages.error(request, 'Phone number must be exactly 10 digits.')
             return redirect('signup')
+
+        if digits_only[0] not in '6789':
+            messages.error(request, 'Enter a valid Indian mobile number.')
+            return redirect('signup')    
 
         sequential_patterns = ['1234567890','0123456789','9876543210','0987654321']  
 
@@ -90,6 +96,11 @@ def signup(request):
 
         # check repeated digts like 11111111
         if len(set(digits_only)) == 1:
+            messages.error(request, 'Enter a valid phone number.')
+            return redirect('signup')
+
+        # Reject simple repeating two-digit patterns
+        if digits_only[:2] * 5 == digits_only:
             messages.error(request, 'Enter a valid phone number.')
             return redirect('signup')
         
@@ -248,10 +259,11 @@ def verify_otp(request):
                 created_at = timezone.datetime.fromisoformat(created_at)
 
                 if timezone.now() > created_at + timedelta(minutes=2):
-                    messages.error(request, 'OTP has expired')
-                    return redirect('signup')
+                    messages.error(request, 'OTP has expired, please resend a new OTP.')
+                    return redirect('verify_otp')
 
-            stored_otp = request.session.get('otp')
+            stored_otp = signup_data.get('otp')
+
             print("Entered OTP:", entered_otp)
             print("Stored OTP:", stored_otp)
             
@@ -326,8 +338,8 @@ def verify_otp(request):
                 created_at = timezone.datetime.fromisoformat(created_at)
 
                 if timezone.now() > created_at + timedelta(minutes=2):
-                    messages.error(request, 'OTP has expired')
-                    return redirect('forget_password')
+                    messages.error(request, 'OTP has expired.please resend a new OTP.')
+                    return redirect('verify_otp')
 
             if str(entered_otp) == str(reset_otp):
                 return redirect('new_password')
