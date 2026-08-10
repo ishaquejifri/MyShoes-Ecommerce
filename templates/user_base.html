@@ -42,7 +42,7 @@
             <div class="flex items-center gap-9">
                {% for category in categories %}
               <a
-                href="{% url 'user_product_list' %}?category={{ category.id }}"
+                href="{% url 'user_product_list' %}?category={{ category.uuid }}"
                 class="text-[#121617] text-sm font-medium leading-normal"
               >
                 {{ category.name }}
