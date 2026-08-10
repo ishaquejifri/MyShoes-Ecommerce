@@ -57,7 +57,7 @@
             <div class="flex items-center gap-9">
               {% for category in categories %}
               <a
-                href="{% url 'user_product_list' %}?category={{ category.id }}"
+                href="{% url 'user_product_list' %}?category={{ category.uuid }}"
                 class="text-[#121617] text-sm font-medium leading-normal"
               >
                 {{ category.name }}
@@ -166,16 +166,20 @@
           </div>
         </header>
         {% if messages %}
-        <div class="fixed top-20 right-5 z-50 space-y-2">
-          {% for message in messages %}
-          <div
-            class="alert-message px-4 py-2 rounded-lg text-white shadow-lg {% if message.tags == 'error' %}bg-red-500{% endif %} {% if message.tags == 'success' %}bg-green-500{% endif %} {% if message.tags == 'warning' %}bg-yellow-500{% endif %} {% if message.tags == 'info' %}bg-blue-500{% endif %}"
-          >
-            {{ message }}
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
+            <div class="fixed top-20 right-5 z-50 space-y-2">
+                {% for message in messages %}
+                    <div
+                        class="alert-message px-4 py-2 rounded-lg text-white shadow-lg
+                        {% if message.tags == 'error' %}bg-red-500{% endif %}
+                        {% if message.tags == 'success' %}bg-green-500{% endif %}
+                        {% if message.tags == 'warning' %}bg-yellow-500{% endif %}
+                        {% if message.tags == 'info' %}bg-blue-500{% endif %}"
+                    >
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         <div class="px-4 py-2 mt-20 text-sm text-gray-500">
           <a href="{% url 'home' %}" class="hover:underline">Home</a> /
           <a href="{% url 'user_product_list' %}" class="hover:underline"
