@@ -1,188 +1,317 @@
 {% extends 'admin_base.html' %}
-{% block title %} Edit Product  {% endblock %}
+{% block title %} Edit Product {% endblock %}
+
 {% block content %}
-          <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
-             {% if messages %}
-              <div id="message-container" class="px-4 pt-4">
-                {% for message in messages %}
-                <div
-                  class="mb-3 p-3 rounded-lg text-white {% if message.tags == 'success' %} bg-green-600 {% elif message.tags == 'error' %} bg-red-600 {% else %} bg-gray-600 {% endif %}"
-                >
-                  {{ message }}
-                </div>
-                {% endfor %}
-              </div>
-              {% endif %}
-            {% if form.errors %}
-            <div class="text-red-500 px-4">
-            {{ form.errors }}
-            </div>
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+  
+  <!-- Django Messages Alert Box -->
+  {% if messages %}
+  <div id="message-container" class="px-4 pt-4">
+    {% for message in messages %}
+    <div class="mb-3 p-3 rounded-lg text-white {% if message.tags == 'success' %} bg-green-600 {% elif message.tags == 'error' %} bg-red-600 {% else %} bg-gray-600 {% endif %}">
+      {{ message }}
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Django Form Validation Errors -->
+  {% if form.errors %}
+  <div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mx-4 mb-4">
+    {% for field in form %}
+      {% for error in field.errors %}
+        <p><strong>{{ field.label|default:field.name|title }}:</strong> {{ error }}</p>
+      {% endfor %}
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  <!-- Frontend JS Error Box -->
+  <div id="jsErrorBox" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mx-4 mb-4">
+    <ul id="jsErrorList" class="list-disc pl-5"></ul>
+  </div>
+
+  <form id="editProductForm" method="POST" enctype="multipart/form-data" novalidate>
+    {% csrf_token %}
+
+    <div class="flex flex-wrap justify-between gap-3 p-4">
+      <p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Edit Product</p>
+    </div>
+
+    <!-- Product Name -->
+    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+      <label class="flex flex-col min-w-40 flex-1">
+        <p class="text-white text-base font-medium leading-normal pb-2">
+          Product Name <span class="text-red-400">*</span>
+        </p>
+        <input
+          id="productNameInput"
+          name="product_name"
+          type="text"
+          required
+          minlength="3"
+          placeholder="Enter product name"
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+          value="{{ form.product_name.value|default:product.product_name }}"
+        />
+      </label>
+    </div>
+
+    <!-- Slug -->
+    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+      <label class="flex flex-col min-w-40 flex-1">
+        <p class="text-white text-base font-medium leading-normal pb-2">
+          Slug <span class="text-red-400">*</span>
+        </p>
+        <input
+          id="slugInput"
+          name="slug"
+          type="text"
+          required
+          placeholder="e.g. nike-air-jordan"
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+          value="{{ form.slug.value|default:product.slug }}"
+        />
+      </label>
+    </div>
+
+    <!-- Base Price -->
+    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+      <label class="flex flex-col min-w-40 flex-1">
+        <p class="text-white text-base font-medium leading-normal pb-2">
+          Price (Min: ₹1,999) <span class="text-red-400">*</span>
+        </p>
+        <input
+          id="priceInput"
+          type="number"
+          name="base_price"
+          min="1999"
+          step="0.01"
+          required
+          placeholder="Enter price"
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+          value="{{ form.base_price.value|default:product.base_price }}"
+        />
+      </label>
+    </div>
+
+    <!-- Category -->
+    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+      <label class="flex flex-col min-w-40 flex-1">
+        <p class="text-white text-base font-medium leading-normal pb-2">Category <span class="text-red-400">*</span></p>
+        <select
+          id="categorySelect"
+          name="category"
+          required
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+        >
+          <option value="">Select Category</option>
+          {% for category in categories %}
+          <option
+            value="{{ category.id }}"
+            {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" or product.category.id|stringformat:"s" == category.id|stringformat:"s" %}
+            selected
             {% endif %}
-            <form method="POST" enctype="multipart/form-data">
-            {% csrf_token %}
-            <div class="flex flex-wrap justify-between gap-3 p-4"><p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">Edit Product</p></div>
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-white text-base font-medium leading-normal pb-2">Product Name</p>
-                <input
-                  name="product_name"
-                  placeholder="Enter product name"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-                  value="{{ form.product_name.value|default:'' }}"
-                />
-              </label>
-            </div>
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-white text-base font-medium leading-normal pb-2">Slug</p>
-                <input
-                  name="slug"
-                  placeholder="Enter slug feild"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-                  value="{{ form.slug.value|default:'' }}"
-                />
-              </label>
-            </div>
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-white text-base font-medium leading-normal pb-2">Price</p>
-                <input
-                  type="number"
-                  name="base_price"
-                  placeholder="Enter price"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-                  value="{{ form.base_price.value|default:'' }}"
-                />
-              </label>
-            </div>
-                        
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-white text-base font-medium leading-normal pb-2">Category</p>
-               <select
-                  name="category"
-                  required
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 bg-[image:--select-button-svg] placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-                >
-                  <option value="">Select Category</option>
-                  {% for category in categories %}
-                  <option value="{{ category.id }}"
-                    {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" %}
-                    selected
-                    {% endif %}
-                  >
-                    {{category.name}}                 
-                  </option>
-                  {% endfor %}
-                </select>
-              </label>
-            </div>
-            
-            <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
-              <label class="flex flex-col min-w-40 flex-1">
-                <p class="text-white text-base font-medium leading-normal pb-2">Product Description</p>
-                <textarea
-                  name="description"
-                  placeholder="Enter product description"
-                  class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] min-h-36 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-                >{{ form.description.value|default:'' }}</textarea>
-              </label>
-            </div>
-            <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Product Images</h2>
-            <div class="flex flex-col p-4">
-              <div class="flex flex-col p-4">
-             <div class="rounded-lg border-2 border-dashed border-[#356454] px-6 py-8">
+          >
+            {{ category.name }}
+          </option>
+          {% endfor %}
+        </select>
+      </label>
+    </div>
 
-               {% if product.image %}
-                <div class="w-full flex flex-col items-center mb-6">
-                <p class="text-white mb-2 font-medium">Current Main Image:</p>
-                <img src="{{ product.image.url }}" class="w-48 h-48 object-cover rounded-lg border-2 border-[#356454] shadow-md">
-                 </div>
-                 {% endif %}
+    <!-- Description -->
+    <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
+      <label class="flex flex-col min-w-40 flex-1">
+        <p class="text-white text-base font-medium leading-normal pb-2">Product Description</p>
+        <textarea
+          name="description"
+          placeholder="Enter product description"
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] min-h-36 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+        >{{ form.description.value|default:product.description }}</textarea>
+      </label>
+    </div>
 
-                <div class="text-center">
-                 <p class="text-white text-lg font-bold">Upload New Main Image</p>
-                <input type="file" name="image" accept="image/*" class="mt-4 text-white">
-               </div>
+    <!-- Main Image -->
+    <h2 class="text-white text-[22px] font-bold px-4 pb-3 pt-5">Product Main Image</h2>
+    <div class="flex flex-col p-4">
+      <div class="rounded-lg border-2 border-dashed border-[#356454] px-6 py-8">
+        {% if product.image and product.image.name %}
+        <div class="w-full flex flex-col items-center mb-6">
+          <p class="text-white mb-2 font-medium">Current Main Image:</p>
+          <img src="{{ product.image.url }}" class="w-48 h-48 object-cover rounded-lg border-2 border-[#356454] shadow-md">
+        </div>
+        {% endif %}
 
-             </div>
-            </div>
-            </div>
-            <h2 class="text-white text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5">Gallery Images</h2>
-            <div class="flex flex-col p-4">
-              <div class="flex flex-col p-4">
+        <div class="text-center">
+          <p class="text-white text-lg font-bold">Replace Main Image (Optional)</p>
+          <input type="file" name="image" accept="image/*" class="mt-4 text-white">
+        </div>
+      </div>
+    </div>
+
+    <!-- Gallery Images Section -->
+    <h2 class="text-white text-[22px] font-bold px-4 pb-3 pt-5">
+      Gallery Images (3 to 5 Total Required) <span class="text-red-400">*</span>
+    </h2>
+    <div class="flex flex-col p-4">
       <div class="rounded-lg border-2 border-dashed border-[#356454] px-6 py-8">
 
         {% if gallery_images %}
         <div class="w-full mb-6">
-          <p class="text-white mb-3 font-medium text-center">Current Gallery Images:</p>
-          <div class="flex flex-wrap justify-center gap-4">
-          {% for img in gallery_images %}
-          <div class="flex flex-col items-center">
-            <img
-              src="{{ img.image.url }}"
-              class="w-32 h-32 object-cover rounded-lg border border-[#356454]"
-            >
-            <input
-              type="file"
-              name="gallery_image_{{ img.id }}"
-              class="mt-2 text-white text-sm"
-            >
-            <input
-              type="hidden"
-              name="gallery_image_id"
-              value="{{ img.id }}"
-            >
-            <label class="text-red-500 mt-2">
-            <input type="checkbox"
+          <p class="text-white mb-3 font-medium text-center">Existing Gallery Images:</p>
+          <div class="flex flex-wrap justify-center gap-6">
+            {% for img in gallery_images %}
+            {% if img.image and img.image.name %}
+            <div class="flex flex-col items-center bg-[#1a322a] p-3 rounded-lg border border-[#356454]">
+              <img
+                src="{{ img.image.url }}"
+                class="w-32 h-32 object-cover rounded-lg border border-[#356454] mb-2"
+              >
+              <label class="text-xs text-[#94c7b6] mb-1">Replace Image:</label>
+              <input
+                type="file"
+                name="gallery_image_{{ img.id }}"
+                accept="image/*"
+                class="text-white text-xs max-w-[150px]"
+              >
+              <input type="hidden" name="gallery_image_id" value="{{ img.id }}">
+              
+              <label class="text-red-400 text-sm mt-3 flex items-center gap-1 cursor-pointer">
+                <input
+                  type="checkbox"
                   name="delete_gallery_images"
-                  value="{{ img.id }}">
-            Delete
-            </label>
-        </div>
-        {% endfor %}
-        </div>
+                  value="{{ img.id }}"
+                  class="delete-checkbox"
+                >
+                Mark for Delete
+              </label>
+            </div>
+            {% endif %}
+            {% endfor %}
+          </div>
         </div>
         {% endif %}
 
-    <div class="text-center">
-      <input
-    type="file"
-    name="new_gallery_images"
-    multiple
->
+        <div class="text-center border-t border-[#356454] pt-6">
+          <p class="text-white font-medium mb-2">Upload Additional Gallery Images:</p>
+          <input
+            id="newGalleryImagesInput"
+            type="file"
+            name="new_gallery_images"
+            multiple
+            accept="image/*"
+            class="text-white"
+          >
+        </div>
+
+      </div>
     </div>
 
-        </div>
+    <!-- Actions -->
+    <div class="flex justify-stretch">
+      <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
+        <button
+          type="submit"
+          class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#107f5a] text-white text-sm font-bold leading-normal tracking-[0.015em]"
+        >
+          <span class="truncate">Apply Changes</span>
+        </button>
+        <a
+          href="{% url 'products:product_list' %}"
+          class="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#25463b] text-white text-sm font-bold"
+        >
+          Cancel
+        </a>
       </div>
-        </div>        
-            <div class="flex justify-stretch">
-              <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
-                <button
-                  class="flex min-w-[84px] max-w-[480px] cursor-pointer items-center justify-center overflow-hidden rounded-lg h-10 px-4 bg-[#107f5a] text-white text-sm font-bold leading-normal tracking-[0.015em]"
-                >
-                  <span class="truncate">Apply</span>
-                </button>
-                <a href="{% url 'products:product_list' %}"
-                class="flex min-w-[84px] items-center justify-center rounded-lg h-10 px-4 bg-[#25463b] text-white text-sm font-bold">
-                Cancel
-                </a>
-              </div>
-            </div>
-          </form>
-          </div>
-     
-    <script>
+    </div>
+  </form>
+</div>
+
+<script>
+  // Auto-hide messages after 5 seconds
   setTimeout(() => {
     const messageBox = document.getElementById("message-container");
     if (messageBox) {
       messageBox.style.transition = "opacity 0.5s ease";
       messageBox.style.opacity = "0";
-      setTimeout(() => {
-        messageBox.remove();
-      }, 500);
+      setTimeout(() => messageBox.remove(), 500);
     }
   }, 5000);
-  </script>
-    <script src="https://unpkg.com/cropperjs"></script>
+
+  // Auto-generate slug from product name on change
+  document.getElementById("productNameInput").addEventListener("input", function (e) {
+    const nameVal = e.target.value;
+    const slugInput = document.getElementById("slugInput");
+    slugInput.value = nameVal
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  });
+
+  // Client-side Validation on Submit
+  document.getElementById("editProductForm").addEventListener("submit", function (e) {
+    const errors = [];
+
+    const name = document.getElementById("productNameInput").value.trim();
+    const slug = document.getElementById("slugInput").value.trim();
+    const price = parseFloat(document.getElementById("priceInput").value);
+    const category = document.getElementById("categorySelect").value;
+
+    // Validate Name
+    if (!name || name.length < 3) {
+      errors.push("Product Name must be at least 3 characters long.");
+    } else if (/[^a-zA-Z0-9\s]/.test(name)) {
+      errors.push("Product Name can only contain letters, numbers, and spaces.");
+    }
+
+    // Validate Slug
+    if (!slug) {
+      errors.push("Slug is required.");
+    } else if (!/^[a-z0-9-]+$/.test(slug)) {
+      errors.push("Slug must contain only lowercase letters, numbers, and hyphens.");
+    }
+
+    // Validate Price
+    if (isNaN(price) || price < 1999) {
+      errors.push("Price cannot be below ₹1,999.");
+    }
+
+    // Validate Category
+    if (!category) {
+      errors.push("Please select a Category.");
+    }
+
+    // Validate Total Gallery Image Count
+    const totalExistingGallery = {{ gallery_images|length|default:0 }};
+    const deleteCheckboxes = document.querySelectorAll(".delete-checkbox:checked");
+    const deletedCount = deleteCheckboxes.length;
+    const newFilesInput = document.getElementById("newGalleryImagesInput");
+    const newFilesCount = newFilesInput.files ? newFilesInput.files.length : 0;
+
+    const remainingGalleryCount = totalExistingGallery - deletedCount + newFilesCount;
+
+    if (remainingGalleryCount < 3) {
+      errors.push(`Gallery must have at least 3 images. (Current remaining after changes: ${remainingGalleryCount})`);
+    } else if (remainingGalleryCount > 5) {
+      errors.push(`Gallery cannot have more than 5 images. (Current total after changes: ${remainingGalleryCount})`);
+    }
+
+    if (errors.length > 0) {
+      e.preventDefault();
+      const jsErrorBox = document.getElementById("jsErrorBox");
+      const jsErrorList = document.getElementById("jsErrorList");
+      jsErrorList.innerHTML = "";
+      errors.forEach(err => {
+        const li = document.createElement("li");
+        li.textContent = err;
+        jsErrorList.appendChild(li);
+      });
+      jsErrorBox.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  });
+</script>
 {% endblock %}

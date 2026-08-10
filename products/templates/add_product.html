@@ -1,101 +1,126 @@
-{% extends 'admin_base.html' %} {% block title %} Add Product {% endblock %}
-{%block content %}
+{% extends 'admin_base.html' %} 
+{% block title %} Add Product {% endblock %}
+
+{% block content %}
 <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+  
+  <!-- Django Form Non-Field Errors -->
   {% if form.non_field_errors %}
-  <div class="text-red-500 px-4">
+  <div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-4">
     {% for error in form.non_field_errors %}
     <p>{{ error }}</p>
     {% endfor %}
   </div>
-  {% endif %} {% if form.errors %}
-  <div class="text-red-500 px-4">
-    {% for field in form %} {% for error in field.errors %}
-    <p>{{ error }}</p>
-    {% endfor %} {% endfor %}
+  {% endif %}
+
+  <!-- Django Field Errors -->
+  {% if form.errors %}
+  <div class="bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-4">
+    {% for field in form %}
+      {% for error in field.errors %}
+        <p><strong>{{ field.label|default:field.name|title }}:</strong> {{ error }}</p>
+      {% endfor %}
+    {% endfor %}
   </div>
   {% endif %}
-  <form method="POST" enctype="multipart/form-data">
+
+  <!-- Frontend JS Error Alert Box -->
+  <div id="jsErrorBox" class="hidden bg-red-900/50 border border-red-500 text-red-200 px-4 py-3 rounded-lg mb-4">
+    <ul id="jsErrorList" class="list-disc pl-5"></ul>
+  </div>
+
+  <form id="productForm" method="POST" enctype="multipart/form-data" novalidate>
     {% csrf_token %}
+
     <div class="flex flex-wrap justify-between gap-3 p-4">
-      <p
-        class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72"
-      >
+      <p class="text-white tracking-light text-[32px] font-bold leading-tight min-w-72">
         Add New Product
       </p>
     </div>
+
+    <!-- Product Name -->
     <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
       <label class="flex flex-col min-w-40 flex-1">
         <p class="text-white text-base font-medium leading-normal pb-2">
-          Product Name
+          Product Name <span class="text-red-400">*</span>
         </p>
         <input
+          id="productNameInput"
           name="product_name"
+          type="text"
+          required
+          minlength="3"
           placeholder="Enter product name"
           class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
           value="{{ form.product_name.value|default:'' }}"
         />
       </label>
     </div>
+
+    <!-- Slug -->
     <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
       <label class="flex flex-col min-w-40 flex-1">
-        <p class="text-white text-base font-medium leading-normal pb-2">Slug</p>
+        <p class="text-white text-base font-medium leading-normal pb-2">
+          Slug <span class="text-red-400">*</span>
+        </p>
         <input
+          id="slugInput"
           name="slug"
-          placeholder="Enter slug field"
+          type="text"
+          required
+          placeholder="e.g. nike-air-jordan"
           class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
           value="{{ form.slug.value|default:'' }}"
         />
       </label>
     </div>
+
+    <!-- Price -->
     <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
       <label class="flex flex-col min-w-40 flex-1">
         <p class="text-white text-base font-medium leading-normal pb-2">
-          Price
+          Base Price (Min: ₹1,999) <span class="text-red-400">*</span>
         </p>
         <input
+          id="priceInput"
           type="number"
           name="base_price"
-          placeholder="Enter price"
+          min="1999"
+          step="0.01"
+          required
+          placeholder="Enter price (minimum 1999)"
           class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
           value="{{ form.base_price.value|default:'' }}"
         />
       </label>
     </div>
 
+    <!-- Category -->
     <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
       <label class="flex flex-col min-w-40 flex-1">
         <p class="text-white text-base font-medium leading-normal pb-2">
-          Category
+          Category <span class="text-red-400">*</span>
         </p>
         <select
+          id="categorySelect"
           name="category"
           required
-          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 bg-[image:--select-button-svg] placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
+          class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] h-14 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
         >
           <option value="">Select Category</option>
           {% for category in categories %}
           <option
             value="{{ category.id }}"
-            {%
-            if
-            form.category.value=""
-            ="category.id"
-            %}selected{%
-            endif
-            %}
+            {% if form.category.value|stringformat:"s" == category.id|stringformat:"s" %}selected{% endif %}
           >
-            {{category.name}}
+            {{ category.name }}
           </option>
           {% endfor %}
         </select>
       </label>
     </div>
 
-    <div
-      class="flex items-center gap-4 bg-[#12211c] px-4 min-h-14 justify-between"
-    >
-      <div class="shrink-0"></div>
-    </div>
+    <!-- Description -->
     <div class="flex max-w-[480px] flex-wrap items-end gap-4 px-4 py-3">
       <label class="flex flex-col min-w-40 flex-1">
         <p class="text-white text-base font-medium leading-normal pb-2">
@@ -105,23 +130,21 @@
           name="description"
           placeholder="Enter product description"
           class="form-input flex w-full min-w-0 flex-1 resize-none overflow-hidden rounded-lg text-white focus:outline-0 focus:ring-0 border border-[#356454] bg-[#1a322a] focus:border-[#356454] min-h-36 placeholder:text-[#94c7b6] p-[15px] text-base font-normal leading-normal"
-        >
-           {{ form.description.value|default:'' }}</textarea
-        >
+        >{{ form.description.value|default:'' }}</textarea>
       </label>
     </div>
 
-    <p class="text-yellow-400 text-sm">
-      If validation fails, images must be uploaded again.
+    <p class="text-yellow-400 text-sm px-4">
+      * Note: Main image and 3 to 5 gallery images are required.
     </p>
+
+    <!-- Main Image Crop Section -->
     <h2 class="text-white text-[22px] font-bold px-4 pb-3 pt-5">
-      Product Image
+      Main Product Image <span class="text-red-400">*</span>
     </h2>
 
     <div class="p-4">
-      <div
-        class="border-2 border-dashed border-[#356454] rounded-xl p-6 flex flex-col items-center"
-      >
+      <div class="border-2 border-dashed border-[#356454] rounded-xl p-6 flex flex-col items-center">
         <img
           id="mainPreview"
           src=""
@@ -135,7 +158,6 @@
         </div>
         <input
           id="mainImageInput"
-          name="image"
           type="file"
           accept="image/*"
           class="hidden"
@@ -150,19 +172,21 @@
         <button
           type="button"
           id="removeMainImage"
-          class="mt-3 bg-red-600 px-5 py-2 rounded-lg text-white hidden">
+          class="mt-3 bg-red-600 px-5 py-2 rounded-lg text-white hidden"
+        >
           Remove Image
         </button>
         <input type="hidden" name="cropped_image" id="croppedMainImage" />
       </div>
     </div>
 
+    <!-- Gallery Images Section -->
     <h2 class="text-white text-[22px] font-bold px-4 pb-3 pt-5">
-      Gallery Images
+      Gallery Images (3 to 5 required) <span class="text-red-400">*</span>
     </h2>
     <div class="p-4">
       <div class="border-2 border-dashed border-[#356454] rounded-xl p-6">
-        <div id="galleryGrid" class="grid grid-cols-5 gap-4"></div>
+        <div id="galleryGrid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4"></div>
         <button
           type="button"
           id="addGalleryImages"
@@ -181,6 +205,7 @@
       </div>
     </div>
 
+    <!-- Actions -->
     <div class="flex justify-stretch">
       <div class="flex flex-1 gap-3 flex-wrap px-4 py-3 justify-end">
         <button
@@ -200,13 +225,12 @@
   </form>
 </div>
 
+<!-- Cropper Modal -->
 <div
   id="cropModal"
   class="fixed inset-0 bg-black/80 hidden items-center justify-center z-50"
 >
-  <div
-    class="bg-white rounded-xl w-[850px] max-w-[95vw] max-h-[90vh] flex flex-col"
-  >
+  <div class="bg-white rounded-xl w-[850px] max-w-[95vw] max-h-[90vh] flex flex-col">
     <div class="p-5 border-b">
       <h2 class="text-2xl font-bold">Crop Image</h2>
     </div>
@@ -216,38 +240,19 @@
     </div>
 
     <div class="p-5 border-t flex justify-end gap-3 bg-white">
-      <button
-        type="button"
-        id="resetCrop"
-        class="px-5 py-2 bg-gray-500 text-white rounded"
-      >
-        Reset
-      </button>
-
-      <button
-        type="button"
-        id="cancelCrop"
-        class="px-5 py-2 bg-red-500 text-white rounded"
-      >
-        Cancel
-      </button>
-
-      <button
-        type="button"
-        id="saveCrop"
-        class="px-5 py-2 bg-green-600 text-white rounded"
-      >
-        Crop & Save
-      </button>
+      <button type="button" id="resetCrop" class="px-5 py-2 bg-gray-500 text-white rounded">Reset</button>
+      <button type="button" id="cancelCrop" class="px-5 py-2 bg-red-500 text-white rounded">Cancel</button>
+      <button type="button" id="saveCrop" class="px-5 py-2 bg-green-600 text-white rounded">Crop & Save</button>
     </div>
   </div>
 </div>
 
 <script>
   let cropper = null;
-  let currentType = null; // "main" or "gallery"
+  let currentType = null;
   let galleryFiles = [];
   let galleryIndex = 0;
+
   const modal = document.getElementById("cropModal");
   const cropImage = document.getElementById("cropImage");
   const mainPreview = document.getElementById("mainPreview");
@@ -258,11 +263,22 @@
   const galleryGrid = document.getElementById("galleryGrid");
   const galleryHiddenInputs = document.getElementById("galleryHiddenInputs");
 
-  document
-    .getElementById("selectMainImage")
-    .addEventListener("click", function () {
-      mainInput.click();
-    });
+  // Auto-generate slug from product name
+  document.getElementById("productNameInput").addEventListener("input", function (e) {
+    const nameVal = e.target.value;
+    const slugInput = document.getElementById("slugInput");
+    slugInput.value = nameVal
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[\s_-]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+  });
+
+  // Select Main Image
+  document.getElementById("selectMainImage").addEventListener("click", function () {
+    mainInput.click();
+  });
 
   mainInput.addEventListener("change", function (e) {
     const file = e.target.files[0];
@@ -271,31 +287,23 @@
     openCropper(file);
   });
 
-  document
-.getElementById("removeMainImage")
-.addEventListener("click", function(){
-
-    hiddenMain.value="";
-    mainPreview.src="";
+  document.getElementById("removeMainImage").addEventListener("click", function () {
+    hiddenMain.value = "";
+    mainPreview.src = "";
     mainPreview.classList.add("hidden");
     mainPlaceholder.classList.remove("hidden");
     this.classList.add("hidden");
+  });
 
-});
-
-document
-.getElementById("selectMainImage")
-.textContent="Change Image";
-
-document
-.getElementById("selectMainImage")
-.textContent="Select Image";
-
-  document
-    .getElementById("addGalleryImages")
-    .addEventListener("click", function () {
-      galleryInput.click();
-    });
+  // Gallery Images
+  document.getElementById("addGalleryImages").addEventListener("click", function () {
+    const currentCount = galleryHiddenInputs.children.length;
+    if (currentCount >= 5) {
+      alert("Maximum 5 gallery images allowed.");
+      return;
+    }
+    galleryInput.click();
+  });
 
   galleryInput.addEventListener("change", function (e) {
     galleryFiles = [...e.target.files];
@@ -313,9 +321,7 @@ document
       cropImage.onload = function () {
         modal.classList.remove("hidden");
         modal.classList.add("flex");
-        if (cropper) {
-          cropper.destroy();
-        }
+        if (cropper) cropper.destroy();
         cropper = new Cropper(cropImage, {
           aspectRatio: 1,
           viewMode: 2,
@@ -344,19 +350,24 @@ document
       fillColor: "#ffffff",
     });
     const data = canvas.toDataURL("image/png");
+
     if (currentType === "main") {
       hiddenMain.value = data;
       mainPreview.src = data;
       mainPreview.classList.remove("hidden");
       mainPlaceholder.classList.add("hidden");
-      document
-    .getElementById("removeMainImage")
-    .classList.remove("hidden");
+      document.getElementById("removeMainImage").classList.remove("hidden");
       closeCropper();
     } else {
+      const currentCount = galleryHiddenInputs.children.length;
+      if (currentCount >= 5) {
+        alert("Maximum 5 gallery images reached.");
+        closeCropper();
+        return;
+      }
       addGalleryPreview(data);
       galleryIndex++;
-      if (galleryIndex < galleryFiles.length) {
+      if (galleryIndex < galleryFiles.length && galleryHiddenInputs.children.length < 5) {
         openCropper(galleryFiles[galleryIndex]);
       } else {
         closeCropper();
@@ -365,10 +376,8 @@ document
   });
 
   function addGalleryPreview(data) {
-
     const wrapper = document.createElement("div");
-    wrapper.className =
-        "relative w-36 h-36 rounded-lg overflow-hidden border border-[#356454]";
+    wrapper.className = "relative w-36 h-36 rounded-lg overflow-hidden border border-[#356454]";
 
     const img = document.createElement("img");
     img.src = data;
@@ -377,8 +386,7 @@ document
     const removeBtn = document.createElement("button");
     removeBtn.type = "button";
     removeBtn.innerHTML = "✕";
-    removeBtn.className =
-        "absolute top-1 right-1 w-7 h-7 rounded-full bg-red-600 text-white hover:bg-red-700";
+    removeBtn.className = "absolute top-1 right-1 w-7 h-7 rounded-full bg-red-600 text-white hover:bg-red-700 flex items-center justify-center font-bold text-xs";
 
     const hiddenInput = document.createElement("input");
     hiddenInput.type = "hidden";
@@ -386,16 +394,15 @@ document
     hiddenInput.value = data;
 
     removeBtn.onclick = function () {
-        wrapper.remove();
-        hiddenInput.remove();
+      wrapper.remove();
+      hiddenInput.remove();
     };
 
     wrapper.appendChild(img);
     wrapper.appendChild(removeBtn);
-
     galleryGrid.appendChild(wrapper);
     galleryHiddenInputs.appendChild(hiddenInput);
-}
+  }
 
   function closeCropper() {
     if (cropper) {
@@ -404,69 +411,65 @@ document
     }
     modal.classList.remove("flex");
     modal.classList.add("hidden");
-
     mainInput.value = "";
     galleryInput.value = "";
   }
 
-  document.getElementById("cancelCrop").addEventListener("click", function () {
-    closeCropper();
-  });
+  document.getElementById("cancelCrop").addEventListener("click", closeCropper);
+  document.getElementById("resetCrop").addEventListener("click", () => cropper && cropper.reset());
 
-  document.getElementById("resetCrop").addEventListener("click", function () {
-    if (cropper) {
-      cropper.reset();
+  // FRONTEND FORM SUBMISSION VALIDATION
+  document.getElementById("productForm").addEventListener("submit", function (e) {
+    const errors = [];
+
+    const name = document.getElementById("productNameInput").value.trim();
+    const slug = document.getElementById("slugInput").value.trim();
+    const price = parseFloat(document.getElementById("priceInput").value);
+    const category = document.getElementById("categorySelect").value;
+    const mainImg = hiddenMain.value;
+    const galleryCount = galleryHiddenInputs.children.length;
+
+    if (!name || name.length < 3) {
+      errors.push("Product Name must be at least 3 characters long.");
+    }
+
+    if (!slug) {
+      errors.push("Slug is required.");
+    } else if (!/^[a-z0-9-]+$/.test(slug)) {
+      errors.push("Slug must contain only lowercase letters, numbers, and hyphens.");
+    }
+
+    if (isNaN(price) || price < 1999) {
+      errors.push("Price cannot be below ₹1,999.");
+    }
+
+    if (!category) {
+      errors.push("Please select a Category.");
+    }
+
+    if (!mainImg) {
+      errors.push("Please crop and attach a Main Image.");
+    }
+
+    if (galleryCount < 3) {
+      errors.push(`At least 3 gallery images required (Currently uploaded: ${galleryCount}).`);
+    } else if (galleryCount > 5) {
+      errors.push(`Maximum 5 gallery images allowed (Currently uploaded: ${galleryCount}).`);
+    }
+
+    if (errors.length > 0) {
+      e.preventDefault();
+      const jsErrorBox = document.getElementById("jsErrorBox");
+      const jsErrorList = document.getElementById("jsErrorList");
+      jsErrorList.innerHTML = "";
+      errors.forEach(err => {
+        const li = document.createElement("li");
+        li.textContent = err;
+        jsErrorList.appendChild(li);
+      });
+      jsErrorBox.classList.remove("hidden");
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   });
 </script>
-
-<script>
-  function addVariant() {
-    const container = document.getElementById("variant-container");
-    const div = document.createElement("div");
-    div.classList.add("variant-box", "border", "p-4", "rounded-lg", "mb-4");
-    div.innerHTML = `
-        <input
-          type="text"
-          name="size"
-          placeholder="Size"
-          class="border rounded p-2 w-full mb-2"
-        >
-        <input
-          type="text"
-          name="color"
-          placeholder="Color"
-          class="border rounded p-2 w-full mb-2"
-        >
-        <input
-          type="number"
-          name="variant_stock"
-          placeholder="Stock"
-          class="border rounded p-2 w-full mb-2"
-        >
-        <input
-          type="number"
-          step="0.01"
-          name="variant_price"
-          placeholder="Variant Price"
-          class="border rounded p-2 w-full mb-2"
-        >
-    `;
-    container.appendChild(div);
-  }
-</script>
-
-<script>
-  setTimeout(() => {
-    const messageBox = document.getElementById("message-container");
-    if (messageBox) {
-      messageBox.style.transition = "opacity 0.5s ease";
-      messageBox.style.opacity = "0";
-      setTimeout(() => {
-        messageBox.remove();
-      }, 500);
-    }
-  }, 5000);
-</script>
-
 {% endblock %}

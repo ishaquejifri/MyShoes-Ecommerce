@@ -43,61 +43,58 @@ def product_list(request):
 @admin_required
 @login_required(login_url='admin_login')
 def add_product(request):
-
-    form = ProductForm(request.POST or None, request.FILES or None)
     categories = Category.objects.all()
 
-    
-    files = request.FILES.getlist('gallery_images')
-    cropped_gallery_images = request.POST.getlist('cropped_gallery_images')
-
-    total_images = len(files) if files else len(cropped_gallery_images)
-
     if request.method == 'POST':
-        cropped_image = request.POST.get('cropped_image')
-        cropped_gallery_images = request.POST.getlist('cropped_gallery_images')
 
-        if not cropped_image:
-             messages.error(request,'Please crop the main image before submitting.')
-        elif len(cropped_gallery_images) < 3:
-             messages.error(request,'Please crop and upload atleast 3 gallery images.')
-        elif len(cropped_gallery_images) > 5:
-             messages.error(request,'Maximum 5 gallery images are allowed.')
-        else:
-             form = ProductForm(request.POST,request.FILES)    
+         form = ProductForm(request.POST, request.FILES)
+         cropped_image = request.POST.get('cropped_image','').strip()
+         cropped_gallery_images = request.POST.getlist('cropped_gallery_images')
 
-                  
-             if form.is_valid():
+         #validate image in backend
+         has_image_error = False
+
+         if not cropped_image:
+              messages.error(request,'Main Image Error: Please crop the main image before submitting.')
+              has_image_error = True
+         if len(cropped_gallery_images) < 3:      
+              messages.error(request,'Gallery Image Error: Please crop and upload atleast 3 gallery images.')
+              has_image_error = True 
+         elif len(cropped_gallery_images) > 5:
+              messages.error(request,'Gallery Image Error: Maximum 5 gallery images are allowed.')
+              has_image_error = True
+
+         if form.is_valid() and not has_image_error:
+              try:
                    product = form.save(commit=False)
-                   
-                   
-                    #save cropped main image                 
+                   #save main image
                    format,imgstr = cropped_image.split(';base64,')
                    ext = format.split('/')[-1]
-
                    product.image = ContentFile(
-                        base64.b64decode(imgstr),
-                        name='cropped.' + ext
-                    )
-                    #save product first
-                   product.save()    
-                   
-                    #save gallery images              
-                   for img in cropped_gallery_images:
-                             format, imgstr = img.split(';base64,')
-                             ext = format.split('/')[-1]
-
-                             file = ContentFile(
-                               base64.b64decode(imgstr),
-                               name='gallery.' + ext
-                            )
-
-                             ProductImage.objects.create(product=product, image=file)                                     
-            
+                        base64.b64decode(imgstr),name=f'main_{product.slug}.{ext}')
+                   product.save()
+                   #save gallery images
+                   for idx,img in enumerate('cropped_gallery_images'):
+                        format,imgstr = img.split(';base64,')
+                        ext = format.split('/')[-1]
+                        file = ContentFile(
+                             base64.b64decode(imgstr),
+                             name = f'gallery_{product.slug}_{idx+1}.{ext}')
+                        ProductImage.objects.create(product=product,image=file)
                    messages.success(request,'Product Added Successfully!')
-                   return redirect('products:add_variant',product.id)
-             else:
-                    messages.error(request,'Please correct the form Errors')                           
+
+                   # Redirect using product.uuid or product.id based on URL pattern
+                   redirect_id = getattr(product, 'uuid', product.id)
+                   return redirect('products:add_variant', product_uuid=redirect_id) 
+              except Exception as e:
+                   messages.error(request, f'Error saving product: {str(e)}') 
+         else:
+              if not has_image_error and not form.is_valid():
+                   messages.error(request,'Please correct the form Errors')
+    else:
+         form = ProductForm()        
+                         
+                                
     
     return render(request,'add_product.html',{
         'form': form,
@@ -116,55 +113,49 @@ def edit_product(request,product_uuid):
     if request.method == "POST":
         form = ProductForm(request.POST, request.FILES, instance=product)
 
-        if form.is_valid():
-            updated_product = form.save(commit=False)
+        delete_ids = request.POST.getlist('delete_gallery_images')
+        new_images = request.FILES.getlist('new_gallery_images')
 
-            updated_product.is_blocked = product.is_blocked
-            updated_product.is_listed = product.is_listed
-            updated_product.is_available = product.is_available
-            updated_product.is_deleted = product.is_deleted
+        #calculate total gallery images after deletion and addition
+        existing_count = gallery_images.count()
+        delete_count = len(delete_ids)
+        new_count = len(new_images)
+        final_gallery_count = existing_count - delete_count + new_count
 
-            updated_product.save()
+        gallery_error = None
+        if final_gallery_count < 3:
+             gallery_error = (f'Gallery must have atleast 3 images, you currently have {final_gallery_count}.')
+        elif final_gallery_count > 5:
+             gallery_error = (f'Gallery cannot exeed 5 images, you currently have {final_gallery_count}.')
 
-            variant_ids = request.POST.getlist('variant_id')            
+        if form.is_valid() and not gallery_error:
+             updated_product = form.save(commit=False)
 
-            for img in updated_product.images.all():
+             updated_product.is_blocked = product.is_blocked
+             updated_product.is_listed = product.is_listed
+             updated_product.is_available = product.is_available
+             updated_product.is_deleted = product.is_deleted
 
-               new_image = request.FILES.get(
-                     f'gallery_image_{img.id}'
-                    )
+             updated_product.save()
 
-               if new_image:
-                    img.image = new_image
-                    img.save()
-            
-            delete_ids = request.POST.getlist(
-               'delete_gallery_images'  
-            )
+             if delete_ids:
+                  ProductImage.objects.filter(id__in=delete_ids,product=updated_product).delete()
 
-            if delete_ids:
-                 ProductImage.objects.filter(
-                      id__in=delete_ids,
-                      product=updated_product
-                 ).delete()
+             for image in new_images:
+                  ProductImage.objects.create(product=updated_product, image=image)
 
-            new_images = request.FILES.getlist(
-                 'new_gallery_images'
-            )
-
-            for image in new_images:
-                 ProductImage.objects.create(
-                      product=updated_product,
-                      image=image
-                 )                   
-
-            messages.success(request, 'Product Edited Successfully.')   
-            return redirect('products:product_list')
+             messages.success(request, 'Product updated successfully.') 
+             return redirect('products:product_list') 
         else:
-             messages.error(request,'Please correct the form Errors')
+         
+         if gallery_error:
+              messages.error(request, gallery_error)
+         else:
+              messages.error(request, 'Please correct the form errors below.')
     else:
-        form = ProductForm(instance=product)
-    
+         form = ProductForm(instance=product)
+
+            
     return render(request,'edit_product.html',{ 
         'form': form,
         'product': product,
@@ -217,7 +208,7 @@ def add_variant(request,product_uuid):
                variant.price = product.offer_price or product.base_price
                variant.save()
                messages.success(request, 'Variant Added Successfully.')
-               return redirect('products:product_details', uuid=product_uuid)
+               return redirect('products:product_details', product_uuid=product.uuid)
           else:
                messages.error(request, 'This size and color combination is already exists for this product.')
           
@@ -243,7 +234,7 @@ def edit_variant(request, variant_uuid):
           if form.is_valid():
                form.save()
                messages.success(request, 'Variant Updated Successfully.')
-               return redirect('products:product_details', uuid=variant.product.uuid)
+               return redirect('products:product_details', product_uuid=variant.product.uuid)
           else:
                messages.error(request, 'This size and color combination is already exists for this product.')
      else:
@@ -264,7 +255,7 @@ def delete_variant(request, variant_uuid):
 
      variant.delete()
      messages.success(request, 'Variant Deleted Successfully.')
-     return redirect('products:product_details',uuid=variant_uuid)
+     return redirect('products:product_details', product_uuid=variant.product.uuid)
 
 @never_cache
 @admin_required

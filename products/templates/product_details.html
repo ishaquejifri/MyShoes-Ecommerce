@@ -42,6 +42,7 @@
   <!-- GALLERY IMAGES -->
   <div class="grid grid-cols-4 sm:grid-cols-4 md:grid-cols-4 gap-4">
     {% for img in product.images.all %}
+    {% if img.image and img.image.name %}
     <div
       class="bg-[#1a322a] rounded-xl border border-[#356454] p-2 cursor-pointer hover:border-[#10b77f] hover:scale-105 transition duration-200"
       onclick="changeMainImage('{{ img.image.url }}')"
@@ -53,6 +54,7 @@
         />
       </div>
     </div>
+    {% endif %}
     {% empty %}
     <div class="col-span-4 text-center py-4 text-gray-400 bg-[#1a322a] rounded-lg border border-[#356454]">
       No gallery images available
