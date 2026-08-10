@@ -63,16 +63,18 @@ def user_product_list(request, category_uuid=None):
     if target_uuid:
         try:
             # Validate that target_uuid is actually a valid UUID format
-            valid_uuid = uuid.UUID(str(target_uuid))
-            category = Category.objects.filter(uuid=valid_uuid, is_active=True).first()
+            valid_uuid = uuid.UUID(str(target_uuid))            
         except ValueError:
             # Executes if target_uuid is '3' or any invalid UUID string
-            category = None
+           valid_uuid = None
 
-        if category:
-            products = products.filter(category=category)
-        else:
-            messages.warning(request, 'Category not found.')  
+        if valid_uuid:
+            category = Category.objects.filter(uuid=valid_uuid, is_active=True).first()   
+
+            if category:
+                products = products.filter(category=category)
+            else:
+                messages.warning(request, 'Category not found.')  
 
     wishlist_product_ids = []
 
