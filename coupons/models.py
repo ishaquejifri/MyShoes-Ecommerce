@@ -94,7 +94,15 @@ class Coupon(models.Model):
     @property
     def is_currently_valid(self):
         valid, _ = self.is_valid()
-        return valid    
+        return valid   
+
+    @property
+    def is_expired(self):
+        return timezone.now().date() > self.end_date
+
+    @property
+    def is_limited_reached(self):
+        return bool(self.usage_limit and self.times_used >= self.usage_limit) 
 
     def can_user_use(self,user):
         # checking  a specific user can use this

@@ -35,7 +35,7 @@ def coupon_list(request):
         coupons = coupons.filter(is_active=False) 
 
     paginator = Paginator(coupons, 5)
-    page_number = request.GET.get('page')
+    page_number = request.GET.get('page_number')
     coupons_page = paginator.get_page(page_number)
 
     context = {
