@@ -111,6 +111,11 @@ def add_coupon(request):
                  messages.error(request, 'Please enter a valid minimum purchase amount.') 
                  return render(request, 'add_coupon.html')
 
+            # Ensure fixed discount is strictly lower than minimum purchase
+            if discount_type == 'fixed' and discount_amount >= min_purchase:
+                 messages.error(request, 'Discount amount must be less than minimum purchase.')
+                 return render(request, 'add_coupon.html')
+
             # date validation
             try:
                  start = date.fromisoformat(start_date)
@@ -225,6 +230,11 @@ def edit_coupon(request, coupon_uuid):
           except (ValueError, InvalidOperation):
                messages.error(request, 'Please enter a valid minimum purchase amount.')
                return render(request, 'edit_coupon.html', {'coupon': coupon}) 
+
+          # Ensure fixed discount is strictly lower than minimum purchase
+          if discount_type == 'fixed' and discount_amount_value >= min_purchase:
+               messages.error(request, 'Discount amount must be less than the minimum purchase.')
+               return render(request, 'edit_coupon.html', {'coupon': coupon })
 
           # date validation
           try:
