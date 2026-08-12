@@ -9,6 +9,7 @@ from products.models import ProductVariant
 from wishlist.models import Wishlist
 from django.views.decorators.cache import never_cache
 from decimal import Decimal
+from offers.utils import apply_offer_to_variant
 
 
 
@@ -40,7 +41,10 @@ def add_to_cart(request, product_uuid):
         messages.error(request,'Selected variant is out of stock.')
         return redirect('wishlist')
 
-    cart, created = Cart.objects.get_or_create(user=request.user)
+    pricing = apply_offer_to_variant(variant)
+    unit_price = pricing['final_price']
+
+    cart, created = Cart.objects.get_or_create(user=request.user)   
 
     cart_item, item_created = CartItem.objects.get_or_create(
         cart=cart,
@@ -48,7 +52,7 @@ def add_to_cart(request, product_uuid):
         variant=variant,
         defaults={
             'quantity': 1,
-            'price': product.offer_price or product.base_price
+            'price': unit_price
                   })
 
     #already exists in cart
@@ -64,6 +68,7 @@ def add_to_cart(request, product_uuid):
             messages.error(request,'No More stock available.')
             return redirect('cart:view_cart')
         cart_item.quantity += 1
+        cart_item.price = unit_price
         cart_item.save()
 
         messages.success(request,'Quantity increased in cart')
@@ -84,7 +89,13 @@ def add_to_cart(request, product_uuid):
 def view_cart(request):
     categories = Category.objects.filter(is_active=True)  
     cart, created = Cart.objects.get_or_create(user = request.user)
-    cart_items = cart.items.all()
+    cart_items = cart.items.select_related('product','variant').all()
+
+    for item in cart_items:
+        if item.variant:
+            pricing = apply_offer_to_variant(item.variant)
+            item.price = pricing['final_price']
+            item.save()
 
     cart_count = sum(item.quantity for item in cart.items.all())
     subtotal = sum(item.subtotal() for item in cart_items) 
@@ -135,27 +146,46 @@ def ajax_update_cart(request):
 
         message = ""
 
+        max_limit = getattr(CartItem, 'MAX_QUANTITY_PER_PRODUCT', 5)
+
         if action == 'increase':
-            if cart_item.quantity < cart_item.variant.stock:
+            if cart_item.quantity >= max_limit:
+                message = f'Maximum limit of {max_limit} items reached.'
+            elif cart_item.quantity >= cart_item.variant.stock:
+                message = f'Only {cart_item.variant.stock} items available in stock'    
+            else:
                 cart_item.quantity += 1
                 cart_item.save()
-            else:
-                message = f'Only {cart_item.variant.stock} items available in stock.'   
+            
         elif action == 'decrease':
             if cart_item.quantity > 1:
                 cart_item.quantity -= 1
                 cart_item.save()
 
         cart = cart_item.cart
-        total = sum(item.subtotal() for item in cart_item.cart.items.all())
+        cart_items = cart.items.all()
+
+        cart_subtotal = sum(item.subtotal() for item in cart_items)
+
+        if cart_subtotal >= 5000 or cart_subtotal == 0:
+            shipping_charge = Decimal('0.00')
+        else:
+            shipping_charge = Decimal('40.00') 
+
+        grand_total = cart_subtotal + shipping_charge
+
+        cart_count = sum(item.quantity for item in cart_items)    
+        
 
         return JsonResponse({
             'success': True,
             'message': message,
             'quantity': cart_item.quantity,
-            'subtotal': float(cart_item.subtotal()),
-            'total': float(total),
-            'cart_count': cart_item.cart.items.count()
+            'item_subtotal': float(cart_item.subtotal()),
+            'cart_subtotal': float(cart_subtotal),
+            'shipping_charge': float(shipping_charge),
+            'total': float(grand_total),
+            'cart_count': cart_count,
         })
     return JsonResponse({'success': False, 'message': 'Invalid request method.'})                
 

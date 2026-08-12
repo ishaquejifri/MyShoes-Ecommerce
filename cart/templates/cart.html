@@ -2,192 +2,175 @@
 {% block title %}Cart{% endblock %}
 {% block content %}
 
-              <div class="flex flex-wrap justify-between gap-3 p-4">
-                <p
-                  class="text-[#0d191b] tracking-light text-[32px] font-bold leading-tight min-w-72"
-                >
-                  Shopping Cart
-                </p>
-              </div>
-              {% for item in cart_items %}
-              <div
-                class="flex items-center gap-4 bg-[#f8fbfc] px-4 min-h-[90px] py-3 justify-between border-b border-[#e8eef2]"
-              >
-                <!-- Product Info -->
-                <div class="flex items-center gap-4">
-                  <div
-                    class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-16"
-                    style="background-image: url('{{ item.product.image.url }}');"
-                  ></div>
-                  <div class="flex flex-col justify-center">
-                    <p
-                      class="text-[#0d191b] text-base font-medium leading-normal"
-                    >
-                      {{ item.product.product_name }}
-                    </p>
+  <div class="flex flex-wrap justify-between gap-3 p-4">
+    <p class="text-[#0d191b] tracking-light text-[32px] font-bold leading-tight min-w-72">
+      Shopping Cart
+    </p>
+  </div>
+  
+  {% for item in cart_items %}
+  <div class="flex items-center gap-4 bg-[#f8fbfc] px-4 min-h-[90px] py-3 justify-between border-b border-[#e8eef2]">
+    <!-- Product Info -->
+    <div class="flex items-center gap-4">
+      <div
+        class="bg-center bg-no-repeat aspect-square bg-cover rounded-lg size-16"
+        style="background-image: url('{{ item.product.image.url }}');"
+      ></div>
+      <div class="flex flex-col justify-center">
+        <p class="text-[#0d191b] text-base font-medium leading-normal">
+          {{ item.product.product_name }}
+        </p>
 
-                    <p
-                      class="text-[#4c8d9a] text-sm font-normal leading-normal"
-                    >
-                      Offer: ₹{{ item.product.offer_price }}
-                    </p>
-                    <p
-                      class="text-[#4c8d9a] text-sm font-normal leading-normal"
-                    >
-                      Subtotal: ₹<span id="subtotal-{{ item.id }}"
-                        >{{ item.subtotal }}</span
-                      >
-                    </p>
-                  </div>
-                  <p>Size: {{ item.variant.size }}</p>
-                  <p>Color: {{ item.variant.color }}</p>
-                </div>
-                <!-- Quantity Controls -->
-                <div class="flex items-center gap-3">
-                  <button
-                    onclick="updateCart({{ item.id }}, 'decrease')"
-                    class="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f1f3] text-lg font-bold"
-                  >
-                    -
-                  </button>
+        <!-- Display Unit Price -->
+        <p class="text-[#4c8d9a] text-sm font-normal leading-normal">
+          Price: ₹{{ item.price }}
+        </p>
 
-                  <span id="qty-{{ item.id }}" class="text-base font-medium">
-                    {{ item.quantity }}
-                  </span>
+        <p class="text-[#4c8d9a] text-sm font-normal leading-normal">
+          Subtotal: ₹<span id="subtotal-{{ item.id }}">{{ item.subtotal }}</span>
+        </p>
+      </div>
+      <p>Size: {{ item.variant.size }}</p>
+      <p>Color: {{ item.variant.color }}</p>
+    </div>
 
-                  <button
-                    onclick="updateCart({{ item.id }}, 'increase')"
-                    class="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f1f3] text-lg font-bold"
-                  >
-                    +
-                  </button>
+    <!-- Quantity Controls -->
+    <div class="flex items-center gap-3">
+      <button
+        onclick="updateCart({{ item.id }}, 'decrease')"
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f1f3] text-lg font-bold"
+      >
+        -
+      </button>
 
-                  <a
-                    href="{% url 'cart:remove_from_cart' item.uuid %}"
-                    class="ml-4 text-red-500 text-sm font-medium"
-                  >
-                    Remove
-                  </a>
-                </div>
-              </div>
-              {% empty %}
-              <div class="p-6 text-center text-gray-500">
-                Your cart is empty.
-              </div>
-              {% endfor %}
-            </div>
-            <div class="layout-content-container flex flex-col w-[360px]">
+      <span id="qty-{{ item.id }}" class="text-base font-medium">
+        {{ item.quantity }}
+      </span>
 
-              <h3
-                class="text-[#0d191b] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4"
-              >
-                Cart Summary
-              </h3>
-             
-              <div class="p-4 grid grid-cols-[20%_1fr] gap-x-6">
-                <div
-                  class="col-span-2 grid grid-cols-subgrid border-t border-t-[#cfe3e7] py-5"
-                >
-                  <p class="text-[#4c8d9a] text-sm font-normal leading-normal">
-                    Subtotal
-                  </p>
-                  <p class="text-[#0d191b] text-sm font-normal">
-                    ₹<span id="grand-total-summary">{{ subtotal }}</span>
-                  </p>
-                </div>
+      <button
+        onclick="updateCart({{ item.id }}, 'increase')"
+        class="flex h-8 w-8 items-center justify-center rounded-full bg-[#e7f1f3] text-lg font-bold"
+      >
+        +
+      </button>
 
-                <div
-                  class="col-span-2 grid grid-cols-subgrid border-t border-t-[#cfe3e7] py-5"
-                >
-                  <p class="text-[#499c9c] text-sm font-normal leading-normal">
-                    Shipping
-                  </p>
-                  <p class="text-[#0d1c1c] text-sm font-normal leading-normal">                   
-                    {% if shipping_charge == 0 %}
-                       Free
-                    {% else %}
-                    ₹ {{ shipping_charge }}
-                    {% endif %}                
-                  </p>
-                </div>
-              </div>
+      <a
+        href="{% url 'cart:remove_from_cart' item.uuid %}"
+        class="ml-4 text-red-500 text-sm font-medium"
+      >
+        Remove
+      </a>
+    </div>
+  </div>
+  {% empty %}
+  <div class="p-6 text-center text-gray-500">
+    Your cart is empty.
+  </div>
+  {% endfor %}
 
-              <h3 class="text-[#0d191b] text-lg font-bold px-4 pb-2 pt-4">
-                Grand Total
-              </h3>
-              <p class="text-[#4c8d9a] text-sm font-normal pb-3 pt-1 px-4">
-                ₹<span id="grand-total">{{ total }}</span>
-              </p>
-              <div class="flex px-4 py-3">
-                <a
-                  id="checkout-btn"
-                  href="{% url 'checkout' %}"
-                  class="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 text-base font-bold leading-normal tracking-[0.015em] {% if cart_items %} bg-[#0fa0bd] text-[#f8fbfc] {% else %} bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none {% endif %}"
-                >
-                  <span class="truncate">Checkout</span>
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
+  <!-- Cart Summary -->
+  <div class="layout-content-container flex flex-col w-[360px]">
+    <h3 class="text-[#0d191b] text-lg font-bold leading-tight tracking-[-0.015em] px-4 pb-2 pt-4">
+      Cart Summary
+    </h3>
+    
+    <div class="p-4 grid grid-cols-[20%_1fr] gap-x-6">
+      <div class="col-span-2 grid grid-cols-subgrid border-t border-t-[#cfe3e7] py-5">
+        <p class="text-[#4c8d9a] text-sm font-normal leading-normal">
+          Subtotal
+        </p>
+        <p class="text-[#0d191b] text-sm font-normal">
+          ₹<span id="grand-total-summary">{{ subtotal }}</span>
+        </p>
+      </div>
 
+      <div class="col-span-2 grid grid-cols-subgrid border-t border-t-[#cfe3e7] py-5">
+        <p class="text-[#499c9c] text-sm font-normal leading-normal">
+          Shipping
+        </p>
+        <!-- Added id="shipping-charge" here -->
+        <p id="shipping-charge" class="text-[#0d1c1c] text-sm font-normal leading-normal">                   
+          {% if shipping_charge == 0 %}
+            Free
+          {% else %}
+            ₹{{ shipping_charge }}
+          {% endif %}                
+        </p>
       </div>
     </div>
 
-    <script>
-      function updateCart(itemId, action) {
-        fetch("{% url 'cart:ajax_update_cart' %}", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-            "X-CSRFToken": "{{ csrf_token }}",
-          },
-          body: `item_id=${itemId}&action=${action}`,
-        })
-          .then((response) => response.json())
-          .then((data) => {
-           
-            if (data.message && data.message.trim() !== "") {
-              const toast = document.getElementById("stock-toast");
-              toast.innerText = data.message;
-              toast.classList.remove("hidden");
-              setTimeout(() => {
-                  toast.classList.add("hidden");
-              }, 3000);
-              }
-            console.log(data);
-            document.getElementById(`qty-${itemId}`).innerText = data.quantity;
-            document.getElementById(`subtotal-${itemId}`).innerText =
-              data.subtotal;
-            document.getElementById("grand-total").innerText = data.total;
-            document.getElementById("grand-total-summary").innerText =
-              data.total;
+    <h3 class="text-[#0d191b] text-lg font-bold px-4 pb-2 pt-4">
+      Grand Total
+    </h3>
+    <p class="text-[#4c8d9a] text-sm font-normal pb-3 pt-1 px-4">
+      ₹<span id="grand-total">{{ total }}</span>
+    </p>
 
-            const checkoutBtn = document.getElementById("checkout-btn");
+    <div class="flex px-4 py-3">
+      <a
+        id="checkout-btn"
+        href="{% url 'checkout' %}"
+        class="flex min-w-[84px] max-w-[480px] items-center justify-center overflow-hidden rounded-lg h-12 px-5 flex-1 text-base font-bold leading-normal tracking-[0.015em] {% if cart_items %} bg-[#0fa0bd] text-[#f8fbfc] {% else %} bg-gray-300 text-gray-500 cursor-not-allowed pointer-events-none {% endif %}"
+      >
+        <span class="truncate">Checkout</span>
+      </a>
+    </div>
+  </div>
 
-            if (data.cart_count > 0) {
-              checkoutBtn.disabled = false;
-              checkoutBtn.classList.remove(
-                "bg-gray-300",
-                "text-gray-500",
-                "cursor-not-allowed",
-              );
-              checkoutBtn.classList.add("bg-[#0fa0bd]", "text-[#f8fbfc]");
-            } else {
-              checkoutBtn.disabled = true;
-              checkoutBtn.classList.remove("bg-[#0fa0bd]", "text-[#f8fbfc]");
-              checkoutBtn.classList.add(
-                "bg-gray-300",
-                "text-gray-500",
-                "cursor-not-allowed",
-              );
-            }
-          });
-      }
-    </script>
-  
-<div id="stock-toast"
-     class="hidden fixed top-40 right-5 z-[9999] bg-red-600 text-white px-5 py-3 rounded-lg shadow-xl">
-</div>
+  <script>
+    function updateCart(itemId, action) {
+      fetch("{% url 'cart:ajax_update_cart' %}", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          "X-CSRFToken": "{{ csrf_token }}",
+        },
+        body: `item_id=${itemId}&action=${action}`,
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          if (data.message && data.message.trim() !== "") {
+            const toast = document.getElementById("stock-toast");
+            toast.innerText = data.message;
+            toast.classList.remove("hidden");
+            setTimeout(() => {
+              toast.classList.add("hidden");
+            }, 3000);
+          }
+
+          // Item quantity & item subtotal
+          document.getElementById(`qty-${itemId}`).innerText = data.quantity;
+          document.getElementById(`subtotal-${itemId}`).innerText = data.item_subtotal;
+
+          // Cart Subtotal in summary
+          document.getElementById("grand-total-summary").innerText = data.cart_subtotal;
+
+          // Shipping Charge
+          const shippingElem = document.getElementById("shipping-charge");
+          if (parseFloat(data.shipping_charge) === 0) {
+            shippingElem.innerText = "Free";
+          } else {
+            shippingElem.innerText = `₹${data.shipping_charge}`;
+          }
+
+          // Grand Total
+          document.getElementById("grand-total").innerText = data.total;
+
+          // Checkout button toggle
+          const checkoutBtn = document.getElementById("checkout-btn");
+          if (data.cart_count > 0) {
+            checkoutBtn.disabled = false;
+            checkoutBtn.classList.remove("bg-gray-300", "text-gray-500", "cursor-not-allowed");
+            checkoutBtn.classList.add("bg-[#0fa0bd]", "text-[#f8fbfc]");
+          } else {
+            checkoutBtn.disabled = true;
+            checkoutBtn.classList.remove("bg-[#0fa0bd]", "text-[#f8fbfc]");
+            checkoutBtn.classList.add("bg-gray-300", "text-gray-500", "cursor-not-allowed");
+          }
+        });
+    }
+  </script>
+
+  <div id="stock-toast" class="hidden fixed top-40 right-5 z-[9999] bg-red-600 text-white px-5 py-3 rounded-lg shadow-xl"></div>
 
 {% endblock %}
