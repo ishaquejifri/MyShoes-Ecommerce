@@ -315,15 +315,10 @@
 
             <!-- RIGHT SIDE -->
             <div class="w-[350px] shrink-0">
-              <div
-                 class="sticky top-24 bg-white border border-[#e5eeee] rounded-2xl shadow-sm"
-                >
-              <div class="sticky top-24 bg-white border border-[#e5eeee] rounded-2xl shadow-sm p-2">
-              <h2
-                class="text-[#0d1c1c] text-[22px] font-bold leading-tight tracking-[-0.015em] px-4 pb-3 pt-5"
-              >
-                Order Summary
-              </h2>
+              <div class="sticky top-24 bg-white border border-[#e5eeee] rounded-2xl shadow-sm p-4">
+                <h2 class="text-[#0d1c1c] text-[22px] font-bold leading-tight tracking-[-0.015em] pb-3 pt-2">
+                  Order Summary
+                </h2>
 
               {% for item in cart_items %}
 
@@ -602,50 +597,35 @@
       </form>
 
       <script>
-      function submitCoupon() {
-          const code = document.getElementById('coupon-code-input').value.trim();
-          if (code) {
-              document.getElementById('hidden-coupon-code').value = code;
-              document.getElementById('apply-coupon-form').submit();
-          } else {
-              alert('Please enter a coupon code.');
-          }
-      }
-      function removeCoupon() {
-          document.getElementById('remove-coupon-form').submit();
-      }
-
-      function submitCoupon() {
+  function submitCoupon() {
     const code = document.getElementById('coupon-code-input').value.trim();
     if (code) {
-        document.getElementById('hidden-coupon-code').value = code;
-        document.getElementById('apply-coupon-form').submit();
+      document.getElementById('hidden-coupon-code').value = code;
+      document.getElementById('apply-coupon-form').submit();
     } else {
-        alert('Please enter a coupon code.');
+      alert('Please enter a coupon code.');
     }
-}
+  }
 
-// Quick apply button handler for available coupons
-function applyCouponCode(code) {
+  function applyCouponCode(code) {
     document.getElementById('coupon-code-input').value = code;
     submitCoupon();
-}
+  }
 
-function removeCoupon() {
+  function removeCoupon() {
     document.getElementById('remove-coupon-form').submit();
-}
+  }
 
-      setTimeout(() => {
-        const alerts = document.querySelectorAll('.alert-message');
-        alerts.forEach((alert) => {
-          alert.style.transition = 'opacity 0.5s ease';
-          alert.style.opacity = '0';
-          setTimeout(() => {
-            alert.remove();
-          }, 500);
-        });
-      }, 5000); // 5 seconds
-      </script>
+  // Auto-dismiss alert messages after 5 seconds
+  setTimeout(() => {
+    const alerts = document.querySelectorAll('.alert-message');
+    alerts.forEach((alert) => {
+      alert.style.transition = 'opacity 0.5s ease';
+      alert.style.opacity = '0';
+      setTimeout(() => alert.remove(), 500);
+    });
+  }, 5000);
+</script>
 
   </body>
 </html>

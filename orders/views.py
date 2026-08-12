@@ -18,6 +18,7 @@ from coupons.models import Coupon, CouponUsage
 from payments.models import Payment
 import razorpay
 from django.conf import settings
+from django.utils import timezone
 
 # Create your views here.
 
@@ -36,7 +37,6 @@ def generate_order_id():
 def checkout(request):
     categories = Category.objects.filter(is_active=True)
     cart = get_object_or_404(Cart,user=request.user)
-
     cart_items = cart.items.all()
 
     if not cart_items.exists():
@@ -47,6 +47,38 @@ def checkout(request):
 
     subtotal = sum(item.subtotal() for item in cart_items)
 
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'apply_coupon':
+            code = request.POST.get('coupon_code', '').strip()
+            if not code:
+                messages.error(request, 'Please enter a coupon code.')
+            else:
+                try:
+                    coupon = Coupon.objects.get(code__iexact=code)
+                    is_valid,msg = coupon.is_valid()
+
+                    if not is_valid:
+                        messages.error(request, msg)
+                    elif subtotal < coupon.min_purchase_amount:
+                        messages.error(request, f'Minimum purchase amount for this coupon is ₹ {coupon.min_purchase_amount}.')
+                    else:
+                        can_use,msg_use = coupon.can_user_use(request.user)
+                        if not can_use:
+                            messages.error(request,msg_use)
+                        else:
+                            request.session['coupon_code'] = coupon.code
+                            messages.success(request, f'Coupon {coupon.code} applied successfully.')
+                except Coupon.DoesNotExist:
+                    messages.error(request, 'Invalid coupon code.')
+            return redirect('checkout')
+
+        elif action == 'remove_coupon':
+            request.session.pop('coupon_code',None)
+            messages.info(request, 'Coupon removed.')
+            return redirect('checkout')
+
     if subtotal >= 5000:
         shipping_charge = Decimal('0.00')
     else:
@@ -56,44 +88,36 @@ def checkout(request):
     coupon_code = request.session.get('coupon_code')
     coupon_discount = Decimal('0.00')
     coupon = None
+
     if coupon_code:
-        try:
-            from coupons.models import Coupon
+        try:            
             coupon = Coupon.objects.get(code=coupon_code)
-            is_valid, msg = coupon.is_valid()
-            if is_valid:
-                can_use, msg_use = coupon.can_user_use(request.user)
-                if can_use and subtotal >= coupon.min_purchase_amount:
-                    coupon_discount, _ = coupon.calculate_discount(subtotal)
-                else:
-                    request.session.pop('coupon_code', None)
-                    coupon = None
+            is_valid, = coupon.is_valid()
+            can_use, _ = coupon.can_user_use(request.user)
+            if is_valid and can_use and subtotal >= coupon.min_purchase_amount:
+                coupon_discount, _ = coupon.calculate_discount(subtotal)
             else:
                 request.session.pop('coupon_code', None)
                 coupon = None
+            
         except Coupon.DoesNotExist:
             request.session.pop('coupon_code', None)
+            coupon = None
 
-    # Available coupons for this user
-    from coupons.models import Coupon, CouponUsage
-    from django.db.models import Exists, OuterRef
-    today = __import__('django.utils.timezone', fromlist=['now']).now().date()
-    all_active = Coupon.objects.filter(
-        is_active=True, start_date__lte=today, end_date__gte=today
-    ).annotate(
-        user_has_used=Exists(CouponUsage.objects.filter(coupon=OuterRef('pk'), user=request.user))
-    )
-    available_coupons = []
-    for c in all_active:
-        if c.usage_limit and c.times_used >= c.usage_limit:
-            continue
-        if c.one_time_use and c.user_has_used:
-            continue
-        available_coupons.append(c)
-
+    #calculate total
     total = subtotal + shipping_charge - coupon_discount
 
-    wallet, _ = Wallet.objects.get_or_create(user=request.user)
+    #fetch user wallet
+    wallet, _= Wallet.objects.get_or_create(user=request.user)
+
+    #fetch active available coupons
+    now = timezone.now()
+    available_coupons = Coupon.objects.filter(
+        is_active=True,
+        start_date__lte=now,
+        end_date__gte=now,
+        min_purchase_amount__lte=subtotal        
+    )
 
     context = {
         'categories': categories,
