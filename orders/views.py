@@ -92,7 +92,7 @@ def checkout(request):
     if coupon_code:
         try:            
             coupon = Coupon.objects.get(code=coupon_code)
-            is_valid, = coupon.is_valid()
+            is_valid = coupon.is_valid()
             can_use, _ = coupon.can_user_use(request.user)
             if is_valid and can_use and subtotal >= coupon.min_purchase_amount:
                 coupon_discount, _ = coupon.calculate_discount(subtotal)
@@ -340,7 +340,7 @@ def cancel_order(request,order_id):
 
     if order.status.lower() == 'cancelled':
         messages.warning(request,'Order already cancelled')
-        return redirect('my_orders', order.order_id)
+        return redirect('my_orders')
     
     if request.method == 'POST':
         reason = request.POST.get('reason')
