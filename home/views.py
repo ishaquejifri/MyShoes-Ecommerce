@@ -138,7 +138,6 @@ def user_product_list(request, category_uuid=None):
 @login_required
 def user_product_details(request, product_uuid):
     categories = Category.objects.filter(is_active=True) 
-
     
     try:
         product = Product.objects.get(uuid=product_uuid, is_deleted=False)
@@ -153,14 +152,29 @@ def user_product_details(request, product_uuid):
         status=404
     )
 
-    variants = product.variants.all()
-
-    first_variant = variants.filter(is_active=True).first()
+    variants = product.variants.filter(is_active=True)
+    first_variant = variants.first()
 
     if first_variant:
-        pricing = apply_offer_to_variant(first_variant)
+        # Case A: If images are directly attached to the Variant model (variant.images)
+        if hasattr(first_variant, 'images'):
+            product_images = first_variant.images.all()
+
+        # Case B: If ProductImage model has a 'variant' ForeignKey
+        elif hasattr(product.images.model, 'variant'):
+            product_images = product.images.filter(variant=first_variant)
+
+        # Case C: If ProductImage model has a 'color' field
+        elif hasattr(product.images.model, 'color'):
+            product_images = product.images.filter(color=first_variant.color)
+
+        else:
+            product_images = product.images.all()
     else:
-        pricing = None
+        product_images = []
+
+    
+    pricing = apply_offer_to_variant(first_variant) if first_variant else None
 
     sizes = variants.values_list('size', flat=True).distinct()
     colors = variants.values_list('color', flat=True).distinct()
@@ -175,13 +189,17 @@ def user_product_details(request, product_uuid):
         is_blocked=False
     ).exclude(id=product.id)[:4]
 
-    if not product.is_available or product.is_blocked:
-        messages.error(request,'Product Unavailable')
-        return redirect('product_unavailable')
-
+    for rel_product in related_products:
+        rel_variant = rel_product.variants.filter(is_active=True).first()
+        if rel_variant:
+            rel_product.pricing = apply_offer_to_variant(rel_variant)
+        else:
+            rel_product.pricing = None
+    
     return render(request,'user_product_details.html',{
         'product': product,
         'pricing': pricing,
+        'product_images': product_images,
         'related_products': related_products,
         'categories': categories,
         'variants': variants,
