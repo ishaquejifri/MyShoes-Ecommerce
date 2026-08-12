@@ -41,7 +41,7 @@
           Edit variant details below
         </p>
 
-        <form method="POST" class="space-y-5">
+        <form method="POST" enctype="multipart/form-data" class="space-y-4">
           {% csrf_token %}
 
           <!-- Size -->
@@ -60,6 +60,13 @@
           <div>
             <label class="block text-white text-sm font-medium mb-2">Stock</label>
             {{ form.stock }}
+          </div>
+          <div>
+              <label class="block text-white mb-1">Variant Images</label>
+                {{ form.images }}
+                {% if form.images.help_text %}
+                <p class="text-xs text-gray-400 mt-1">{{ form.images.help_text }}</p>
+                {% endif %}
           </div>
 
           <!-- Buttons -->

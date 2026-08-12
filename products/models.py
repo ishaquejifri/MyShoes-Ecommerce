@@ -145,35 +145,6 @@ def product_base_price_change(sender, instance, created=False, **kwargs):
     # Note: Product.objects.update doesn't trigger post_save, so it's safe.
     recalculate_product_offer_price(instance)
 
-    
-
-class ProductImage(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
-    image = models.ImageField(upload_to='products/gallery/')
-
-    def __str__(self):
-        return self.product.product_name
-    
-    def save(self, *args, **kwargs):
-        super().save(*args, **kwargs)
-
-        img = Image.open(self.image.path)
-
-        width, height = img.size
-        min_dim = min(width,height)
-
-        left = (width - min_dim) // 2
-        top = (height - min_dim) // 2
-        right = (width + min_dim)
-        bottom = (width + min_dim)
-
-        img = img.crop((left,top,right,bottom))
-        img = img.resize((500, 500))
-
-        img.save(self.image.path)
-
-
-
 class ProductVariant(models.Model):
     SIZE_CHOICES = [
         ('7', '7'),
@@ -201,7 +172,41 @@ class ProductVariant(models.Model):
                 fields=['product', 'size', 'color'],
                 name='unique_product_variant'
             )
-        ]
+        ]    
+
+    
+
+class ProductImage(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
+    variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='images', null=True,blank=True)
+
+    image = models.ImageField(upload_to='products/gallery/')
+
+    def __str__(self):
+        return f'{self.product.product_name} - {self.variant if self.variant else "General"}'
+    
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+
+        if self.image and hasattr(self.image, 'path'):
+            img = Image.open(self.image.path)
+
+            width, height = img.size
+            min_dim = min(width, height)
+
+            left = (width - min_dim) // 2
+            top = (height - min_dim) // 2
+            right = left + min_dim
+            bottom = top + min_dim
+
+            img = img.crop((left,top,right,bottom))
+            img = img.resize((500, 500))
+
+            img.save(self.image.path)
+
+
+
+
 
 
 

@@ -1,8 +1,8 @@
 {% extends 'admin_base.html' %}
 {% block title %} Add Variant {% endblock %}
 {% block content %}
-          
-          <div class="layout-content-container flex flex-col max-w-[960px] flex-1">
+
+<div class="layout-content-container flex flex-col max-w-[960px] flex-1">
 
   <!-- Header -->
   <div class="flex flex-wrap justify-between gap-3 p-4">
@@ -19,10 +19,8 @@
   <!-- Main Layout -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 p-4">
 
-    <!-- LEFT SIDE : Product Images -->
+    <!-- LEFT SIDE : Product Main & General Images -->
     <div class="flex flex-col gap-4">
-
-      <!-- Main Image -->
       <div class="bg-[#1a322a] p-3 rounded-xl shadow-md">
         {% if product.image %}
         <img id="mainImage"
@@ -33,7 +31,6 @@
         {% endif %}
       </div>
 
-      <!-- Gallery -->
       <div class="grid grid-cols-4 gap-3">
         {% for img in product.images.all %}
         <div class="bg-[#1a322a] p-2 rounded-lg hover:scale-105 transition duration-200 cursor-pointer border border-[#356454]">
@@ -42,41 +39,68 @@
                onclick="changeMainImage(this)">
         </div>
         {% empty %}
-        <p class="text-red-400">No gallery images</p>
+        <p class="text-red-400 col-span-4">No gallery images</p>
         {% endfor %}
       </div>
-
     </div>
 
     <!-- RIGHT SIDE : Variant Form -->
     <div class="bg-[#1a322a] rounded-xl p-6 shadow-md border border-[#356454]">
 
-      <h2 class="text-white text-xl font-bold mb-6">
+      <h2 class="text-white text-xl font-bold mb-4">
         Select Size, Color & Stock
       </h2>
 
-      <form method="POST" class="space-y-4">
-        {% csrf_token %}
+      <!-- Global Form Errors -->
+      {% if form.non_field_errors %}
+      <div class="bg-red-500/20 border border-red-500 text-red-300 p-3 rounded-lg mb-4 text-sm">
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
 
-        <div>
-          <label class="block text-sm font-medium text-[#92c9b7] mb-2">Size</label>
-          {{ form.size }}
-        </div>
+      <form method="POST" enctype="multipart/form-data" class="space-y-4">
+          {% csrf_token %}
+          
+          <div>
+              <label class="block text-white mb-1">Size</label>
+              {{ form.size }}
+              {% if form.size.errors %}
+                <p class="text-xs text-red-400 mt-1">{{ form.size.errors.0 }}</p>
+              {% endif %}
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-[#92c9b7] mb-2">Color</label>
-          {{ form.color }}
-        </div>
+          <div>
+              <label class="block text-white mb-1">Color</label>
+              {{ form.color }}
+              {% if form.color.errors %}
+                <p class="text-xs text-red-400 mt-1">{{ form.color.errors.0 }}</p>
+              {% endif %}
+          </div>
 
-        <div>
-          <label class="block text-sm font-medium text-[#92c9b7] mb-2">Stock</label>
-          {{ form.stock }}
-        </div>
+          <div>
+              <label class="block text-white mb-1">Stock</label>
+              {{ form.stock }}
+              {% if form.stock.errors %}
+                <p class="text-xs text-red-400 mt-1">{{ form.stock.errors.0 }}</p>
+              {% endif %}
+          </div>
 
-        <button type="submit"
-          class="w-full bg-[#10b77f] text-[#11221c] font-bold py-3 rounded-lg hover:bg-[#0ea56f] transition">
-          Add Variant
-        </button>
+          <div>
+              <label class="block text-white mb-1">Variant Images (Multiple)</label>
+              {{ form.images }}
+              {% if form.images.errors %}
+                <p class="text-xs text-red-400 mt-1">{{ form.images.errors.0 }}</p>
+              {% endif %}
+              {% if form.images.help_text %}
+                  <p class="text-xs text-gray-400 mt-1">{{ form.images.help_text }}</p>
+              {% endif %}
+          </div>
+
+          <button type="submit" class="w-full py-2.5 bg-[#10b77f] text-[#11221c] font-bold rounded-lg hover:bg-[#0ea56f] transition">
+              Save Variant
+          </button>
       </form>
 
     </div>
@@ -84,11 +108,10 @@
   </div>
 </div>
 
-         <script>
+<script>
 function changeMainImage(element) {
     document.getElementById("mainImage").src = element.src;
 }
 </script>
-
 
 {% endblock %}

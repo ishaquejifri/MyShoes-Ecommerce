@@ -172,10 +172,22 @@ def product_details(request,product_uuid):
     product = get_object_or_404(Product,uuid=product_uuid)
     variants = product.variants.all()
 
+    general_images = [
+         img.image.url for img in product.images.filter(variant__isnull=True) if img.image
+    ]
+
+    if not general_images and product.image:
+         general_images = [product.image.url]
+
     pricing = {}
+    variant_images = {}
 
     for variant in variants:
          pricing[variant.id] = apply_offer_to_variant(variant)
+
+         v_imgs = [img.image.url for img in variant.images.all() if img.image]
+
+         variant_images[str(variant.uuid)] = v_imgs if v_imgs else general_images  
 
     sizes = variants.values_list('size', flat=True).distinct()
     colors = variants.values_list('color', flat=True).distinct()
@@ -187,30 +199,38 @@ def product_details(request,product_uuid):
          'colors': colors,
          'sizes': sizes,
          'pricing': pricing,
+         'general_images': general_images,
+         'variant_images': variant_images,
 
          })
 
 @never_cache
 @admin_required
 @login_required(login_url='admin_login') 
-def add_variant(request,product_uuid):
+def add_variant(request, product_uuid):
      
-     product = get_object_or_404(Product,uuid=product_uuid)
+     product = get_object_or_404(Product, uuid=product_uuid)
 
      if request.method=="POST":
           form = ProductVariantForm(
                request.POST,
-               initial={'product': product})
+               request.FILES)               
 
           if form.is_valid():
                variant = form.save(commit=False)
                variant.product = product
                variant.price = product.offer_price or product.base_price
                variant.save()
+
+               images = request.FILES.getlist('images')
+               for img in images:
+                    ProductImage.objects.create(
+                         product = product,
+                         variant = variant,
+                         image = img
+                    )
                messages.success(request, 'Variant Added Successfully.')
-               return redirect('products:product_details', product_uuid=product.uuid)
-          else:
-               messages.error(request, 'This size and color combination is already exists for this product.')
+               return redirect('products:product_details', product_uuid=product.uuid)          
           
      else:
           form = ProductVariantForm(initial={'product': product}) 
@@ -229,10 +249,18 @@ def edit_variant(request, variant_uuid):
      variant = get_object_or_404(ProductVariant, uuid=variant_uuid)
 
      if request.method == "POST":
-          form = ProductVariantForm(request.POST, instance=variant)
+          form = ProductVariantForm(request.POST, request.FILES, instance=variant)
 
           if form.is_valid():
                form.save()
+
+               images = request.FILES.getlist('images')
+               for img in images:
+                    ProductImage.objects.create(
+                        variant=variant,
+                        image=img
+
+                    )
                messages.success(request, 'Variant Updated Successfully.')
                return redirect('products:product_details', product_uuid=variant.product.uuid)
           else:

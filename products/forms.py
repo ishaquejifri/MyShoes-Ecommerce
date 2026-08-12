@@ -2,6 +2,7 @@ import re
 from django import forms
 from .models import Product,ProductVariant
 
+
 class ProductForm(forms.ModelForm):
     
     class Meta:
@@ -49,7 +50,33 @@ class ProductForm(forms.ModelForm):
         super().__init__(*args, **kwargs)
         self.fields['image'].required = False 
 
+class MultipleFileInput(forms.FileInput):
+    allow_multiple_selected = True
+
+class MultipleFileField(forms.FileField):
+    def __init__(self, *args, **kwargs):
+        kwargs.setdefault("widget", MultipleFileInput())
+        super().__init__(*args, **kwargs)
+
+    def clean(self, data, initial=None):
+        single_file_clean = super().clean
+        if isinstance(data, (list, tuple)):
+            result = [single_file_clean(d, initial) for d in data]
+        else:
+            result = [single_file_clean(data, initial)]
+        return result
+       
+
 class ProductVariantForm(forms.ModelForm):
+
+    images = MultipleFileField(
+        widget = MultipleFileInput(attrs={
+            'multiple': True,
+            'class': 'w-full rounded-lg bg-[#11221c] border border-[#356454] text-white'
+        }),
+        required=False,
+        help_text='Upload images specific to this color variant.'
+    )
     class Meta:
         model = ProductVariant
         fields = ['size','color','stock']
@@ -73,19 +100,20 @@ class ProductVariantForm(forms.ModelForm):
         if size and color:
             product = self.instance.product if self.instance.pk else self.initial.get('product')
 
-            variant = ProductVariant.objects.filter(
+            if product:
+                variant = ProductVariant.objects.filter(
                 product = product,
                 size__iexact=size.strip(),
                 color__iexact=color.strip()
-            )                 
+                )                 
 
-            if self.instance.pk:
-                variant = variant.exclude(pk=self.instance.pk)
+                if self.instance.pk:
+                    variant = variant.exclude(pk=self.instance.pk)
 
-            if variant.exists():
-                raise forms.ValidationError(
+                if variant.exists():
+                    raise forms.ValidationError(
                     'This size and color combination is already exists for this product.'
-                )
+                    )
         
         return cleaned_data
 
