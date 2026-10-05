@@ -1,0 +1,387 @@
+{% extends "user_base.html" %}
+
+{% block content %}
+
+<div class="max-w-6xl mx-auto px-4 py-10">
+
+    <!-- Header -->
+
+    <div class="text-center mb-10">
+
+        <h1 class="text-3xl font-bold">
+            AI Shoe Assistant
+        </h1>
+
+        <p class="text-gray-500 mt-2">
+            Tell us what kind of shoes you're looking for.
+        </p>
+
+    </div>
+
+
+    <!-- Search Box -->
+
+    <div class="max-w-3xl mx-auto">
+
+        <form
+            id="ai-search-form"
+            class="bg-white rounded-xl shadow p-6"
+        >
+
+            <label
+                for="ai-message"
+                class="block font-medium mb-2"
+            >
+                Describe your requirements
+            </label>
+
+
+            <textarea
+                id="ai-message"
+                maxlength="1000"
+                rows="4"
+                class="w-full border rounded-lg p-4"
+                placeholder="Example: I need comfortable black formal shoes for office under ₹3000, size 9."
+            ></textarea>
+
+
+            <button
+                type="submit"
+                id="ai-search-button"
+                class="mt-4 px-6 py-3 rounded-lg bg-green-700 text-white"
+            >
+                Find My Shoes
+            </button>
+
+        </form>
+
+
+        <!-- Loading -->
+
+        <div
+            id="ai-loading"
+            class="hidden text-center mt-6"
+        >
+            <p class="text-gray-500">
+                AI is finding suitable shoes...
+            </p>
+        </div>
+
+
+        <!-- Error -->
+
+        <div
+            id="ai-error"
+            class="hidden mt-6 p-4 rounded-lg bg-red-50 text-red-700"
+        ></div>
+
+    </div>
+
+
+    <!-- Results -->
+
+    <div
+        id="ai-results"
+        class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mt-10"
+    ></div>
+
+</div>
+
+
+<script>
+
+const form =
+    document.getElementById(
+        "ai-search-form"
+    );
+
+const messageInput =
+    document.getElementById(
+        "ai-message"
+    );
+
+const resultsContainer =
+    document.getElementById(
+        "ai-results"
+    );
+
+const loading =
+    document.getElementById(
+        "ai-loading"
+    );
+
+const errorContainer =
+    document.getElementById(
+        "ai-error"
+    );
+
+const button =
+    document.getElementById(
+        "ai-search-button"
+    );
+
+
+form.addEventListener(
+    "submit",
+    async function(event) {
+
+        event.preventDefault();
+
+
+        const message =
+            messageInput.value.trim();
+
+
+        // Clear previous results
+
+        resultsContainer.innerHTML = "";
+
+        errorContainer.classList.add(
+            "hidden"
+        );
+
+
+        // Validate input
+
+        if (!message) {
+
+            showError(
+                "Please describe the shoes you are looking for."
+            );
+
+            return;
+        }
+
+
+        // Loading state
+
+        loading.classList.remove(
+            "hidden"
+        );
+
+        button.disabled = true;
+
+
+        try {
+
+            const response =
+                await fetch(
+                    "{% url 'ai_assist:ai_search' %}",
+                    {
+
+                        method: "POST",
+
+                        headers: {
+
+                            "Content-Type":
+                                "application/json",
+
+                            "X-CSRFToken":
+                                getCookie(
+                                    "csrftoken"
+                                )
+
+                        },
+
+                        body: JSON.stringify({
+
+                            message: message
+
+                        })
+
+                    }
+                );
+
+
+            const data =
+                await response.json();
+
+
+            if (
+                !response.ok ||
+                !data.success
+            ) {
+
+                throw new Error(
+                    data.error ||
+                    "Something went wrong."
+                );
+
+            }
+
+
+            displayProducts(
+                data.products
+            );
+
+
+        } catch (error) {
+
+            showError(
+                error.message
+            );
+
+        } finally {
+
+            loading.classList.add(
+                "hidden"
+            );
+
+            button.disabled = false;
+
+        }
+
+    }
+);
+
+
+function showError(message) {
+
+    errorContainer.textContent =
+        message;
+
+    errorContainer.classList.remove(
+        "hidden"
+    );
+
+}
+
+
+function displayProducts(products) {
+
+    if (!products.length) {
+
+        resultsContainer.innerHTML = `
+
+            <div
+                class="col-span-full text-center p-8"
+            >
+
+                <h3
+                    class="text-xl font-semibold"
+                >
+                    No exact matches found
+                </h3>
+
+                <p
+                    class="text-gray-500 mt-2"
+                >
+                    Try changing your budget,
+                    category, color, or size.
+                </p>
+
+            </div>
+
+        `;
+
+        return;
+    }
+
+
+    resultsContainer.innerHTML =
+        products.map(
+            product => `
+
+            <div
+                class="bg-white rounded-xl shadow overflow-hidden"
+            >
+
+                ${
+                    product.image
+                    ?
+                    `
+                    <img
+                        src="${product.image}"
+                        alt="${product.name}"
+                        class="w-full h-56 object-cover"
+                    >
+                    `
+                    :
+                    ""
+                }
+
+
+                <div class="p-4">
+
+                    <h3
+                        class="font-semibold text-lg"
+                    >
+                        ${product.name}
+                    </h3>
+
+
+                    <p
+                        class="font-bold mt-2"
+                    >
+                        ₹${product.price}
+                    </p>
+
+
+                    <a
+                        href="/user-products/${product.slug}/"
+                        class="inline-block mt-4 px-4 py-2 bg-green-700 text-white rounded-lg"
+                    >
+                        View Product
+                    </a>
+
+                </div>
+
+            </div>
+
+        `
+        ).join("");
+
+}
+
+
+function getCookie(name) {
+
+    let cookieValue = null;
+
+
+    if (
+        document.cookie &&
+        document.cookie !== ""
+    ) {
+
+        const cookies =
+            document.cookie.split(";");
+
+
+        for (
+            let cookie of cookies
+        ) {
+
+            cookie =
+                cookie.trim();
+
+
+            if (
+                cookie.substring(
+                    0,
+                    name.length + 1
+                ) ===
+                name + "="
+            ) {
+
+                cookieValue =
+                    decodeURIComponent(
+                        cookie.substring(
+                            name.length + 1
+                        )
+                    );
+
+                break;
+            }
+
+        }
+
+    }
+
+
+    return cookieValue;
+}
+
+</script>
+
+{% endblock %}
