@@ -45,6 +45,7 @@ INSTALLED_APPS = [
     'home',
     'accounts',
     'adminpanel',
+    'ai_assist',
     'banner',
     'category',
     'payments',
@@ -211,3 +212,11 @@ SOCIALACCOUNT_QUERY_EMAIL = True
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET')
 RAZORPAY_WEBHOOK_SECRET= os.getenv('RAZORPAY_WEBHOOK_SECRET')
+
+# OpenAI settings
+OPENAI_API_KEY = os.getenv('OPENAI_API_KEY')
+
+if not OPENAI_API_KEY:
+    raise ValueError(
+        'OPENAI_API_KEY is not configured.'
+    )
