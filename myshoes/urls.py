@@ -19,5 +19,6 @@ urlpatterns = [
     path('payments/',include('payments.urls')),
     path('offers/',include('offers.urls')),
     path('banner/', include('banner.urls')),
+    path('ai_assist/',include('ai_assist.urls')),
 
 ] + static(settings.MEDIA_URL, document_root = settings.MEDIA_ROOT)
