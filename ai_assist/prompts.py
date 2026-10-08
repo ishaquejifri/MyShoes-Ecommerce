@@ -10,12 +10,12 @@ valid JSON.
 The JSON must contain exactly these fields:
 
 {
-    "category": null,
-    "purpose": null,
-    "color": null,
-    "size": null,
-    "max_budget": null,
-    "features": []
+    "category": "running" | "casual" | "formal" | "boots" | null,
+    "purpose": string | null,
+    "color": string | null,
+    "size": string | null,
+    "max_budget": number | null,
+    "features": list of strings
 }
 
 Allowed categories are:
