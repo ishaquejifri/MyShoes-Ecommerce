@@ -220,3 +220,5 @@ if not OPENAI_API_KEY:
     raise ValueError(
         'OPENAI_API_KEY is not configured.'
     )
+
+GEMINI_API_KEY = os.getenv('GEMINI_API_KEY')
