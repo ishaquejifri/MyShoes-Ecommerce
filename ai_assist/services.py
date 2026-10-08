@@ -4,30 +4,53 @@ from openai import OpenAI
 from .prompts import SYSTEM_PROMPT
 from .validators import validate_ai_response
 from products.models import Product
+from google import genai
+from google.genai import types
+from google.genai.errors import ServerError,APIError
 
-client = OpenAI(
-    api_key=settings.OPENAI_API_KEY
+client = genai.Client(
+     api_key=settings.GEMINI_API_KEY
 )
-            
+
+FALLBACK_MODELS = [
+    'gemini-3.8-flash',
+    'gemini-3.5-flash-lite',
+    'gemini-3.1-flash-lite',
+]
+
+
 def analyze_shoe_request(user_message):
+    response = None
+    last_exception = None
 
-    response = client.responses.create(
-        model='gpt-5.4-mini',
-        instructions=SYSTEM_PROMPT,
-        input=user_message,
-    )
+    for model_name in FALLBACK_MODELS:
+        try:
+            response = client.models.generate_content(
+            model=model_name,
+            contents=user_message,
+            config=types.GenerateContentConfig(
+            system_instruction=SYSTEM_PROMPT,
+            response_mime_type='application/json',
+            )
+            )
+            break
+        except (ServerError,APIError) as e:
+            last_exception = e
+            continue
+    if not response:
+        raise RuntimeError(f'All AI models are currently busy. error:{last_exception}')    
 
-    raw_output = response.output_text.strip()
+    raw_output = response.text.strip()
 
     try:
         data = json.loads(raw_output)
     except json.JSONDecodeError as exc:
         raise ValueError(
-            'AI returned Invalid JSON.'
+            'AI returned Invalid JSON format.'
         ) from exc
 
 
-    return validate_ai_response 
+    return validate_ai_response(data) 
 
 def find_matching_products(requirements):
 
@@ -56,7 +79,8 @@ def find_matching_products(requirements):
             if final_price <= max_budget:
                 filtered_products.append(product)
 
-        products = filtered_products
+        product_ids = [p.id for p in filtered_products]
+        products = Product.objects.filter(id__in=product_ids)
             
         
     color = requirements.get('color')
@@ -65,7 +89,7 @@ def find_matching_products(requirements):
         products = products.filter(
             variants__color__iexact=color,
             variants__is_active=True,
-            variant__stock__gt=0
+            variants__stock__gt=0
         ) 
 
     size = requirements.get('size')
